@@ -133,6 +133,24 @@ repo/
 
 When you ask for a feature, bug fix, change, analysis, or review, PAVE normally:
 
+```mermaid
+flowchart TD
+    A["Request arrives"] --> B["Classify request"]
+    B --> C["Read project rules"]
+    C --> D["Scan code and docs"]
+    D --> E{"Product or policy ambiguity?"}
+    E -- "Yes" --> F["Ask and resolve questions"]
+    F --> G["Create or update plan"]
+    E -- "No" --> G
+    G --> H["Request one approval before edits"]
+    H --> I["Run Red / Green / Review loop"]
+    I -.->|Use when helpful| J["Specialist subagents"]
+    I --> K["Run declared verification"]
+    K -- "Fails with a plausible fix" --> I
+    K -- "Blocked" --> L["Write blocked report"]
+    K -- "Passes" --> M["Write final report"]
+```
+
 1. Reads project instructions.
 2. Scans the relevant code and docs.
 3. Asks product, policy, design, deployment, and verification questions before implementation.
