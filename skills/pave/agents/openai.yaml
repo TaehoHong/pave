@@ -1,0 +1,6 @@
+interface:
+  display_name: "PAVE"
+  short_description: "Plan, approve, verify, and execute software work."
+  default_prompt: "Use $pave to initialize this repo or run feature work with planning and verification."
+policy:
+  allow_implicit_invocation: true
