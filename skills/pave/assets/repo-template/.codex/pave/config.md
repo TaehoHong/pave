@@ -10,10 +10,19 @@
   remove ambiguity before implementation.
 - Durable artifacts: `plans/`, `reports/`, and optional `.wiki/`.
 
+## Companions
+
+- Profile: `default`.
+- Superpowers: required for default PAVE operation when available.
+- gstack: optional by default; required only when the repo selects the
+  `full` companion profile.
+- Offline or unusual setups may use profile `none`, but must report
+  fallback mode before claiming harness behavior.
+
 ## Request Routing
 
 - Project initialization: create PAVE runtime, agent files, docs,
-  and declared verification commands.
+  declared verification commands, and companion checks.
 - Feature/change: plan first, then Red-Green-Review.
 - Bug: investigate root cause before proposing fixes.
 - Analysis: scan repo, cite evidence, avoid edits unless requested.

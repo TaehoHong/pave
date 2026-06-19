@@ -1,0 +1,20 @@
+{
+  "name": "pave",
+  "interface": {
+    "displayName": "PAVE"
+  },
+  "plugins": [
+    {
+      "name": "pave",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pave"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

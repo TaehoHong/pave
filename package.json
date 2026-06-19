@@ -1,0 +1,13 @@
+{
+  "name": "pave",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check scripts/*.js && bash -n scripts/*.sh"
+  }
+}

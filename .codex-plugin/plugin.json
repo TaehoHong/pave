@@ -28,9 +28,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use $pave to initialize this repository.",
-      "Use $pave to implement this feature.",
-      "Use $pave to fix this bug with verification."
+      "Initialize this repository with PAVE.",
+      "Plan and implement this feature with PAVE.",
+      "Fix this bug with PAVE and verify it."
     ]
   }
 }

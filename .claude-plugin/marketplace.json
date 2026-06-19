@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pave",
+  "description": "PAVE Claude Code plugin marketplace.",
+  "owner": {
+    "name": "TaehoHong"
+  },
+  "plugins": [
+    {
+      "name": "pave",
+      "description": "Plan, Approve, Verify, Execute: a Claude Code plugin for session-based agentic development workflows.",
+      "version": "0.1.0",
+      "author": {
+        "name": "TaehoHong"
+      },
+      "category": "development",
+      "source": "./plugins/pave",
+      "homepage": "https://github.com/TaehoHong/pave"
+    }
+  ]
+}

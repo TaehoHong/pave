@@ -1,6 +1,6 @@
 ---
 name: pave
-description: Use when Codex is asked to initialize a repository, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, continue an approved task, coordinate bounded specialist subagents, create or update .codex/pave plans, run verification, or produce final and blocked development reports.
+description: Use when Codex is asked to initialize a repository with PAVE runtime, configure Superpowers or gstack companion checks, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, continue an approved task, coordinate bounded specialist subagents, create or update .codex/pave plans, run verification, or produce final and blocked development reports.
 ---
 
 # PAVE
@@ -29,11 +29,22 @@ session harness for software development work.
    product/policy ambiguity changes.
 7. Never claim completion without fresh verification evidence.
 
+## Companion Policy
+
+- Default install means PAVE + Superpowers.
+- Full install means PAVE + Superpowers + gstack.
+- Superpowers is required for default PAVE operation when available.
+- gstack is optional unless the user explicitly asks for the full
+  companion profile.
+- Do not present a skill prompt as the plugin installation method.
+- Do not invent plugin manifest dependency fields; use installer and
+  doctor checks for companion status.
+
 ## Fast Path
 
 Classify the request:
 
-- Project initialization: read `references/project-init.md`.
+- Project initialization or repo runtime setup: read `references/project-init.md`.
 - Feature or behavior change: read `references/planning.md`, then
   `references/execution-loop.md`.
 - Bug: read `references/request-routing.md`, then use systematic
@@ -62,9 +73,17 @@ helpers. Use assets from `assets/` when initializing or syncing a repo.
 
 ## Scripts
 
-- Initialize a repo: `scripts/init_repo.py <repo-path>`
-- Check a repo: `scripts/doctor.py <repo-path>`
-- Re-sync templates: `scripts/sync_template.py <repo-path>`
+- Codex plugin install: `codex plugin marketplace add TaehoHong/pave --ref main`,
+  then `codex plugin add pave@pave`
+- Claude Code plugin install:
+  `claude plugin marketplace add TaehoHong/pave`,
+  then `claude plugin install pave@pave`
+- Local source plugin install helper: `scripts/install_plugin.sh`
+- Repo runtime install: `scripts/install.sh <repo-path>`
+- Check companions: `scripts/check_companions.sh`
+- Initialize a repo with JavaScript: `scripts/init_repo.js <repo-path>`
+- Check a repo: `scripts/doctor.js <repo-path>`
+- Re-sync templates: `scripts/sync_template.js <repo-path>`
 
 Scripts are optional helpers. Read their `--help` output before use when
 the requested action is sensitive or repo-specific.
