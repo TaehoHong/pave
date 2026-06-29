@@ -17,13 +17,46 @@ or configure PAVE with Superpowers or gstack.
 1. Read repo instructions and inspect the project tree.
 2. Identify framework, package manager, test runner, build command,
    deployment shape, and existing docs.
-3. Ask product, policy, deployment, design, architecture, and verification
+3. Split the work into two phases:
+   - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
+     `.codex/pave/`, `.claude/`, and companion adapter files from repo
+     facts only.
+   - Direction init: collect product direction, policy, architecture,
+     operation, and verification decisions through user interview before
+     writing product direction docs or runtime policy.
+4. Audit existing docs before using them. Classify each relevant statement as
+   `repo fact`, `user decision`, `unsupported assumption`, `stale statement`,
+   or `open decision`. Do not promote unsupported assumptions or open
+   decisions into durable docs.
+5. Ask product, policy, deployment, design, architecture, and verification
    questions that cannot be answered from the repo.
-4. Must interview the user about product direction, target users, positioning,
+6. Must interview the user about product direction, target users, positioning,
    product principles, technical constraints, design expectations, and
    onboarding context.
-5. Apply the Interview Quality Gate before generating docs.
-6. Treat plugin installation and repo runtime setup as separate steps.
+7. Before editing product direction docs, stop unless the conversation already
+   contains explicit user decisions for every required decision domain. Repo
+   facts, existing docs, inferred defaults, current implementation shape, and
+   common industry defaults are not substitutes for user decisions. If
+   required decisions are missing, produce only an interview agenda and
+   decision gap register. Do not modify product direction docs.
+8. Classify every required decision domain as `decided`,
+   `unresolved-after-asking`, `deferred-by-user`, or
+   `not-applicable-with-reason`:
+   - Product actors and permissions
+   - Auth/session model
+   - Core user workflows
+   - API protocol and realtime protocol choices
+   - Data ownership and lifecycle
+   - Privacy and security boundaries
+   - Moderation and safety policy
+   - Payment/credits policy, if applicable
+   - Background jobs and automation boundaries
+   - External integrations and providers
+   - Deployment and operations model
+   - Verification and acceptance criteria
+   - Explicit non-goals
+9. Apply the Interview Quality Gate before generating docs.
+10. Treat plugin installation and repo runtime setup as separate steps.
    For Codex, install the plugin through the marketplace first:
    `codex plugin marketplace add TaehoHong/pave --ref main`, then
    `codex plugin add pave@pave`. For Claude Code, install through the
@@ -31,16 +64,19 @@ or configure PAVE with Superpowers or gstack.
    `claude plugin marketplace add TaehoHong/pave`,
    then `claude plugin install pave@pave`. Do not present a skill prompt
    as the plugin installation method.
-7. To apply PAVE runtime files to the repo, run
+11. To apply PAVE runtime files to the repo, run
    `scripts/install.sh <repo>` with the right profile:
    - `default`: PAVE + Superpowers.
    - `full`: PAVE + Superpowers + gstack.
    - `none`: PAVE only for offline or unusual setups.
-8. Use `scripts/init_repo.js <repo>` as the JavaScript automation
+12. Use `scripts/init_repo.js <repo>` as the JavaScript automation
    helper when direct repo initialization is preferred.
-9. Fill `AGENTS.md` declared verification commands with real repo
+13. For project-init, edits to product docs, `AGENTS.md`, `CLAUDE.md`, and
+   PAVE runtime policy files require approval after the interview summary
+   and before writing.
+14. Fill `AGENTS.md` declared verification commands with real repo
    commands, or mark missing commands as setup gaps.
-10. Create or update initial docs:
+15. Create or update initial docs:
    - `docs/00-overview.md`
    - `docs/01-roadmap.md`
    - `docs/02-development-rules.md`
@@ -48,14 +84,15 @@ or configure PAVE with Superpowers or gstack.
    - `docs/04-design-rules.md`
    - `docs/05-quality-rules.md`
    - `docs/06-architecture.md`
-11. Do not stop at copying templates. Populate the docs with concrete
-    repo facts, user decisions, unresolved questions, and setup gaps so
-    future work keeps the same direction.
-12. Run `scripts/doctor.js <repo> --companions <profile>`. Use
+16. Do not stop at copying templates. Populate the docs with clearly separated
+    repo facts, user decisions, unresolved-after-asking questions, deferred
+    decisions, not-applicable reasons, and setup gaps so future work keeps the
+    same direction.
+17. Run `scripts/doctor.js <repo> --companions <profile>`. Use
    `scripts/check_companions.sh` only when companion detection needs
    troubleshooting.
-13. Report generated files, companion status, unresolved decisions, and
-    verification commands.
+18. Report generated files, companion status, decision coverage, setup gaps,
+    and verification commands.
 
 ## Interview Quality Gate
 
@@ -74,8 +111,20 @@ or configure PAVE with Superpowers or gstack.
   lifecycle, permissions, operational limits, storage, background jobs,
   integrations, package manager/runtime, deploy target, and first-version
   exclusions.
-- If the user does not know yet, write the gap as an unresolved question. Do
-  not turn vague answers into durable project facts.
+- Only record a decision as unresolved after the agent has asked the user or
+  the user explicitly chose to defer that decision. Do not skip the interview
+  by marking missing decisions as unresolved. Do not turn vague answers into durable project facts.
+
+## Completion Criteria
+
+- Runtime files are present or intentionally skipped.
+- Repo facts are captured separately from user decisions.
+- Required decision domains are covered.
+- Missing decisions were asked, explicitly deferred, or marked not applicable
+  with reason.
+- Product docs distinguish facts, decisions, assumptions, and unresolved
+  questions.
+- Declared verification commands are present and checked.
 
 ## Outputs
 

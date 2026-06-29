@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.4');
+  assert.equal(packageJson.version, '0.2.5');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -146,6 +146,25 @@ test('project-init command is a dedicated initialization entrypoint', () => {
   assert.match(command, /Do not stop at copying templates/);
   assert.match(command, /Do not route this request to feature, bug, review, refactor, docs sync, continuation, or status workflows/);
   assert.match(command, /scripts\/doctor\.js <repo> --companions <profile>/);
+});
+
+test('project-init gates product direction docs on explicit user decisions', () => {
+  const command = fs.readFileSync(path.join(repoRoot, 'commands', 'project-init.md'), 'utf8');
+  const projectInit = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'project-init.md'), 'utf8');
+
+  for (const content of [command, projectInit]) {
+    assert.match(content, /Runtime init/);
+    assert.match(content, /Direction init/);
+    assert.match(content, /Before editing product direction docs/);
+    assert.match(content, /Repo\s+facts,\s+existing docs,\s+inferred defaults,\s+current implementation shape,\s+and\s+common industry defaults are not substitutes for user decisions/);
+    assert.match(content, /decision gap register/);
+    assert.match(content, /Product actors and permissions/);
+    assert.match(content, /Auth\/session model/);
+    assert.match(content, /Deployment and operations model/);
+    assert.match(content, /unresolved-after-asking/);
+    assert.match(content, /Only record a decision as unresolved after the agent has asked the user\s+or\s+the user explicitly chose to defer that decision/);
+    assert.match(content, /edits to product docs, `AGENTS\.md`, `CLAUDE\.md`, and\s+PAVE runtime policy files require approval/);
+  }
 });
 
 test('README quick start explains install and optional project-init concisely', () => {
