@@ -96,6 +96,8 @@ codex plugin add pave@pave
 
 Codex가 1차 지원 대상입니다. 공유 원본은 `.codex/pave/`와 PAVE plugin role briefs이고, `.claude/agents/`는 Claude Code가 agent를 발견하기 위한 repo-local adapter copy입니다.
 
+Plugin command는 표준 워크플로우용 `/pave`와, 비싼 추론 모델의 계약/리뷰와 저렴한 로컬 구현 모델을 분리하는 `/token-save`를 포함합니다.
+
 ## Companion 정책
 
 - 기본값: PAVE + Superpowers.

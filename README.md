@@ -96,6 +96,9 @@ codex plugin add pave@pave
 
 Codex is the primary target. The shared PAVE source of truth stays in `.codex/pave/` and the PAVE plugin role briefs. `.claude/agents/` is a Claude Code adapter copy used for agent discovery.
 
+Plugin commands include `/pave` for the standard workflow and `/token-save` for
+splitting expensive reasoning from lower-cost local implementation.
+
 ## Companion Policy
 
 - Default: PAVE + Superpowers.
