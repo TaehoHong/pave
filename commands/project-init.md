@@ -20,7 +20,8 @@ initialization before feature work begins.
 6. Must interview the user about product direction, target users, positioning,
    product principles, technical constraints, design expectations, and
    onboarding context.
-7. Create or update the PAVE runtime files:
+7. Apply the Interview Quality Gate before generating docs.
+8. Create or update the PAVE runtime files:
    - `AGENTS.md`
    - `CLAUDE.md`
    - `.codex/pave/`
@@ -32,15 +33,32 @@ initialization before feature work begins.
    - `docs/04-design-rules.md`
    - `docs/05-quality-rules.md`
    - `docs/06-architecture.md`
-8. Do not stop at copying templates. Populate the docs with concrete repo
+9. Do not stop at copying templates. Populate the docs with concrete repo
    facts, user decisions, unresolved questions, and setup gaps so future work
    keeps the same direction.
-9. Fill `AGENTS.md` declared verification commands with real repo commands,
+10. Fill `AGENTS.md` declared verification commands with real repo commands,
    or mark missing commands as setup gaps.
-10. Run `scripts/doctor.js <repo> --companions <profile>` when the helper is
+11. Run `scripts/doctor.js <repo> --companions <profile>` when the helper is
    available.
-11. Report generated files, companion status, unresolved decisions, setup gaps,
+12. Report generated files, companion status, unresolved decisions, setup gaps,
    and verification commands.
+
+## Interview Quality Gate
+
+- Do not treat catch-all answers like "all standard features", "backend only",
+  "not applicable", "same as the reference product except one feature", or
+  "you decide" as enough to create durable project direction.
+- Ask follow-up questions until the answer is document-ready: target actors,
+  first-version user flows, explicit non-goals, automation boundaries,
+  security/data/moderation choices, architecture, deployment, and
+  verification must be concrete or listed as unresolved.
+- Prefer concrete follow-ups over broad prompts. Clarify primary domain
+  objects, user roles, auth/session model, core workflows and APIs, data
+  lifecycle, permissions, operational limits, storage, background jobs,
+  integrations, package manager/runtime, deploy target, and first-version
+  exclusions.
+- If the user does not know yet, write the gap as an unresolved question. Do
+  not turn vague answers into durable project facts.
 
 ## Scope Guard
 

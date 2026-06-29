@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.2');
+  assert.equal(packageJson.version, '0.2.3');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -139,6 +139,10 @@ test('project-init command is a dedicated initialization entrypoint', () => {
   assert.match(command, /Project Initialization/);
   assert.match(command, /optional repo-local runtime installation/);
   assert.match(command, /interview the user about product direction/);
+  assert.match(command, /Interview Quality Gate/);
+  assert.match(command, /Do not treat catch-all answers/);
+  assert.match(command, /automation boundaries/);
+  assert.doesNotMatch(command, /SNS|Instagram|DM character-chat/);
   assert.match(command, /Do not stop at copying templates/);
   assert.match(command, /Do not route this request to feature, bug, review, refactor, docs sync, continuation, or status workflows/);
   assert.match(command, /scripts\/doctor\.js <repo> --companions <profile>/);
@@ -257,6 +261,11 @@ test('PAVE references support plugin-only planning and verification', () => {
   assert.match(verification, /If no repo instruction declares verification commands/);
   assert.match(projectInit, /Normal feature work does not require this step/);
   assert.match(projectInit, /interview the user about product direction/);
+  assert.match(projectInit, /Interview Quality Gate/);
+  assert.match(projectInit, /follow-up questions until the answer is document-ready/);
+  assert.match(projectInit, /primary\s+domain\s+objects/);
+  assert.doesNotMatch(projectInit, /AI SNS|SNS|Instagram|DM character-chat/);
+  assert.match(projectInit, /Do\s+not turn vague answers into durable project facts/);
   assert.match(projectInit, /Do not stop at copying templates/);
 });
 
