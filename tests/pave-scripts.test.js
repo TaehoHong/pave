@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.1');
+  assert.equal(packageJson.version, '0.2.2');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -199,6 +199,18 @@ test('recommended command surface is present and purpose-scoped', () => {
     for (const pattern of patterns) {
       assert.match(content, pattern, `${file} should include ${pattern}`);
     }
+  }
+});
+
+test('PAVE command aliases are discoverable as Codex skills', () => {
+  for (const command of ['project-init', 'doctor', 'status', 'plan', 'verify', 'sync-docs', 'token-save']) {
+    const skillPath = path.join(repoRoot, 'skills', command, 'SKILL.md');
+    assert.equal(fs.existsSync(skillPath), true, `${command} skill alias should exist`);
+    const skill = fs.readFileSync(skillPath, 'utf8');
+
+    assert.match(skill, new RegExp(`discoverable Codex entrypoint for \`\\/${command}\``));
+    assert.match(skill, /\.\.\/pave\/SKILL\.md/);
+    assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${command}\\.md`));
   }
 });
 
