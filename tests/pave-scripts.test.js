@@ -106,17 +106,28 @@ test('Claude Code marketplace manifest exposes the same PAVE plugin path', () =>
   assert.equal(fs.lstatSync(path.join(repoRoot, 'agents', 'planner.md')).isFile(), true);
 });
 
+test('project-init command is a dedicated initialization entrypoint', () => {
+  const commandPath = path.join(repoRoot, 'commands', 'project-init.md');
+  const command = fs.readFileSync(commandPath, 'utf8');
+
+  assert.match(command, /^# \/project-init/m);
+  assert.match(command, /Project Initialization/);
+  assert.match(command, /Do not route this request to feature, bug, review, refactor, docs sync, continuation, or status workflows/);
+  assert.match(command, /scripts\/doctor\.js <repo> --companions <profile>/);
+});
+
 test('installation guide starts from Codex marketplace install and separates Claude Code', () => {
   const readme = fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
 
   assert.match(readme, /codex plugin add superpowers@claude-plugins-official/);
   assert.match(readme, /codex plugin marketplace add TaehoHong\/pave --ref main/);
   assert.match(readme, /codex plugin add pave@pave/);
+  assert.match(readme, /\/project-init/);
   assert.doesNotMatch(readme, /Start from any folder where you keep tools:[\s\S]*git clone https:\/\/github\.com\/TaehoHong\/pave\.git/);
   assert.match(readme, /claude plugin marketplace add TaehoHong\/pave/);
   assert.doesNotMatch(readme, /claude plugin marketplace add TaehoHong\/pave --sparse/);
   assert.match(readme, /claude plugin install pave@pave/);
-  assert.match(readme, /\/pave Initialize this repository with PAVE/);
+  assert.doesNotMatch(readme, /\/pave Initialize this repository with PAVE/);
   assert.match(readme, /\.\/scripts\/install\.sh <repo-path> --companions none/);
 });
 

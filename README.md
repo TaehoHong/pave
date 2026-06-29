@@ -27,15 +27,15 @@ codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
 
-Then open a new Codex thread in your target repo and ask:
+Then open a new Codex thread in your target repo and run:
 
 ```text
-Initialize this repository with PAVE.
+/project-init
 ```
 
 What this does:
 
-- installs the PAVE Codex plugin through the `pave` marketplace
+- initializes the PAVE runtime in the target repo
 - uses Superpowers as the default companion workflow
 - adds `AGENTS.md`, `CLAUDE.md`, `.codex/pave/`, Claude Code adapter files under `.claude/`, and starter project docs to the target repo
 
@@ -51,7 +51,7 @@ claude plugin install pave@pave
 Then open Claude Code in your target repo and run:
 
 ```text
-/pave Initialize this repository with PAVE.
+/project-init
 ```
 
 The same PAVE runtime files are shared with Codex.
@@ -96,8 +96,9 @@ codex plugin add pave@pave
 
 Codex is the primary target. The shared PAVE source of truth stays in `.codex/pave/` and the PAVE plugin role briefs. `.claude/agents/` is a Claude Code adapter copy used for agent discovery.
 
-Plugin commands include `/pave` for the standard workflow and `/token-save` for
-splitting expensive reasoning from lower-cost local implementation.
+Plugin commands include `/project-init` for first-time repo setup, `/pave` for
+the standard workflow, and `/token-save` for splitting expensive reasoning from
+lower-cost local implementation.
 
 ## Companion Policy
 

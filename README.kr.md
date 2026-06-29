@@ -27,15 +27,15 @@ codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
 
-그 다음 대상 repo에서 새 Codex thread를 열고 다음처럼 요청합니다.
+그 다음 대상 repo에서 새 Codex thread를 열고 다음처럼 실행합니다.
 
 ```text
-Initialize this repository with PAVE.
+/project-init
 ```
 
 이 과정에서 다음이 처리됩니다.
 
-- `pave` marketplace를 통해 PAVE Codex plugin 설치
+- 대상 repo에 PAVE runtime 초기화
 - default companion workflow로 Superpowers 사용
 - 대상 repo에 `AGENTS.md`, `CLAUDE.md`, `.codex/pave/`, `.claude/`의 Claude Code adapter 파일, 초기 프로젝트 문서 생성
 
@@ -51,7 +51,7 @@ claude plugin install pave@pave
 그 다음 대상 repo에서 Claude Code를 열고 다음처럼 실행합니다.
 
 ```text
-/pave Initialize this repository with PAVE.
+/project-init
 ```
 
 Codex와 같은 PAVE runtime 파일을 공유합니다.
@@ -96,7 +96,7 @@ codex plugin add pave@pave
 
 Codex가 1차 지원 대상입니다. 공유 원본은 `.codex/pave/`와 PAVE plugin role briefs이고, `.claude/agents/`는 Claude Code가 agent를 발견하기 위한 repo-local adapter copy입니다.
 
-Plugin command는 표준 워크플로우용 `/pave`와, 비싼 추론 모델의 계약/리뷰와 저렴한 로컬 구현 모델을 분리하는 `/token-save`를 포함합니다.
+Plugin command는 최초 repo 설정용 `/project-init`, 표준 워크플로우용 `/pave`, 비싼 추론 모델의 계약/리뷰와 저렴한 로컬 구현 모델을 분리하는 `/token-save`를 포함합니다.
 
 ## Companion 정책
 
