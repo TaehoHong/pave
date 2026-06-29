@@ -71,12 +71,13 @@ cd pave
 | `/plan` | Creates an implementation plan only; no code or test edits before approval. |
 | `/verify` | Runs fresh verification only; no source changes. |
 | `/sync-docs` | Updates overview, roadmap, rules, and architecture docs from evidence and user decisions. |
-| `/token-save` | Creates a low-cost implementation contract and reviews the resulting diff. |
+| `/token-save` | One-off low-cost implementation contract; for normal use, enable token-save mode in `.codex/pave/config.md` and run `/pave`. |
 
 ## How It Works
 
 - The default source of truth is the plugin-local PAVE skill, references, commands, and role briefs.
 - PAVE reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md` only when they already exist.
+- When token-save mode is enabled in `.codex/pave/config.md`, `/pave` keeps the current configured model for planning and final review, and uses a configured low-cost implementer only for bounded low-reasoning implementation work.
 - `.claude/agents/` is a Claude Code adapter copy used for agent discovery after optional project initialization.
 - `/project-init` creates optional repo-local docs under `docs/`, including `00-overview.md`, `01-roadmap.md`, development/deployment/design/quality rules, and `06-architecture.md`.
 - Implementation work follows plan, approval, execution, verification, and final reporting.

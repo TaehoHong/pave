@@ -1,6 +1,10 @@
 # /token-save
 
-Run a token-conscious implementation workflow for the user's request.
+Run or describe the token-save workflow for the user's request.
+
+For normal use, prefer enabling token-save mode in `.codex/pave/config.md` and
+then run `/pave`. Use this command only for a one-off token-conscious workflow
+or to get an implementation contract without changing repo-local settings.
 
 Request:
 

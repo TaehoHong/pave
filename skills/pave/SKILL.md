@@ -104,7 +104,8 @@ helpers. Use assets from `assets/` when initializing or syncing a repo.
 - `/plan`: plan only; do not edit code or tests.
 - `/verify`: run verification only; do not modify source files.
 - `/sync-docs`: update project direction docs from evidence and user decisions.
-- `/token-save`: token-conscious implementation contract and review workflow.
+- `/token-save`: one-off token-conscious contract; normal use is token-save
+  mode in `.codex/pave/config.md` plus `/pave`.
 
 Scripts are optional helpers. Read their `--help` output before use when
 the requested action is sensitive or repo-specific.

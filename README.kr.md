@@ -71,12 +71,13 @@ cd pave
 | `/plan` | 코드나 테스트를 고치지 않고 구현 계획만 작성 |
 | `/verify` | source 변경 없이 fresh verification만 실행 |
 | `/sync-docs` | overview, roadmap, 규칙, architecture 문서를 근거와 사용자 결정에 맞게 갱신 |
-| `/token-save` | 저비용 구현 계약을 만들고 결과 diff만 리뷰 |
+| `/token-save` | 일회성 저비용 구현 계약; 일반 사용은 `.codex/pave/config.md`에서 token-save mode를 켜고 `/pave` 실행 |
 
 ## 동작 방식
 
 - 기본 원본은 plugin-local PAVE skill, references, commands, role briefs입니다.
 - PAVE는 `AGENTS.md`, `CLAUDE.md`, `.codex/pave/config.md`가 이미 있을 때만 추가로 읽습니다.
+- `.codex/pave/config.md`에서 token-save mode를 켜면 `/pave`는 계획과 최종 리뷰에는 현재 설정된 모델을 유지하고, 추론이 거의 필요 없는 제한된 구현 작업만 설정된 저비용 implementer로 넘깁니다.
 - `.claude/agents/`는 Claude Code가 agent를 발견하기 위한 repo-local adapter copy입니다.
 - `/project-init`은 `docs/00-overview.md`, `01-roadmap.md`, 개발/배포/디자인/품질 규칙, `06-architecture.md`를 선택적으로 만듭니다.
 - 구현 작업은 계획, 승인, 실행, 검증, 최종 보고 순서로 진행합니다.

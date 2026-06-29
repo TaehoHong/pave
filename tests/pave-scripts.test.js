@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.0');
+  assert.equal(packageJson.version, '0.2.1');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -215,6 +215,23 @@ test('README and PAVE skill list the focused command surface', () => {
   }
 
   assert.match(plugin.interface.longDescription, /doctor, status, plan, verify, sync-docs/);
+});
+
+test('/pave honors token-save as an optional setting', () => {
+  const command = fs.readFileSync(path.join(repoRoot, 'commands', 'pave.md'), 'utf8');
+  const claudeCommand = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'assets', 'repo-template', '.claude', 'commands', 'pave.md'), 'utf8');
+  const tokenSave = fs.readFileSync(path.join(repoRoot, 'commands', 'token-save.md'), 'utf8');
+  const config = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'assets', 'repo-template', '.codex', 'pave', 'config.md'), 'utf8');
+  const readme = fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+  const readmeKr = fs.readFileSync(path.join(repoRoot, 'README.kr.md'), 'utf8');
+
+  assert.match(command, /If token-save is enabled in `\.codex\/pave\/config\.md`/);
+  assert.match(claudeCommand, /If token-save is enabled in `\.codex\/pave\/config\.md`/);
+  assert.match(tokenSave, /prefer enabling token-save mode in `\.codex\/pave\/config\.md`/);
+  assert.match(config, /Token-save: disabled/);
+  assert.match(config, /Low-cost implementer: not declared/);
+  assert.match(readme, /enable token-save mode in `\.codex\/pave\/config\.md`/);
+  assert.match(readmeKr, /`\.codex\/pave\/config\.md`에서 token-save mode를 켜면/);
 });
 
 test('PAVE references support plugin-only planning and verification', () => {

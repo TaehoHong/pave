@@ -37,6 +37,12 @@
 - `batch`: run an approved phase or tier.
 - `fast`: run low-risk items automatically when verification is cheap.
 - `status`: summarize progress, blockers, and verification state.
+- Token-save: disabled.
+- Low-cost implementer: not declared.
+  When enabled, `/pave` keeps the current configured model for planning and
+  final review, and uses the configured low-cost implementer only for bounded
+  implementation tasks that do not need architecture, product, security,
+  data-integrity, or API-design judgment.
 
 ## Subagents
 

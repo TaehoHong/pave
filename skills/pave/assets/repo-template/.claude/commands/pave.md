@@ -8,18 +8,22 @@ is the Claude Code adapter surface for specialist discovery.
 ## Command Behavior
 
 1. Read `CLAUDE.md`, `AGENTS.md`, and `.codex/pave/config.md`.
-2. Classify the request as project initialization, feature, bug, change,
+2. If token-save is enabled in `.codex/pave/config.md`, keep the current
+   configured model for planning and final review, and use the configured
+   low-cost implementer only for bounded implementation tasks that do not need
+   architecture, product, security, data-integrity, or API-design judgment.
+3. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
-3. Scan the repo before asking questions or editing.
-4. Ask every product, policy, design, deployment, or verification question
+4. Scan the repo before asking questions or editing.
+5. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
-5. For implementation work, create or update a checklist plan in
+6. For implementation work, create or update a checklist plan in
    `.codex/pave/plans/`.
-6. Ask once for implementation approval immediately before code or test edits.
-7. Execute with Red-Green-Review after approval.
-8. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
-9. Run declared verification commands before success claims.
-10. Write a final or blocked report under `.codex/pave/reports/` when durable
+7. Ask once for implementation approval immediately before code or test edits.
+8. Execute with Red-Green-Review after approval.
+9. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
+10. Run declared verification commands before success claims.
+11. Write a final or blocked report under `.codex/pave/reports/` when durable
     handoff is useful.
 
 ## Specialist Agents
