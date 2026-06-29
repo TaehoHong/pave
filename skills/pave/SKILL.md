@@ -23,8 +23,9 @@ session harness for software development work.
    same steps manually and state fallback mode.
 6. Scan the repo before asking product, policy, design, deployment, or
    verification questions.
-7. Ask every product or policy clarification during planning. Do not
-   guess when behavior, UX, security, data handling, compatibility,
+7. Ask every product or policy clarification during planning. Establish a
+   feature inventory and per-feature policy decisions before implementation.
+   Do not guess when behavior, UX, security, data handling, compatibility,
    rollout, or verification could change.
 8. For code or test edits, ask for one consolidated approval immediately
    before implementation. After approval, do not ask routine per-item

@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.3');
+  assert.equal(packageJson.version, '0.2.4');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -179,10 +179,15 @@ test('pave command and skill keep repo-local runtime files optional', () => {
   const skill = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'SKILL.md'), 'utf8');
 
   assert.match(command, /plugin-local PAVE skill and references/);
+  assert.match(command, /Feature Decision Gate/);
+  assert.match(command, /feature inventory/);
+  assert.match(command, /per-feature policy decisions/);
   assert.match(command, /Do not create `AGENTS\.md`, `CLAUDE\.md`, `\.codex\/pave\/`, or `docs\/`/);
   assert.match(command, /unless the user invokes `\/project-init`/);
 
   assert.match(skill, /PAVE runs from plugin-local instructions by default/);
+  assert.match(skill, /feature inventory/);
+  assert.match(skill, /per-feature policy decisions/);
   assert.match(skill, /If `\.codex\/pave\/` is missing, continue in plugin-only mode/);
   assert.match(skill, /Do not create repo-local runtime files unless the user runs `\/project-init`/);
 });
@@ -263,10 +268,15 @@ test('PAVE references support plugin-only planning and verification', () => {
   assert.match(projectInit, /interview the user about product direction/);
   assert.match(projectInit, /Interview Quality Gate/);
   assert.match(projectInit, /follow-up questions until the answer is document-ready/);
+  assert.match(projectInit, /feature inventory/);
+  assert.match(projectInit, /per-feature policy decisions/);
   assert.match(projectInit, /primary\s+domain\s+objects/);
   assert.doesNotMatch(projectInit, /AI SNS|SNS|Instagram|DM character-chat/);
   assert.match(projectInit, /Do\s+not turn vague answers into durable project facts/);
   assert.match(projectInit, /Do not stop at copying templates/);
+  assert.match(planning, /Feature Decision Gate/);
+  assert.match(planning, /per-feature acceptance criteria/);
+  assert.match(planning, /Do not start implementation/);
 });
 
 test('project-init docs preserve project direction and onboarding context', () => {

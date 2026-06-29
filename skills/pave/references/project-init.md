@@ -66,6 +66,9 @@ or configure PAVE with Superpowers or gstack.
   first-version user flows, explicit non-goals, automation boundaries,
   security/data/moderation choices, architecture, deployment, and
   verification must be concrete or listed as unresolved.
+- Capture a first-version feature inventory. For each feature, record the
+  actor, trigger, happy path, edge cases, permissions, data rules, errors,
+  per-feature policy decisions, acceptance criteria, and verification.
 - Prefer concrete follow-ups over broad prompts. Clarify primary domain
   objects, user roles, auth/session model, core workflows and APIs, data
   lifecycle, permissions, operational limits, storage, background jobs,

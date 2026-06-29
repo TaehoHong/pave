@@ -21,17 +21,26 @@ specialist discovery when the optional repo runtime has been initialized.
 5. Scan the repo before asking questions or editing.
 6. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
-7. For implementation work, keep a checklist in the conversation by default.
+7. Apply the Feature Decision Gate before implementation work.
+8. For implementation work, keep a checklist in the conversation by default.
    Create or update `.codex/pave/plans/` only when the optional repo runtime
    exists or the user explicitly asks for durable repo-local plans.
-8. Ask once for implementation approval immediately before code or test edits.
-9. Execute with Red-Green-Review after approval.
-10. Delegate bounded work through plugin role briefs or initialized adapter
+9. Ask once for implementation approval immediately before code or test edits.
+10. Execute with Red-Green-Review after approval.
+11. Delegate bounded work through plugin role briefs or initialized adapter
    specialists only when useful.
-11. Run declared verification commands before success claims.
-12. Write a final or blocked report under `.codex/pave/reports/` only when the
+12. Run declared verification commands before success claims.
+13. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
+
+## Feature Decision Gate
+
+Before code or test edits, identify the feature inventory for the requested
+product slice and settle per-feature policy decisions: actor, trigger, happy
+path, edge cases, permissions, data rules, errors, acceptance criteria, and
+verification. If any of these change behavior or scope and remain unknown, ask
+before implementation.
 
 ## Repo-Local File Guard
 

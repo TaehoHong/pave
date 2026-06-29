@@ -1,6 +1,6 @@
 {
   "name": "pave",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Plan, Approve, Verify, Execute: a Codex plugin for session-based agentic development workflows.",
   "author": {
     "name": "Local developer"
