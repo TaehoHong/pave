@@ -1,6 +1,6 @@
 ---
 name: pave
-description: Use when Codex is asked to initialize a repository with PAVE runtime, configure Superpowers or gstack companion checks, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, continue an approved task, coordinate bounded specialist subagents, create or update .codex/pave plans, run verification, or produce final and blocked development reports.
+description: Use when Codex is asked to initialize optional PAVE repo runtime files, configure Superpowers or gstack companion checks, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, check status, run doctor checks, plan without edits, continue an approved task, coordinate bounded specialist subagents, track plans in conversation or optional .codex/pave plans, run verification, or produce final and blocked development reports.
 ---
 
 # PAVE
@@ -10,24 +10,27 @@ session harness for software development work.
 
 ## Core Rules
 
-1. Read repo instructions first: root `AGENTS.md`, then nested
-   `AGENTS.md` files that apply to touched paths, then `.codex/pave/config.md`
-   when present.
-2. If `.codex/pave/` is missing but `.codex/ai-dev-harness/` exists,
+1. PAVE runs from plugin-local instructions by default: this `SKILL.md`,
+   `references/`, plugin commands, and role briefs.
+2. Read repo instructions when present: root `AGENTS.md`, nested `AGENTS.md`
+   files that apply to touched paths, `CLAUDE.md` for Claude Code, then
+   `.codex/pave/config.md` when present.
+3. If `.codex/pave/` is missing, continue in plugin-only mode. Do not create repo-local runtime files unless the user runs `/project-init` or explicitly asks for durable repo-local PAVE files.
+4. If `.codex/pave/` is missing but `.codex/ai-dev-harness/` exists,
    treat the repo as legacy-compatible and offer migration before changing
    harness files.
-3. Use Superpowers workflows when available. If unavailable, follow the
+5. Use Superpowers workflows when available. If unavailable, follow the
    same steps manually and state fallback mode.
-4. Scan the repo before asking product, policy, design, deployment, or
+6. Scan the repo before asking product, policy, design, deployment, or
    verification questions.
-5. Ask every product or policy clarification during planning. Do not
+7. Ask every product or policy clarification during planning. Do not
    guess when behavior, UX, security, data handling, compatibility,
    rollout, or verification could change.
-6. For code or test edits, ask for one consolidated approval immediately
+8. For code or test edits, ask for one consolidated approval immediately
    before implementation. After approval, do not ask routine per-item
    approval unless scope, safety, destructive action, credentials, or
    product/policy ambiguity changes.
-7. Never claim completion without fresh verification evidence.
+9. Never claim completion without fresh verification evidence.
 
 ## Companion Policy
 
@@ -44,7 +47,11 @@ session harness for software development work.
 
 Classify the request:
 
-- Project initialization or repo runtime setup: read `references/project-init.md`.
+- Project initialization or optional repo runtime setup: read `references/project-init.md`.
+- Doctor or status request: read `references/request-routing.md`, then report
+  health or state without editing files.
+- Plan-only request: read `references/planning.md` and stop before code or
+  test edits.
 - Feature or behavior change: read `references/planning.md`, then
   `references/execution-loop.md`.
 - Bug: read `references/request-routing.md`, then use systematic
@@ -52,7 +59,10 @@ Classify the request:
 - Review: findings first, ordered by severity, with file and line
   evidence.
 - Documentation sync: update docs only when evidence supports the change.
-- Continuation: resume from the newest relevant plan in `.codex/pave/plans/`.
+- Verification-only request: read `references/verification.md` and do not edit
+  source files.
+- Continuation: resume from the newest relevant repo-local plan when
+  `.codex/pave/plans/` exists; otherwise continue from the conversation state.
 
 ## Reference Routing
 
@@ -79,11 +89,22 @@ helpers. Use assets from `assets/` when initializing or syncing a repo.
   `claude plugin marketplace add TaehoHong/pave`,
   then `claude plugin install pave@pave`
 - Local source plugin install helper: `scripts/install_plugin.sh`
-- Repo runtime install: `scripts/install.sh <repo-path>`
+- Optional repo runtime install: `scripts/install.sh <repo-path>`
 - Check companions: `scripts/check_companions.sh`
 - Initialize a repo with JavaScript: `scripts/init_repo.js <repo-path>`
 - Check a repo: `scripts/doctor.js <repo-path>`
 - Re-sync templates: `scripts/sync_template.js <repo-path>`
+
+## Commands
+
+- `/pave`: default workflow router.
+- `/project-init`: optional repo-local direction and runtime initialization.
+- `/doctor`: PAVE install, companion, runtime, and docs health check.
+- `/status`: read-only project and PAVE state summary.
+- `/plan`: plan only; do not edit code or tests.
+- `/verify`: run verification only; do not modify source files.
+- `/sync-docs`: update project direction docs from evidence and user decisions.
+- `/token-save`: token-conscious implementation contract and review workflow.
 
 Scripts are optional helpers. Read their `--help` output before use when
 the requested action is sensitive or repo-specific.

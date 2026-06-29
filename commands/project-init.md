@@ -1,9 +1,12 @@
 # /project-init
 
-Run only PAVE Project Initialization for the current repository.
+Run PAVE Project Initialization as optional repo-local runtime installation for
+the current repository.
 
-Use this command after installing the PAVE plugin from the marketplace, before
-feature work begins.
+Use this command only when the project should keep durable PAVE runtime files,
+starter docs, project direction, onboarding context, and Claude Code adapter
+files in the repo. Normal plugin-only PAVE use does not require project
+initialization before feature work begins.
 
 ## Command Behavior
 
@@ -12,9 +15,12 @@ feature work begins.
 3. Read existing repo instructions and inspect the project tree.
 4. Identify framework, package manager, test runner, build command,
    deployment shape, and existing docs.
-5. Ask product, policy, deployment, design, and verification questions that
-   cannot be answered from the repo.
-6. Create or update the PAVE runtime files:
+5. Ask product, policy, deployment, design, architecture, and verification
+   questions that cannot be answered from the repo.
+6. Must interview the user about product direction, target users, positioning,
+   product principles, technical constraints, design expectations, and
+   onboarding context.
+7. Create or update the PAVE runtime files:
    - `AGENTS.md`
    - `CLAUDE.md`
    - `.codex/pave/`
@@ -25,11 +31,15 @@ feature work begins.
    - `docs/03-deployment-rules.md`
    - `docs/04-design-rules.md`
    - `docs/05-quality-rules.md`
-7. Fill `AGENTS.md` declared verification commands with real repo commands,
+   - `docs/06-architecture.md`
+8. Do not stop at copying templates. Populate the docs with concrete repo
+   facts, user decisions, unresolved questions, and setup gaps so future work
+   keeps the same direction.
+9. Fill `AGENTS.md` declared verification commands with real repo commands,
    or mark missing commands as setup gaps.
-8. Run `scripts/doctor.js <repo> --companions <profile>` when the helper is
+10. Run `scripts/doctor.js <repo> --companions <profile>` when the helper is
    available.
-9. Report generated files, companion status, unresolved decisions, setup gaps,
+11. Report generated files, companion status, unresolved decisions, setup gaps,
    and verification commands.
 
 ## Scope Guard

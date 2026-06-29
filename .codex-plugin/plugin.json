@@ -1,6 +1,6 @@
 {
   "name": "pave",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Plan, Approve, Verify, Execute: a Codex plugin for session-based agentic development workflows.",
   "author": {
     "name": "Local developer"
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "PAVE",
     "shortDescription": "Plan, approve, verify, and execute software work.",
-    "longDescription": "PAVE installs a session-based development workflow for project initialization, feature work, bug fixes, reviews, documentation sync, verification, and bounded specialist subagent briefs.",
+    "longDescription": "PAVE provides a plugin-local session workflow for feature work, bug fixes, reviews, documentation sync, doctor, status, plan, verify, sync-docs, optional project initialization, and bounded specialist subagent briefs.",
     "developerName": "Local developer",
     "category": "Developer Tools",
     "capabilities": [
@@ -28,9 +28,10 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Initialize this repository with PAVE.",
+      "Use PAVE for this request.",
       "Plan and implement this feature with PAVE.",
-      "Fix this bug with PAVE and verify it."
+      "Initialize this repository with optional PAVE runtime files.",
+      "Check this repository with PAVE doctor."
     ]
   }
 }

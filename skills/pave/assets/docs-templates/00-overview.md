@@ -14,6 +14,17 @@ Describe the product or system in one sentence.
 
 Describe the user problem this project solves.
 
+## Project Direction
+
+- Product promise:
+- Strategic constraints:
+- Non-goals:
+
+## Onboarding Summary
+
+Summarize what a new teammate must understand first: users, workflows,
+technical shape, and current priorities.
+
 ## Current Scope
 
 - In scope:
@@ -33,3 +44,4 @@ Describe the user problem this project solves.
 - [03-deployment-rules.md](./03-deployment-rules.md)
 - [04-design-rules.md](./04-design-rules.md)
 - [05-quality-rules.md](./05-quality-rules.md)
+- [06-architecture.md](./06-architecture.md)

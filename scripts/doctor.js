@@ -30,6 +30,7 @@ const requiredFiles = [
   'docs/03-deployment-rules.md',
   'docs/04-design-rules.md',
   'docs/05-quality-rules.md',
+  'docs/06-architecture.md',
 ];
 
 const requiredDirs = [

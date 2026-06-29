@@ -23,7 +23,9 @@ Produce a decision-complete checklist plan before implementation.
 
 ## Outputs
 
-- Plan under `.codex/pave/plans/`.
+- Keep the plan in conversation by default.
+- For durable repo-local planning, write it under `.codex/pave/plans/` only when
+  the optional repo runtime already exists or the user explicitly asks for it.
 - Tiered checklist.
 - Verification strategy.
 - Approval gate.

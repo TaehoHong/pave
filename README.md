@@ -2,24 +2,15 @@
 
 PAVE means **Plan, Approve, Verify, Execute**.
 
-It is a Codex-first development harness that lets a person ask for software work in plain language while the agent plans, asks the important product questions, gets one approval before editing code, verifies the result, and reports what happened.
+PAVE is a Codex-first development harness. It lets an agent plan work, ask the important product questions, get one approval before edits, verify the result, and keep durable project direction when you opt in.
 
-Default bundle: **PAVE + Superpowers**. gstack is optional and available through the full install profile.
+Default bundle: **PAVE + Superpowers**. gstack is optional through the full profile.
 
 Korean documentation: [README.kr.md](README.kr.md)
 
-## Who It Is For
-
-- People who want AI to implement features but still want clear planning and verification.
-- Teams that want feature work, bug fixes, reviews, and docs updates to follow one repeatable process.
-- Solo builders who want PM, planning, UI/UX, fullstack, and QA perspectives available as bounded subagents.
-- New projects that should start with overview, roadmap, development, deployment, design, and quality rules.
-
-## Installation Guide
+## Quick Start
 
 ### Codex
-
-Install Superpowers first, because Codex plugin manifests cannot declare companion dependencies:
 
 ```bash
 codex plugin add superpowers@claude-plugins-official
@@ -27,37 +18,28 @@ codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
 
-Then open a new Codex thread in your target repo and run:
+Then open a new Codex thread in your target repo:
 
 ```text
-/project-init
+/pave <your request>
 ```
 
-What this does:
-
-- initializes the PAVE runtime in the target repo
-- uses Superpowers as the default companion workflow
-- adds `AGENTS.md`, `CLAUDE.md`, `.codex/pave/`, Claude Code adapter files under `.claude/`, and starter project docs to the target repo
+Plugin install does not create project files. Optional project docs: run `/project-init` to preserve project direction, onboarding context, and durable product decisions in repo-local docs and PAVE runtime files.
 
 ### Claude Code
-
-Install PAVE from the same Git marketplace source:
 
 ```bash
 claude plugin marketplace add TaehoHong/pave
 claude plugin install pave@pave
 ```
 
-Then open Claude Code in your target repo and run:
+Then run:
 
 ```text
-/project-init
+/pave <your request>
 ```
 
-The same PAVE runtime files are shared with Codex.
-
-<details>
-<summary>Advanced options</summary>
+### Advanced
 
 ```bash
 # Local source plugin development
@@ -76,103 +58,51 @@ cd pave
 
 # Companion-only troubleshooting
 ./scripts/check_companions.sh --companions default
-
-# Reinstall after local plugin edits
-codex plugin add pave@pave
 ```
 
-</details>
+## Commands
 
-## Codex vs Claude Code
+| Command | What it does |
+| --- | --- |
+| `/pave` | Default workflow for features, bugs, reviews, refactors, analysis, and docs work. |
+| `/project-init` | Optional repo-local setup for product direction, onboarding docs, rules, and architecture. |
+| `/doctor` | Checks install, companion, runtime, and docs health. |
+| `/status` | Summarizes branch state, PAVE runtime state, latest plans/reports, and next actions without edits. |
+| `/plan` | Creates an implementation plan only; no code or test edits before approval. |
+| `/verify` | Runs fresh verification only; no source changes. |
+| `/sync-docs` | Updates overview, roadmap, rules, and architecture docs from evidence and user decisions. |
+| `/token-save` | Creates a low-cost implementation contract and reviews the resulting diff. |
 
-| Topic | Codex | Claude Code |
-| --- | --- | --- |
-| Main command | Natural Codex request, or `$pave` when explicit routing is needed | `/pave ...` |
-| First install | Codex plugin install via marketplace and `codex plugin add pave@pave` | Claude plugin install via marketplace and `claude plugin install pave@pave` |
-| Primary instruction file | `AGENTS.md` | `CLAUDE.md`, then `AGENTS.md` |
-| Runtime state | shared source of truth in `.codex/pave/` | shared source of truth in `.codex/pave/` |
-| Role agents | PAVE plugin role briefs | `.claude/agents/` adapter copy for local discovery |
-| Companion workflow | Superpowers required by default | Follows the installed PAVE contract |
+## How It Works
 
-Codex is the primary target. The shared PAVE source of truth stays in `.codex/pave/` and the PAVE plugin role briefs. `.claude/agents/` is a Claude Code adapter copy used for agent discovery.
+- The default source of truth is the plugin-local PAVE skill, references, commands, and role briefs.
+- PAVE reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md` only when they already exist.
+- `.claude/agents/` is a Claude Code adapter copy used for agent discovery after optional project initialization.
+- `/project-init` creates optional repo-local docs under `docs/`, including `00-overview.md`, `01-roadmap.md`, development/deployment/design/quality rules, and `06-architecture.md`.
+- Implementation work follows plan, approval, execution, verification, and final reporting.
 
-Plugin commands include `/project-init` for first-time repo setup, `/pave` for
-the standard workflow, and `/token-save` for splitting expensive reasoning from
-lower-cost local implementation.
+## Optional Repo Runtime
 
-## Companion Policy
-
-- Default: PAVE + Superpowers.
-- gstack is optional unless you choose the full profile.
-- Offline or unusual setups can use `--companions none`.
-
-## What Gets Installed
+Plugin installation alone does not add files to your project. `/project-init` or `./scripts/install.sh <repo-path>` can create:
 
 ```text
 repo/
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── .claude/
-│   ├── commands/pave.md        # Claude Code adapter command
-│   └── agents/                 # Claude Code adapter copies for discovery
-├── .codex/
-│   └── pave/
-│       ├── README.md
-│       ├── README.kr.md
-│       ├── config.md
-│       ├── plans/
-│       ├── reports/
-│       ├── templates/
-│       └── adapters/
+├── .codex/pave/
 └── docs/
     ├── 00-overview.md
     ├── 01-roadmap.md
     ├── 02-development-rules.md
     ├── 03-deployment-rules.md
     ├── 04-design-rules.md
-    └── 05-quality-rules.md
+    ├── 05-quality-rules.md
+    └── 06-architecture.md
 ```
 
-## How PAVE Works
+These docs preserve product direction, onboarding context, architecture, design rules, development rules, and durable decisions so future work stays aligned.
 
-When you ask for a feature, bug fix, change, analysis, or review, PAVE normally:
-
-```mermaid
-flowchart TD
-    A["Request arrives"] --> B["Classify request"]
-    B --> C["Read project rules"]
-    C --> D["Scan code and docs"]
-    D --> E{"Product or policy ambiguity?"}
-    E -- "Yes" --> F["Ask and resolve questions"]
-    F --> G["Create or update plan"]
-    E -- "No" --> G
-    G --> H["Request one approval before edits"]
-    H --> I["Run Red / Green / Review loop"]
-    I -.->|Use when helpful| J["Specialist subagents"]
-    I --> K["Run declared verification"]
-    K -- "Fails with a plausible fix" --> I
-    K -- "Blocked" --> L["Write blocked report"]
-    K -- "Passes" --> M["Write final report"]
-```
-
-1. Reads project instructions.
-2. Scans the relevant code and docs.
-3. Asks product, policy, design, deployment, and verification questions before implementation.
-4. Creates or updates a plan in `.codex/pave/plans/`.
-5. Requests one consolidated approval immediately before code or test edits.
-6. Executes the work with review and verification.
-7. Uses bounded specialist subagents when helpful.
-8. Runs declared verification commands.
-9. Writes a final or blocked report in `.codex/pave/reports/` when useful.
-
-## Check Installation
-
-```bash
-./scripts/doctor.js <repo-path> --companions default
-```
-
-Use `./scripts/check_companions.sh --companions default` only when troubleshooting companion detection.
-
-## Plugin Install Mechanics
+## Plugin Mechanics
 
 PAVE is both a Codex plugin and a Claude Code plugin. Codex uses `.codex-plugin/plugin.json` with `.agents/plugins/marketplace.json`; Claude Code uses `.claude-plugin/plugin.json` with `.claude-plugin/marketplace.json`. Companion dependencies are handled by install docs, local helpers, and doctor checks rather than plugin manifest dependency fields.
