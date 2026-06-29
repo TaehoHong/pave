@@ -106,6 +106,18 @@ test('Claude Code marketplace manifest exposes the same PAVE plugin path', () =>
   assert.equal(fs.lstatSync(path.join(repoRoot, 'agents', 'planner.md')).isFile(), true);
 });
 
+test('plugin release version is synchronized across manifests', () => {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
+  const codexPlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.codex-plugin', 'plugin.json'), 'utf8'));
+  const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
+  const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
+
+  assert.equal(packageJson.version, '0.1.1');
+  assert.equal(codexPlugin.version, packageJson.version);
+  assert.equal(claudePlugin.version, packageJson.version);
+  assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
+});
+
 test('project-init command is a dedicated initialization entrypoint', () => {
   const commandPath = path.join(repoRoot, 'commands', 'project-init.md');
   const command = fs.readFileSync(commandPath, 'utf8');
