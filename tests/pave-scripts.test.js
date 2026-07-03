@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.5');
+  assert.equal(packageJson.version, '0.2.6');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
