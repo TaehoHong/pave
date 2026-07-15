@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Use when the user asks for /doctor, PAVE doctor, or PAVE install, companion, runtime, and docs health checks.
+description: Use when the user asks for /doctor, PAVE doctor, or PAVE install, runtime, and docs health checks.
 ---
 
 # PAVE Doctor

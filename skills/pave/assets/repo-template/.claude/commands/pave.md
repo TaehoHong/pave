@@ -15,15 +15,21 @@ is the Claude Code adapter surface for specialist discovery.
 3. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 4. Scan the repo before asking questions or editing.
-5. Ask every product, policy, design, deployment, or verification question
+5. Use the Small Change Fast Path for a concrete low-risk edit normally within
+   two files and roughly twenty substantive lines with cheap narrow
+   verification. Treat the request as approval and skip formal planning.
+6. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
-6. For implementation work, create or update a checklist plan in
+7. For standard implementation work, create or update a checklist plan in
    `.codex/pave/plans/`.
-7. Ask once for implementation approval immediately before code or test edits.
-8. Execute with Red-Green-Review after approval.
-9. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
-10. Run declared verification commands before success claims.
-11. Write a final or blocked report under `.codex/pave/reports/` when durable
+8. Ask once for implementation approval immediately before code or test edits
+   unless the Small Change Fast Path applies.
+9. Apply the PAVE Test Value Gate. Use Red-Green-Review only for tests that
+   protect a concrete behavior or risk and can catch a realistic defect;
+   otherwise use proportionate verification and report residual risk.
+10. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
+11. Run declared verification commands before success claims.
+12. Write a final or blocked report under `.codex/pave/reports/` when durable
     handoff is useful.
 
 ## Specialist Agents

@@ -13,6 +13,9 @@
 
 - Product/policy ambiguity: <questions asked and resolved>
 - Out of scope: <explicit non-goals>
+- Test Value Gate: each proposed test names the behavior or risk it protects
+  and the realistic defect that would make it fail; otherwise use
+  proportionate verification and record residual risk
 
 ## Current Context
 
@@ -29,25 +32,25 @@
 ### [ ] 1. <item title> <!-- T1 Scaffold -->
 
 - Behavior: <expected behavior>
-- Test: <test file or command>
+- Verification: <valuable test and protected risk, or non-test command and residual risk>
 - Review: light
 
 ### [ ] 2. <item title> <!-- T2 Core Logic -->
 
 - Behavior: <expected behavior>
-- Test: <test file or command>
+- Verification: <valuable test and protected risk, or non-test command and residual risk>
 - Review: deep
 
 ### [ ] 3. <item title> <!-- T3 Integration -->
 
 - Behavior: <expected behavior>
-- Test: <test file or command>
+- Verification: <valuable test and protected risk, or non-test command and residual risk>
 - Review: medium plus specialist checks when relevant
 
 ### [ ] 4. <item title> <!-- T4 Surface/E2E -->
 
 - Behavior: <expected behavior>
-- Test: <test file or command>
+- Verification: <valuable test and protected risk, or non-test command and residual risk>
 - Review: light to medium
 
 ## Final Verification

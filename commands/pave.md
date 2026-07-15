@@ -19,18 +19,27 @@ specialist discovery when the optional repo runtime has been initialized.
 4. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 5. Scan the repo before asking questions or editing.
-6. Ask every product, policy, design, deployment, or verification question
+6. Apply the Small Change Fast Path first. When the request is concrete,
+   local, low-risk, normally limited to two files and roughly twenty
+   substantive lines, and has cheap narrow verification, treat the request as
+   approval and edit directly without a formal design, feature inventory,
+   tiered plan, plan file, or second approval.
+7. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
-7. Apply the Feature Decision Gate before implementation work.
-8. For implementation work, keep a checklist in the conversation by default.
+8. Apply the Feature Decision Gate before standard implementation work.
+9. For standard implementation work, keep a checklist in the conversation by default.
    Create or update `.codex/pave/plans/` only when the optional repo runtime
    exists or the user explicitly asks for durable repo-local plans.
-9. Ask once for implementation approval immediately before code or test edits.
-10. Execute with Red-Green-Review after approval.
-11. Delegate bounded work through plugin role briefs or initialized adapter
+10. Ask once for implementation approval immediately before code or test edits
+    unless the Small Change Fast Path applies.
+11. Apply the Test Value Gate: name the concrete behavior or risk and the
+    realistic defect each proposed test would catch. Execute only valuable
+    behavioral tests with Red-Green-Review; otherwise use proportionate
+    non-test verification and report residual risk.
+12. Delegate bounded work through plugin role briefs or initialized adapter
    specialists only when useful.
-12. Run declared verification commands before success claims.
-13. Write a final or blocked report under `.codex/pave/reports/` only when the
+13. Run declared verification commands before success claims.
+14. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
 

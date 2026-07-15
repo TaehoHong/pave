@@ -21,7 +21,8 @@ $ARGUMENTS
    - files likely to change
    - behavior to preserve
    - implementation steps
-   - test or verification strategy
+   - Test Value Gate result: protected behavior or risk for each proposed test,
+     or proportionate verification and residual risk
    - out-of-scope items
    - approval gate before edits
 5. If optional repo-local PAVE runtime exists or the user asks for durable

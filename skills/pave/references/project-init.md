@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create repo-local PAVE runtime files, companion checks, and a first
+Create repo-local PAVE runtime files and a first
 project knowledge set that preserves direction for future development and
 onboarding. Normal feature work does not require this step.
 
@@ -10,7 +10,7 @@ onboarding. Normal feature work does not require this step.
 
 Use when the user asks to initialize a project, set up AI-assisted
 development, bootstrap a new repo, apply PAVE runtime files to a repo,
-or configure PAVE with Superpowers or gstack.
+or configure PAVE project instructions and docs.
 
 ## Steps
 
@@ -19,7 +19,7 @@ or configure PAVE with Superpowers or gstack.
    deployment shape, and existing docs.
 3. Split the work into two phases:
    - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
-     `.codex/pave/`, `.claude/`, and companion adapter files from repo
+     `.codex/pave/`, `.claude/`, and adapter files from repo
      facts only.
    - Direction init: collect product direction, policy, architecture,
      operation, and verification decisions through user interview before
@@ -65,10 +65,7 @@ or configure PAVE with Superpowers or gstack.
    then `claude plugin install pave@pave`. Do not present a skill prompt
    as the plugin installation method.
 11. To apply PAVE runtime files to the repo, run
-   `scripts/install.sh <repo>` with the right profile:
-   - `default`: PAVE + Superpowers.
-   - `full`: PAVE + Superpowers + gstack.
-   - `none`: PAVE only for offline or unusual setups.
+   `scripts/install.sh <repo>`.
 12. Use `scripts/init_repo.js <repo>` as the JavaScript automation
    helper when direct repo initialization is preferred.
 13. For project-init, edits to product docs, `AGENTS.md`, `CLAUDE.md`, and
@@ -88,10 +85,8 @@ or configure PAVE with Superpowers or gstack.
     repo facts, user decisions, unresolved-after-asking questions, deferred
     decisions, not-applicable reasons, and setup gaps so future work keeps the
     same direction.
-17. Run `scripts/doctor.js <repo> --companions <profile>`. Use
-   `scripts/check_companions.sh` only when companion detection needs
-   troubleshooting.
-18. Report generated files, companion status, decision coverage, setup gaps,
+17. Run `scripts/doctor.js <repo>`.
+18. Report generated files, decision coverage, setup gaps,
     and verification commands.
 
 ## Interview Quality Gate
@@ -134,13 +129,11 @@ or configure PAVE with Superpowers or gstack.
 - Initial project docs under `docs/`, including overview, roadmap,
   development rules, deployment rules, design rules, quality rules, and
   architecture.
-- Doctor result and any companion troubleshooting result.
+- Doctor result.
 
 ## Blocked Conditions
 
 - The target repo path is unknown.
-- Superpowers is required but cannot be detected or installed.
-- The user explicitly requested the full profile and gstack is missing.
 - Product, deployment, or design policy is required and the user has
   not provided it.
 - Writing outside the sandbox requires approval and is denied.

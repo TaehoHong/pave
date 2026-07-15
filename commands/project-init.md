@@ -14,7 +14,7 @@ initialization before feature work begins.
 2. Do not route this request to feature, bug, review, refactor, docs sync, continuation, or status workflows.
 3. Split the work into two phases:
    - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
-     `.codex/pave/`, `.claude/`, and companion adapter files from repo
+     `.codex/pave/`, `.claude/`, and adapter files from repo
      facts only.
    - Direction init: collect product direction, policy, architecture,
      operation, and verification decisions through user interview before
@@ -75,9 +75,9 @@ initialization before feature work begins.
    same direction.
 15. Fill `AGENTS.md` declared verification commands with real repo commands,
    or mark missing commands as setup gaps.
-16. Run `scripts/doctor.js <repo> --companions <profile>` when the helper is
+16. Run `scripts/doctor.js <repo>` when the helper is
    available.
-17. Report generated files, companion status, decision coverage, setup gaps,
+17. Report generated files, decision coverage, setup gaps,
    and verification commands.
 
 ## Interview Quality Gate

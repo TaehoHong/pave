@@ -21,6 +21,8 @@ Use before final reports, after broad changes, or when manual/E2E coverage matte
 - Do not make final success claims for the whole task.
 - Do not revert unrelated changes.
 - Prefer repo conventions over new abstractions.
+- Reject tests that duplicate existing coverage, assert implementation details,
+  exist only for coverage, or cannot catch a realistic defect.
 - Return evidence and uncertainty clearly.
 
 ## Output Format

@@ -7,20 +7,28 @@ Execute approved plan items in small verified increments.
 ## Steps
 
 1. Identify the next unchecked item in the active approved scope.
-2. Announce item, tier, expected files, and expected test.
-3. Red: add or adjust the smallest meaningful failing test.
-4. Run the narrow command and confirm expected failure.
-5. Green: implement the minimum code needed.
-6. Run the narrow command and confirm success.
-7. Review according to tier.
-8. Fix critical and major review issues.
-9. Mark the item complete in the plan.
-10. Summarize changed files, commands, result, and next item.
+2. Announce item, tier, expected files, and expected verification.
+3. Apply `testing.md`. State the concrete behavior or risk a proposed test
+   protects and the realistic defect that would make it fail.
+4. If the test passes the gate, Red: add or adjust the smallest test for that
+   behavior. Run it and confirm it fails for the expected missing
+   behavior, not a syntax, fixture, or environment error.
+5. Green: implement only the code needed for that test.
+6. Run the narrow command and confirm success, then refactor only while tests
+   remain green.
+7. If a new test fails the value gate, do not create it. Record why, define the
+   strongest proportionate verification check, and state residual risk before
+   editing.
+8. Review the diff using `review.md` and the approved scope.
+9. Fix critical and major review issues and rerun their covering tests.
+10. Mark the item complete in the plan only after fresh evidence.
+11. Summarize changed files, commands, result, and next item.
 
 ## Blocked Conditions
 
-- A meaningful failing test cannot be written.
-- The failure does not prove intended behavior.
+- No test or proportionate verification can prove the intended behavior.
+- A proposed test cannot distinguish the intended behavior from a broken
+  implementation.
 - The item requires broad changes outside the approved plan.
 - A new product or policy ambiguity appears.
 - Destructive action, credential, or new permission is required.

@@ -4,7 +4,7 @@ PAVE means **Plan, Approve, Verify, Execute**.
 
 PAVE is a Codex-first development harness. It lets an agent plan work, ask the important product questions, get one approval before edits, verify the result, and keep durable project direction when you opt in.
 
-Default bundle: **PAVE + Superpowers**. gstack is optional through the full profile.
+PAVE is standalone and has no companion dependencies.
 
 Korean documentation: [README.kr.md](README.kr.md)
 
@@ -13,7 +13,6 @@ Korean documentation: [README.kr.md](README.kr.md)
 ### Codex
 
 ```bash
-codex plugin add superpowers@claude-plugins-official
 codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
@@ -47,17 +46,11 @@ git clone https://github.com/TaehoHong/pave.git
 cd pave
 ./scripts/install_plugin.sh
 
-# Manual repo runtime install with the full companion profile
-./scripts/install.sh <repo-path> --companions full
-
-# manual/offline repo runtime install without companion checks
-./scripts/install.sh <repo-path> --companions none
+# Manual/offline repo runtime install
+./scripts/install.sh <repo-path>
 
 # Check a configured project
-./scripts/doctor.js <repo-path> --companions default
-
-# Companion-only troubleshooting
-./scripts/check_companions.sh --companions default
+./scripts/doctor.js <repo-path>
 ```
 
 ## Commands
@@ -66,7 +59,7 @@ cd pave
 | --- | --- |
 | `/pave` | Default workflow for features, bugs, reviews, refactors, analysis, and docs work. |
 | `/project-init` | Optional repo-local setup for product direction, onboarding docs, rules, and architecture. |
-| `/doctor` | Checks install, companion, runtime, and docs health. |
+| `/doctor` | Checks install, runtime, and docs health. |
 | `/status` | Summarizes branch state, PAVE runtime state, latest plans/reports, and next actions without edits. |
 | `/plan` | Creates an implementation plan only; no code or test edits before approval. |
 | `/verify` | Runs fresh verification only; no source changes. |
@@ -80,6 +73,12 @@ cd pave
 - When token-save mode is enabled in `.codex/pave/config.md`, `/pave` keeps the current configured model for planning and final review, and uses a configured low-cost implementer only for bounded low-reasoning implementation work.
 - `.claude/agents/` is a Claude Code adapter copy used for agent discovery after optional project initialization.
 - `/project-init` creates optional repo-local docs under `docs/`, including `00-overview.md`, `01-roadmap.md`, development/deployment/design/quality rules, and `06-architecture.md`.
+- Obvious low-risk edits of roughly twenty substantive lines across at most two
+  files use a small-change fast path: the concrete request counts as approval,
+  formal planning is skipped, and only narrow verification is run.
+- PAVE owns its design, root-cause debugging, risk-based testing, review, and
+  fresh-evidence verification workflows; it does not invoke an external
+  workflow plugin.
 - Implementation work follows plan, approval, execution, verification, and final reporting.
 
 ## Optional Repo Runtime
@@ -106,4 +105,4 @@ These docs preserve product direction, onboarding context, architecture, design 
 
 ## Plugin Mechanics
 
-PAVE is both a Codex plugin and a Claude Code plugin. Codex uses `.codex-plugin/plugin.json` with `.agents/plugins/marketplace.json`; Claude Code uses `.claude-plugin/plugin.json` with `.claude-plugin/marketplace.json`. Companion dependencies are handled by install docs, local helpers, and doctor checks rather than plugin manifest dependency fields.
+PAVE is both a Codex plugin and a Claude Code plugin. Codex uses `.codex-plugin/plugin.json` with `.agents/plugins/marketplace.json`; Claude Code uses `.claude-plugin/plugin.json` with `.claude-plugin/marketplace.json`. PAVE has no companion dependency or external workflow runtime.

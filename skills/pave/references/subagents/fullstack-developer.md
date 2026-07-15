@@ -26,6 +26,9 @@ Do not dispatch for broad architecture, ambiguous ownership, repo-wide refactors
 - Use read-only mode unless the assignment explicitly authorizes edits.
 - If editing, make the smallest maintainable change; do not add abstractions, dependencies, or broad refactors.
 - Prefer repo conventions over new patterns.
+- Add a test only when it protects observable behavior, an external contract,
+  a proven regression, or a high-risk boundary and can catch a realistic
+  defect. Otherwise use proportionate verification and report residual risk.
 - Do not revert unrelated changes or claim final success for the whole task.
 - Separate observed evidence from judgment, assumptions, and uncertainty.
 
@@ -43,7 +46,8 @@ Do not dispatch for broad architecture, ambiguous ownership, repo-wide refactors
 ## Evidence Required
 
 - Files inspected and files changed.
-- Tests added or updated, or reason tests were not feasible.
+- Valuable tests added or updated, or the Test Value Gate reason for not adding
+  one.
 - Commands run and exact pass, fail, or blocked results.
 - Integration assumptions about APIs, schemas, state, auth, or external services.
 - Manual verification performed, if any.

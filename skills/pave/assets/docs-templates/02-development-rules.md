@@ -18,5 +18,6 @@
 
 ## Review Rules
 
-- Behavior changes require tests or explicit verification.
+- Behavior changes require a valuable regression test or proportionate
+  explicit verification. Do not add tests only for coverage or convention.
 - Shared logic requires broader regression checks.

@@ -10,20 +10,15 @@
   remove ambiguity before implementation.
 - Durable artifacts: `plans/`, `reports/`, and optional `.wiki/`.
 
-## Companions
-
-- Profile: `default`.
-- Superpowers: required for default PAVE operation when available.
-- gstack: optional by default; required only when the repo selects the
-  `full` companion profile.
-- Offline or unusual setups may use profile `none`, but must report
-  fallback mode before claiming harness behavior.
-
 ## Request Routing
 
 - Project initialization: create PAVE runtime, agent files, docs,
-  declared verification commands, and companion checks.
-- Feature/change: plan first, then Red-Green-Review.
+  and declared verification commands.
+- Small change: for a concrete low-risk edit normally within two files and
+  roughly twenty substantive lines, treat the request as approval, skip formal
+  planning, edit directly, and run narrow verification.
+- Feature/change: plan first, apply the Test Value Gate, then use
+  Red-Green-Review only for tests with material regression value.
 - Bug: investigate root cause before proposing fixes.
 - Analysis: scan repo, cite evidence, avoid edits unless requested.
 - Review: findings first, severity ordered, with file and line evidence.

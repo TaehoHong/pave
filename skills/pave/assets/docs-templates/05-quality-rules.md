@@ -7,6 +7,13 @@ report explains why it cannot pass.
 
 ## Test Strategy
 
+- Add a test only when it protects observable behavior, an external contract,
+  a proven regression, or a high-risk boundary and can catch a realistic
+  defect.
+- Reject duplicate, implementation-detail, coverage-only, ceremonial, and
+  tautological tests.
+- When a new automated test adds little regression value, use the strongest
+  proportionate verification and record residual risk.
 - Unit:
 - Integration:
 - E2E:

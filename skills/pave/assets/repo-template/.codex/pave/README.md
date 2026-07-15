@@ -26,23 +26,26 @@ In Claude Code:
 /pave continue the previous task
 ```
 
-## Companion Tools
-
-- Superpowers is required by the default PAVE profile.
-- gstack is optional unless this repo was installed with the full profile.
-- Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
+Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 
 ## Workflow
 
 1. The agent reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md`.
 2. The agent scans relevant code and docs.
-3. The agent asks product, policy, design, deployment, and verification questions before implementation.
-4. The agent creates or updates a plan in `.codex/pave/plans/`.
-5. The agent asks once for approval immediately before code or test edits.
-6. The agent implements, reviews, and verifies.
-7. The agent uses bounded specialist subagents when useful.
-8. The agent reports verification results.
-9. The agent writes final or blocked reports in `.codex/pave/reports/` when useful.
+3. For a concrete low-risk edit normally within two files and roughly twenty
+   substantive lines, the agent treats the request as approval, skips formal
+   planning, edits directly, and runs narrow verification.
+4. Otherwise the agent asks product, policy, design, deployment, and verification questions before implementation.
+5. The agent creates or updates a plan in `.codex/pave/plans/`.
+6. The agent asks once for approval immediately before code or test edits.
+7. The agent applies the Test Value Gate and rejects ceremonial, duplicate,
+   implementation-detail, or coverage-only tests.
+8. The agent implements with valuable tests or the strongest proportionate
+   non-test verification.
+9. The agent reviews and verifies.
+10. The agent uses bounded specialist subagents when useful.
+11. The agent reports verification results and residual risk.
+12. The agent writes final or blocked reports in `.codex/pave/reports/` when useful.
 
 ## Codex vs Claude Code
 
@@ -72,6 +75,5 @@ $pave check this PAVE installation
 Terminal fallback, from the PAVE source repo:
 
 ```bash
-./scripts/check_companions.sh
 ./scripts/doctor.js <repo-path>
 ```

@@ -4,7 +4,7 @@ PAVE는 **Plan, Approve, Verify, Execute**의 약자입니다.
 
 PAVE는 Codex-first 개발 하네스입니다. 에이전트가 작업을 계획하고, 중요한 제품 질문을 먼저 묻고, 수정 전 한 번 승인받고, 결과를 검증하며, 원할 때 프로젝트 방향성을 문서로 남기게 합니다.
 
-기본 번들은 **PAVE + Superpowers**입니다. gstack은 full profile에서 선택적으로 확인합니다.
+PAVE는 독립적으로 동작하며 companion dependency가 없습니다.
 
 English documentation: [README.md](README.md)
 
@@ -13,7 +13,6 @@ English documentation: [README.md](README.md)
 ### Codex
 
 ```bash
-codex plugin add superpowers@claude-plugins-official
 codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
@@ -47,17 +46,11 @@ git clone https://github.com/TaehoHong/pave.git
 cd pave
 ./scripts/install_plugin.sh
 
-# full companion profile로 repo runtime 수동 설치
-./scripts/install.sh <repo-path> --companions full
-
-# companion check 없이 repo runtime 수동/오프라인 설치
-./scripts/install.sh <repo-path> --companions none
+# repo runtime 수동/오프라인 설치
+./scripts/install.sh <repo-path>
 
 # 설정된 프로젝트 확인
-./scripts/doctor.js <repo-path> --companions default
-
-# companion 감지만 따로 문제 해결
-./scripts/check_companions.sh --companions default
+./scripts/doctor.js <repo-path>
 ```
 
 ## Commands
@@ -66,7 +59,7 @@ cd pave
 | --- | --- |
 | `/pave` | 기능, 버그, 리뷰, 리팩터링, 분석, 문서 작업을 처리하는 기본 워크플로우 |
 | `/project-init` | 제품 방향성, 온보딩 문서, 규칙, 아키텍처를 포함한 선택적 repo-local 초기화 |
-| `/doctor` | 설치, companion, runtime, docs 상태 점검 |
+| `/doctor` | 설치, runtime, docs 상태 점검 |
 | `/status` | branch 상태, PAVE runtime, 최신 plan/report, 다음 액션을 수정 없이 요약 |
 | `/plan` | 코드나 테스트를 고치지 않고 구현 계획만 작성 |
 | `/verify` | source 변경 없이 fresh verification만 실행 |
@@ -80,6 +73,11 @@ cd pave
 - `.codex/pave/config.md`에서 token-save mode를 켜면 `/pave`는 계획과 최종 리뷰에는 현재 설정된 모델을 유지하고, 추론이 거의 필요 없는 제한된 구현 작업만 설정된 저비용 implementer로 넘깁니다.
 - `.claude/agents/`는 Claude Code가 agent를 발견하기 위한 repo-local adapter copy입니다.
 - `/project-init`은 `docs/00-overview.md`, `01-roadmap.md`, 개발/배포/디자인/품질 규칙, `06-architecture.md`를 선택적으로 만듭니다.
+- 명확하고 저위험인 변경이 대체로 두 파일, 실질 코드 약 20줄 이내라면
+  small-change fast path를 사용합니다. 구체적인 요청 자체를 승인으로 보고
+  정식 계획을 생략한 뒤 좁은 검증만 실행합니다.
+- PAVE는 설계, 근본 원인 디버깅, 위험 기반 테스트, 리뷰, fresh-evidence
+  검증 흐름을 자체적으로 제공하며 외부 workflow plugin을 호출하지 않습니다.
 - 구현 작업은 계획, 승인, 실행, 검증, 최종 보고 순서로 진행합니다.
 
 ## 선택적 Repo Runtime
@@ -106,4 +104,4 @@ repo/
 
 ## Plugin 구조
 
-PAVE는 Codex plugin이면서 Claude Code plugin입니다. Codex는 `.codex-plugin/plugin.json`와 `.agents/plugins/marketplace.json`를 사용하고, Claude Code는 `.claude-plugin/plugin.json`와 `.claude-plugin/marketplace.json`를 사용합니다. Companion dependency는 plugin manifest가 아니라 설치 문서, local helper, doctor check에서 처리합니다.
+PAVE는 Codex plugin이면서 Claude Code plugin입니다. Codex는 `.codex-plugin/plugin.json`와 `.agents/plugins/marketplace.json`를 사용하고, Claude Code는 `.claude-plugin/plugin.json`와 `.claude-plugin/marketplace.json`를 사용합니다. PAVE에는 companion dependency나 외부 workflow runtime이 없습니다.

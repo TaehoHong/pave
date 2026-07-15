@@ -26,7 +26,7 @@ test('PAVE automation uses JavaScript helpers instead of Python helpers', () => 
   }
 });
 
-test('init_repo.js installs the repo template and doctor.js accepts it without companions', () => {
+test('init_repo.js installs the repo template and doctor.js accepts it', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-js-test-'));
 
   const init = run([node, 'scripts/init_repo.js', tmp]);
@@ -34,7 +34,7 @@ test('init_repo.js installs the repo template and doctor.js accepts it without c
   assert.match(init.stdout, /PAVE initialization complete/);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '06-architecture.md')), true);
 
-  const doctor = run([node, 'scripts/doctor.js', tmp, '--companions', 'none']);
+  const doctor = run([node, 'scripts/doctor.js', tmp]);
   assert.equal(doctor.status, 0, doctor.stderr || doctor.stdout);
   assert.match(doctor.stdout, /PAVE doctor passed/);
 });
@@ -55,12 +55,12 @@ test('documentation clarifies plugin-local default and Claude agent adapter boun
 
   assert.match(readme, /default source of truth is the plugin-local PAVE skill, references, commands, and role briefs/);
   assert.match(readme, /`\.claude\/agents\/` is a Claude Code adapter copy used for agent discovery/);
-  assert.match(readme, /manual\/offline repo runtime install without companion checks/);
+  assert.match(readme, /Manual\/offline repo runtime install/);
   assert.doesNotMatch(readme, /Claude Code-only manual\/offline repo runtime install/);
 
   assert.match(readmeKr, /기본 원본은 plugin-local PAVE skill, references, commands, role briefs/);
   assert.match(readmeKr, /`\.claude\/agents\/`는 Claude Code가 agent를 발견하기 위한 repo-local adapter copy/);
-  assert.match(readmeKr, /companion check 없이 repo runtime 수동\/오프라인 설치/);
+  assert.match(readmeKr, /repo runtime 수동\/오프라인 설치/);
   assert.doesNotMatch(readmeKr, /Claude Code-only 수동\/오프라인 repo runtime 설치/);
 });
 
@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.2.6');
+  assert.equal(packageJson.version, '0.3.0');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -145,7 +145,7 @@ test('project-init command is a dedicated initialization entrypoint', () => {
   assert.doesNotMatch(command, /SNS|Instagram|DM character-chat/);
   assert.match(command, /Do not stop at copying templates/);
   assert.match(command, /Do not route this request to feature, bug, review, refactor, docs sync, continuation, or status workflows/);
-  assert.match(command, /scripts\/doctor\.js <repo> --companions <profile>/);
+  assert.match(command, /scripts\/doctor\.js <repo>/);
 });
 
 test('project-init gates product direction docs on explicit user decisions', () => {
@@ -172,7 +172,7 @@ test('README quick start explains install and optional project-init concisely', 
   const readmeKr = fs.readFileSync(path.join(repoRoot, 'README.kr.md'), 'utf8');
 
   assert.match(readme, /## Quick Start/);
-  assert.match(readme, /codex plugin add superpowers@claude-plugins-official/);
+  assert.doesNotMatch(readme, /superpowers/i);
   assert.match(readme, /codex plugin marketplace add TaehoHong\/pave --ref main/);
   assert.match(readme, /codex plugin add pave@pave/);
   assert.match(readme, /Plugin install does not create project files/);
@@ -185,12 +185,60 @@ test('README quick start explains install and optional project-init concisely', 
   assert.doesNotMatch(readme, /claude plugin marketplace add TaehoHong\/pave --sparse/);
   assert.match(readme, /claude plugin install pave@pave/);
   assert.doesNotMatch(readme, /\/pave Initialize this repository with PAVE/);
-  assert.match(readme, /\.\/scripts\/install\.sh <repo-path> --companions none/);
+  assert.match(readme, /\.\/scripts\/install\.sh <repo-path>/);
 
   assert.match(readmeKr, /## 빠른 시작/);
+  assert.doesNotMatch(readmeKr, /superpowers/i);
   assert.match(readmeKr, /plugin 설치만으로는 프로젝트 파일을 만들지 않습니다/);
   assert.match(readmeKr, /선택 문서화: `\/project-init`/);
   assert.match(readmeKr, /프로젝트 방향성, 온보딩 맥락, 오래 유지할 제품 결정을 저장/);
+});
+
+test('PAVE owns core workflows without companion dependencies', () => {
+  const standaloneFiles = [
+    'README.md',
+    'README.kr.md',
+    'skills/pave/SKILL.md',
+    'skills/pave/references/project-init.md',
+    'scripts/install_plugin.sh',
+    'scripts/install.sh',
+    'scripts/doctor.js',
+    'skills/pave/assets/repo-template/.codex/pave/config.md',
+    'skills/pave/assets/repo-template/.codex/pave/README.md',
+    'skills/pave/assets/repo-template/.codex/pave/README.kr.md',
+    'skills/pave/assets/repo-template/.codex/pave/adapters/codex.md',
+  ];
+
+  for (const rel of standaloneFiles) {
+    const content = fs.readFileSync(path.join(repoRoot, rel), 'utf8');
+    assert.doesNotMatch(content, /superpowers|gstack/i, `${rel} should not depend on a companion`);
+  }
+
+  const expectedReferences = {
+    'fast-path.md': [/two files/, /twenty substantive lines/, /concrete edit request as implementation approval/, /Do not\s+ask for a second approval/, /one-line security/],
+    'design.md': [/observable success criteria/, /Remove speculative features/, /Get approval/],
+    'debugging.md': [/root-cause hypothesis/, /regression test/, /three failed fix hypotheses/],
+    'testing.md': [/realistic defect/, /Low-Value Tests to Reject/, /must not be\s+added/, /residual risk/],
+    'review.md': [/requirement compliance/, /actual diff/, /reruns verification/],
+  };
+
+  for (const [file, patterns] of Object.entries(expectedReferences)) {
+    const content = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', file), 'utf8');
+    for (const pattern of patterns) assert.match(content, pattern);
+  }
+
+  const command = fs.readFileSync(path.join(repoRoot, 'commands', 'pave.md'), 'utf8');
+  const repoContract = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'assets', 'repo-template', 'AGENTS.md'), 'utf8');
+  const claudeCommand = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'assets', 'repo-template', '.claude', 'commands', 'pave.md'), 'utf8');
+  for (const content of [command, repoContract, claudeCommand]) {
+    assert.match(content, /Test Value Gate/);
+    assert.match(content, /realistic defect/);
+    assert.match(content, /Small Change Fast Path/);
+    assert.match(content, /roughly twenty\s+substantive lines/);
+  }
+
+  assert.match(command, /treat the request as\s+approval/);
+  assert.match(command, /without a formal design, feature inventory,\s+tiered plan, plan file, or second approval/);
 });
 
 test('pave command and skill keep repo-local runtime files optional', () => {
@@ -335,7 +383,7 @@ exit 0
   });
 
   assert.equal(install.status, 0, install.stderr || install.stdout);
-  const codexCalls = fs.readFileSync(log, 'utf8');
+  const codexCalls = fs.existsSync(log) ? fs.readFileSync(log, 'utf8') : '';
   assert.doesNotMatch(codexCalls, /plugin add/);
   assert.match(install.stdout, /would create repo directory/);
 });
