@@ -125,7 +125,7 @@ test('plugin release version is synchronized across manifests', () => {
   const claudePlugin = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
   const claudeMarketplace = JSON.parse(fs.readFileSync(path.join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
 
-  assert.equal(packageJson.version, '0.3.0');
+  assert.equal(packageJson.version, '0.3.1');
   assert.equal(codexPlugin.version, packageJson.version);
   assert.equal(claudePlugin.version, packageJson.version);
   assert.equal(claudeMarketplace.plugins[0].version, packageJson.version);
@@ -238,7 +238,7 @@ test('PAVE owns core workflows without companion dependencies', () => {
   }
 
   assert.match(command, /treat the request as\s+approval/);
-  assert.match(command, /without a formal design, feature inventory,\s+tiered plan, plan file, or second approval/);
+  assert.match(command, /without a formal design, feature inventory,\s+vertical-slice plan, plan file, or second approval/);
 });
 
 test('pave command and skill keep repo-local runtime files optional', () => {
@@ -344,6 +344,30 @@ test('PAVE references support plugin-only planning and verification', () => {
   assert.match(planning, /Feature Decision Gate/);
   assert.match(planning, /per-feature acceptance criteria/);
   assert.match(planning, /Do not start implementation/);
+});
+
+test('PAVE keeps implementation vertically reviewable and human-owned', () => {
+  const design = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'design.md'), 'utf8');
+  const fastPath = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'fast-path.md'), 'utf8');
+  const planning = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'planning.md'), 'utf8');
+  const review = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'review.md'), 'utf8');
+  const reporting = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'references', 'reporting.md'), 'utf8');
+  const planTemplate = fs.readFileSync(path.join(repoRoot, 'skills', 'pave', 'assets', 'repo-template', '.codex', 'pave', 'templates', 'plan.md'), 'utf8');
+
+  assert.match(design, /entry point/);
+  assert.match(design, /shared owner/);
+  assert.match(design, /files and symbols/);
+  assert.match(fastPath, /vertical-slice plan/);
+  assert.match(planning, /vertical behavior slice/);
+  assert.match(planning, /not execution order/);
+  assert.doesNotMatch(planning, /T1 Scaffold/);
+  assert.match(review, /shared cause/);
+  assert.match(review, /parallel path/);
+  assert.match(review, /shotgun change/);
+  assert.match(reporting, /Human review focus/);
+  assert.match(reporting, /human review required before merge/);
+  assert.match(planTemplate, /Vertical Slice/);
+  assert.doesNotMatch(planTemplate, /T1 Scaffold/);
 });
 
 test('project-init docs preserve project direction and onboarding context', () => {

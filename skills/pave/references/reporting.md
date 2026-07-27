@@ -13,6 +13,11 @@ Include:
 - Commands run and results.
 - Plan path.
 - Subagent outcomes when used.
+- Human review focus: for standard work, name up to three key files, decisions,
+  or residual risks a human should read.
+- For security, data-model, shared-abstraction, or architecture changes, report
+  `verified; human review required before merge` instead of unqualified
+  completion.
 - Memory capture or skip reason.
 
 ## Blocked Report

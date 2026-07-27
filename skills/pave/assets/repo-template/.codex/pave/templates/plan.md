@@ -29,29 +29,19 @@
 
 ## Checklist
 
-### [ ] 1. <item title> <!-- T1 Scaffold -->
+### [ ] 1. <Vertical Slice: actor outcome>
 
-- Behavior: <expected behavior>
+- Flow: <entry point -> shared rule owner -> observable result>
+- Files and symbols: <exact implementation boundary>
 - Verification: <valuable test and protected risk, or non-test command and residual risk>
-- Review: light
+- Human review focus: <key file, decision, or residual risk>
 
-### [ ] 2. <item title> <!-- T2 Core Logic -->
+### [ ] 2. <Vertical Slice: next actor outcome>
 
-- Behavior: <expected behavior>
+- Flow: <entry point -> shared rule owner -> observable result>
+- Files and symbols: <exact implementation boundary>
 - Verification: <valuable test and protected risk, or non-test command and residual risk>
-- Review: deep
-
-### [ ] 3. <item title> <!-- T3 Integration -->
-
-- Behavior: <expected behavior>
-- Verification: <valuable test and protected risk, or non-test command and residual risk>
-- Review: medium plus specialist checks when relevant
-
-### [ ] 4. <item title> <!-- T4 Surface/E2E -->
-
-- Behavior: <expected behavior>
-- Verification: <valuable test and protected risk, or non-test command and residual risk>
-- Review: light to medium
+- Human review focus: <key file, decision, or residual risk>
 
 ## Final Verification
 

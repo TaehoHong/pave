@@ -9,7 +9,7 @@
     {
       "name": "pave",
       "description": "Plan, Approve, Verify, Execute: a Claude Code plugin for session-based agentic development workflows.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "TaehoHong"
       },

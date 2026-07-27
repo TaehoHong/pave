@@ -30,7 +30,7 @@ diff. A one-line security, schema, or API change uses the standard workflow.
    concise update.
 3. Treat the user's concrete edit request as implementation approval. Do not
    ask for a second approval or create a formal design, feature inventory,
-   tiered plan, plan file, or subagent task.
+   vertical-slice plan, plan file, or subagent task.
 4. Make the smallest maintainable edit.
 5. Apply `testing.md`; do not add a low-value test for a tiny change merely to
    satisfy process.

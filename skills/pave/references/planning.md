@@ -8,13 +8,12 @@ Produce a decision-complete checklist plan before implementation.
 
 1. Summarize current behavior and desired behavior.
 2. Choose the smallest coherent implementation path.
-3. Split work into checklist items small enough for one verified execution
-   loop.
-4. Assign tiers:
-   - `T1 Scaffold`: structure, types, wiring.
-   - `T2 Core Logic`: domain rules and algorithms.
-   - `T3 Integration`: DB, API, filesystem, external systems.
-   - `T4 Surface/E2E`: handlers, UI, CLI, user flows.
+3. Split work into vertical behavior slices small enough for one verified
+   execution loop. Each slice should deliver one observable actor outcome
+   through every layer it needs.
+4. Order slices by dependency and smallest useful behavior. Fold required
+   scaffolding, core logic, integration, and surface work into the slice that
+   uses them. Risk or review-depth labels are metadata, not execution order.
 5. Apply `testing.md` and attach only tests with material regression value.
    Otherwise name the proportionate verification command and residual risk.
 6. Resolve every product or policy ambiguity, including small details.
@@ -45,7 +44,7 @@ unknown; ask or mark the item blocked.
 - Keep the plan in conversation by default.
 - For durable repo-local planning, write it under `.codex/pave/plans/` only when
   the optional repo runtime already exists or the user explicitly asks for it.
-- Tiered checklist.
+- Vertically sliced checklist.
 - Verification strategy.
 - Approval gate.
 

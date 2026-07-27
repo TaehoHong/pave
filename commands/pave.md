@@ -23,7 +23,7 @@ specialist discovery when the optional repo runtime has been initialized.
    local, low-risk, normally limited to two files and roughly twenty
    substantive lines, and has cheap narrow verification, treat the request as
    approval and edit directly without a formal design, feature inventory,
-   tiered plan, plan file, or second approval.
+   vertical-slice plan, plan file, or second approval.
 7. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
 8. Apply the Feature Decision Gate before standard implementation work.

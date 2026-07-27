@@ -10,11 +10,14 @@ Check requirement compliance and code quality with evidence before completion.
 2. Check for missing requirements and unrequested behavior first.
 3. Check correctness, security, data integrity, compatibility, error handling,
    maintainability, and test quality.
-4. Apply `testing.md` to every new or modified test. Flag tests that duplicate
+4. Check whether the patch fixes the shared cause at its existing owner,
+   duplicates a rule, adds a parallel path, creates a shotgun change, or
+   introduces an abstraction without current use.
+5. Apply `testing.md` to every new or modified test. Flag tests that duplicate
    existing coverage, assert implementation details, or cannot catch a
    realistic defect.
-5. Cite file and line evidence for actionable findings and rank them by impact.
-6. Fix critical and major issues, rerun the covering tests, and review the
+6. Cite file and line evidence for actionable findings and rank them by impact.
+7. Fix critical and major issues, rerun the covering tests, and review the
    resulting diff again.
 
 ## Receiving Feedback

@@ -15,15 +15,17 @@ test edits.
 5. When materially different approaches exist, present the smallest viable
    options with trade-offs and a recommendation. Do not invent alternatives
    for a mechanical change with one obvious path.
-6. Describe the chosen boundary, data or control flow, error behavior, and
-   verification strategy at a level proportional to the change.
+6. For work that crosses a module or system boundary, name the entry point,
+   existing shared owner of each rule, files and symbols, data or control flow,
+   error location, and verification strategy. Keep this proportional; a
+   mechanical local change does not need a program-design ceremony.
 7. Remove speculative features and unrelated refactors.
 8. Get approval for the behavior and implementation boundary before code or
    test edits. A short design is enough for a small change.
 
 ## Design Quality Gate
 
-- Each unit has one clear responsibility and an explicit interface.
+- Each unit has one clear responsibility and boundary.
 - Existing project conventions are followed unless the requested work requires
   a targeted change.
 - Dependencies and ownership are visible.
