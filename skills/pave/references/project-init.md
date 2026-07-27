@@ -12,6 +12,10 @@ Use when the user asks to initialize a project, set up AI-assisted
 development, bootstrap a new repo, apply PAVE runtime files to a repo,
 or configure PAVE project instructions and docs.
 
+Treat the request only as project initialization or repo runtime setup. Do not
+route it to feature, bug, review, refactor, docs sync, continuation, or status
+workflows.
+
 ## Steps
 
 1. Read repo instructions and inspect the project tree.
@@ -137,3 +141,9 @@ or configure PAVE project instructions and docs.
 - Product, deployment, or design policy is required and the user has
   not provided it.
 - Writing outside the sandbox requires approval and is denied.
+
+## Scope Guard
+
+This workflow must stop after project initialization. Do not implement product
+features, fix bugs, refactor code, or sync unrelated documentation in the same
+run.

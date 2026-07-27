@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const pluginRoot = path.resolve(__dirname, '..');
+const agentsRoot = path.join(pluginRoot, 'agents');
 const assetsRoot = path.join(pluginRoot, 'skills', 'pave', 'assets');
 const repoTemplate = path.join(assetsRoot, 'repo-template');
 const docTemplates = path.join(assetsRoot, 'docs-templates');
@@ -130,15 +131,16 @@ function run(argv = process.argv.slice(2)) {
   }
 
   const runtime = copyTree(repoTemplate, repo, options);
+  const agents = copyTree(agentsRoot, path.join(repo, '.claude', 'agents'), options);
   const docs = options.skipDocs
     ? { created: [], skipped: [] }
     : copyTree(docTemplates, path.join(repo, 'docs'), options);
 
-  for (const filePath of [...runtime.created, ...docs.created]) {
+  for (const filePath of [...runtime.created, ...agents.created, ...docs.created]) {
     console.log(options.dryRun ? `would create: ${filePath}` : `created: ${filePath}`);
   }
 
-  for (const filePath of [...runtime.skipped, ...docs.skipped]) {
+  for (const filePath of [...runtime.skipped, ...agents.skipped, ...docs.skipped]) {
     console.log(`skipped existing: ${filePath}`);
   }
 

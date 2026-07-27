@@ -9,6 +9,6 @@ Use this as the discoverable Codex entrypoint for `/project-init`.
 
 Before acting:
 1. Read `../pave/SKILL.md`.
-2. Read `../../commands/project-init.md`.
+2. Read `../pave/references/project-init.md`.
 
-Then follow the command file. Stop after project initialization.
+Then follow the reference. Stop after project initialization.
