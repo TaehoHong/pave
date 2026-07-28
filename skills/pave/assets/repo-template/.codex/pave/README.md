@@ -11,10 +11,10 @@ Korean documentation: [README.kr.md](README.kr.md)
 In Codex:
 
 ```text
-$pave implement this feature
-$pave find and fix this bug
-$pave review the current changes
-$pave continue the previous task
+$pave:pave implement this feature
+$pave:pave find and fix this bug
+$pave:pave review the current changes
+$pave:pave continue the previous task
 ```
 
 In Claude Code:
@@ -51,7 +51,7 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 
 | Topic | Codex | Claude Code |
 | --- | --- | --- |
-| Command | `$pave ...` | `/pave ...` |
+| Command | `$pave:pave ...` | `/pave ...` |
 | First file | `AGENTS.md` | `CLAUDE.md`, then `AGENTS.md` |
 | Runtime path | `.codex/pave/` | `.codex/pave/` |
 | Role agents | PAVE skill references | `.claude/agents/` |
@@ -69,7 +69,7 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 In Codex, ask:
 
 ```text
-$pave check this PAVE installation
+$pave:pave check this PAVE installation
 ```
 
 Terminal fallback, from the PAVE source repo:

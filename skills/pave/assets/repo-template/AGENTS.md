@@ -2,7 +2,7 @@
 
 This repository uses PAVE: Plan, Approve, Verify, Execute.
 
-Use `$pave` when available. The repo-local runtime lives under
+Use `$pave:pave` when available. The repo-local runtime lives under
 `.codex/pave/`.
 
 ## Orchestrator Contract
@@ -11,6 +11,7 @@ For project initialization, feature work, bug fixes, changes,
 analysis, reviews, refactors, docs sync, and continuation:
 
 1. Read this file and `.codex/pave/config.md`.
+   When running in Codex, also read `.codex/pave/adapters/codex.md`.
 2. Scan the repo before asking questions or editing.
 3. Use the Small Change Fast Path for a concrete, low-risk edit normally
    limited to two files and roughly twenty substantive lines with cheap narrow

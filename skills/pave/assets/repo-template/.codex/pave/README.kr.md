@@ -8,13 +8,13 @@ English documentation: [README.md](README.md)
 
 ## 가장 쉬운 사용법
 
-Codex에서는 `$pave`로 요청합니다.
+Codex에서는 `$pave:pave`로 요청합니다.
 
 ```text
-$pave 이 기능 구현해줘
-$pave 이 버그 원인 찾고 고쳐줘
-$pave 현재 변경사항 리뷰해줘
-$pave 이전 작업 이어서 진행해줘
+$pave:pave 이 기능 구현해줘
+$pave:pave 이 버그 원인 찾고 고쳐줘
+$pave:pave 현재 변경사항 리뷰해줘
+$pave:pave 이전 작업 이어서 진행해줘
 ```
 
 Claude Code에서는 `/pave`로 요청합니다.
@@ -49,7 +49,7 @@ Claude Code에서는 `/pave`로 요청합니다.
 
 | 항목 | Codex | Claude Code |
 | --- | --- | --- |
-| 호출 | `$pave ...` | `/pave ...` |
+| 호출 | `$pave:pave ...` | `/pave ...` |
 | 먼저 보는 파일 | `AGENTS.md` | `CLAUDE.md`, 그 다음 `AGENTS.md` |
 | runtime 위치 | `.codex/pave/` | `.codex/pave/` |
 | 역할별 보조 에이전트 | PAVE skill references | `.claude/agents/` |
@@ -67,7 +67,7 @@ Claude Code에서는 `/pave`로 요청합니다.
 Codex에서 이렇게 요청하세요.
 
 ```text
-$pave 이 repo의 PAVE 설치 상태 확인해줘
+$pave:pave 이 repo의 PAVE 설치 상태 확인해줘
 ```
 
 터미널 fallback은 PAVE 소스 repo에서 실행합니다.
