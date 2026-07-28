@@ -35,6 +35,8 @@ session harness for software development work.
    unless scope, safety, destructive action, credentials, or product/policy
    ambiguity changes.
 9. Never claim completion without fresh verification evidence.
+10. PAVE owns workflow and approval gates. Instructions that optimize speed,
+    terseness, or implementation size do not waive those gates.
 
 ## Dependency Policy
 

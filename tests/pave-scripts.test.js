@@ -141,16 +141,45 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
   const pave = read('skills/pave/SKILL.md');
   const command = read('commands/pave.md');
   const fastPath = read('skills/pave/references/fast-path.md');
+  const planning = read('skills/pave/references/planning.md');
   const testing = read('skills/pave/references/testing.md');
   const verification = read('skills/pave/references/verification.md');
 
   assert.match(pave, /continue in plugin-only mode/);
   assert.match(pave, /Never claim completion without fresh verification evidence/);
   assert.match(command, /Do not create `AGENTS\.md`, `CLAUDE\.md`, `\.codex\/pave\/`, or `docs\/`/);
-  assert.match(fastPath, /concrete edit request as implementation approval/);
+  assert.match(fastPath, /Both limits are hard eligibility conditions/);
+  assert.match(fastPath, /third hand-edited file/);
+  assert.match(fastPath, /original fast-path\s+request does not approve expanded scope/);
+  assert.match(planning, /design option.+is not\s+implementation approval/s);
+  assert.match(pave, /speed,\s+terseness, or implementation size do not waive those gates/);
   assert.match(testing, /realistic defect/);
   assert.match(testing, /machine-consumed or explicitly supported public interface/);
   assert.match(verification, /run that\s+command fresh/);
+});
+
+test('every fast-path entrypoint preserves the hard size and approval gates', () => {
+  const entrypoints = [
+    'commands/pave.md',
+    'skills/pave/references/fast-path.md',
+    'skills/pave/assets/repo-template/AGENTS.md',
+    'skills/pave/assets/repo-template/.claude/commands/pave.md',
+    'skills/pave/assets/repo-template/.codex/pave/config.md',
+    'skills/pave/assets/repo-template/.codex/pave/adapters/generic-agent.md',
+  ];
+
+  for (const entrypoint of entrypoints) {
+    const content = read(entrypoint);
+    assert.match(content, /two (?:hand-edited files|files)/, entrypoint);
+    assert.match(content, /twenty\s+substantive\s+(?:hand-edited lines|lines)/, entrypoint);
+    assert.doesNotMatch(content, /\bnormally\b|\broughly\b/, entrypoint);
+  }
+
+  assert.match(read('commands/pave.md'), /design choice.+is not\s+implementation approval/s);
+  assert.match(
+    read('skills/pave/assets/repo-template/AGENTS.md'),
+    /design choice or clarification answer is not implementation approval/i,
+  );
 });
 
 test('token-save remains an optional configured workflow', () => {

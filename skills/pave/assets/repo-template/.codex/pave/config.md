@@ -14,9 +14,10 @@
 
 - Project initialization: create PAVE runtime, agent files, docs,
   and declared verification commands.
-- Small change: for a concrete low-risk edit normally within two files and
-  roughly twenty substantive lines, treat the request as approval, skip formal
-  planning, edit directly, and run narrow verification.
+- Small change: only a direct implementation request within both hard limits
+  of two hand-edited files and twenty substantive hand-edited lines can use
+  the fast path. State the expected files, line count, and verification before
+  writing.
 - Feature/change: plan first, apply the Test Value Gate, then use
   Red-Green-Review only for tests with material regression value.
 - Bug: investigate root cause before proposing fixes.

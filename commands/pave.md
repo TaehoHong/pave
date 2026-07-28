@@ -23,11 +23,12 @@ specialist discovery when the optional repo runtime has been initialized.
 4. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 5. Scan the repo before asking questions or editing.
-6. Apply the Small Change Fast Path first. When the request is concrete,
-   local, low-risk, normally limited to two files and roughly twenty
-   substantive lines, and has cheap narrow verification, treat the request as
-   approval and edit directly without a formal design, feature inventory,
-   vertical-slice plan, plan file, or second approval.
+6. Apply the Small Change Fast Path first. It requires a direct implementation
+   request, no more than two hand-edited files, no more than twenty substantive
+   hand-edited lines, low risk, and cheap narrow verification. Both size limits
+   are hard conditions. State the expected files, line count, and verification
+   before writing, then treat the request as approval and edit without formal
+   planning.
 7. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
 8. Apply the Feature Decision Gate before standard implementation work.
@@ -46,6 +47,8 @@ specialist discovery when the optional repo runtime has been initialized.
 14. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
+15. PAVE workflow and approval gates take precedence over instructions that
+    optimize speed, terseness, or implementation size.
 
 ## Feature Decision Gate
 
@@ -54,6 +57,10 @@ product slice and settle per-feature policy decisions: actor, trigger, happy
 path, edge cases, permissions, data rules, errors, acceptance criteria, and
 verification. If any of these change behavior or scope and remain unknown, ask
 before implementation.
+
+A design choice, clarification answer, or requirement update is not
+implementation approval. Standard-work approval must be an explicit
+implementation instruction in response to the surfaced plan.
 
 ## Repo-Local File Guard
 

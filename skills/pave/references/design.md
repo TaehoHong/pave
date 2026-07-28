@@ -23,6 +23,10 @@ test edits.
 8. Get approval for the behavior and implementation boundary before code or
    test edits. A short design is enough for a small change.
 
+A response that selects an option or answers a design question settles that
+decision only. Surface the resulting implementation boundary and plan, then
+request implementation approval.
+
 ## Design Quality Gate
 
 - Each unit has one clear responsibility and boundary.

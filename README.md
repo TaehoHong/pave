@@ -56,9 +56,11 @@ Request
 ```
 
 PAVE scans the repository before asking questions. It uses a fast path for
-small, obvious edits; investigates root causes for bugs; adds tests only when
-they protect meaningful behavior; and does not claim completion without fresh
-evidence.
+direct, low-risk edits only when both hard limits hold: no more than two
+hand-edited files and no more than twenty substantive hand-edited lines.
+Design choices and clarification answers do not count as implementation
+approval. PAVE also investigates root causes for bugs, adds tests only when
+they protect meaningful behavior, and requires fresh evidence for completion.
 
 ## Skills
 

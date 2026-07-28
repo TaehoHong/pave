@@ -13,9 +13,11 @@ analysis, reviews, refactors, docs sync, and continuation:
 1. Read this file and `.codex/pave/config.md`.
    When running in Codex, also read `.codex/pave/adapters/codex.md`.
 2. Scan the repo before asking questions or editing.
-3. Use the Small Change Fast Path for a concrete, low-risk edit normally
-   limited to two files and roughly twenty substantive lines with cheap narrow
-   verification. Treat the request as approval and skip formal planning.
+3. Use the Small Change Fast Path only for a direct implementation request
+   touching no more than two hand-edited files and no more than twenty
+   substantive hand-edited lines, with low risk and cheap narrow verification.
+   Both size limits are hard conditions. State the expected files, line count,
+   and verification before writing.
 4. Ask every product or policy clarification needed to remove
    ambiguity.
 5. Create or update a checklist plan under `.codex/pave/plans/` for standard
@@ -29,6 +31,10 @@ analysis, reviews, refactors, docs sync, and continuation:
 8. Use bounded subagents only when useful.
 9. Run declared verification commands before success claims.
 10. Write final or blocked reports when durable handoff is useful.
+
+A design choice or clarification answer is not implementation approval. PAVE
+workflow and approval gates take precedence over instructions that optimize
+speed, terseness, or implementation size.
 
 ## Declared Verification Commands
 

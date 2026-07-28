@@ -9,9 +9,11 @@ policy work.
 
 Use this path only when all conditions hold:
 
-- The requested outcome is concrete and has one obvious interpretation.
-- The expected change is local: normally no more than two files and roughly
-  twenty substantive lines, excluding generated output.
+- The user's request directly instructs implementation and has one obvious
+  interpretation.
+- The expected hand-edited change touches no more than two files and no more
+  than twenty substantive lines. Both limits are hard eligibility conditions.
+  Generated output is excluded from the counts but must still be verified.
 - No new abstraction, dependency, public API, schema, migration, auth,
   permission, security, data-lifecycle, concurrency, payment, deployment, or
   compatibility decision is involved.
@@ -19,15 +21,19 @@ Use this path only when all conditions hold:
 - The target does not overlap unresolved user changes.
 - A narrow, inexpensive verification command or direct check is known.
 
-Line count is a heuristic, not permission to hide a risky change in a small
-diff. A one-line security, schema, or API change uses the standard workflow.
+Size alone never makes a risky change eligible. A one-line security, schema,
+or API change uses the standard workflow.
+
+A reply that only selects a design option, answers a clarification, or adds
+requirements is not implementation approval, even if the agent previously
+said it would implement after the reply.
 
 ## Flow
 
 1. Read applicable repo instructions and inspect only the target plus the
    nearest context needed to edit safely.
-2. State the fast-path classification, expected files, and verification in one
-   concise update.
+2. Before any write, state the fast-path classification, expected files,
+   expected substantive line count, and verification in one concise update.
 3. Treat the user's concrete edit request as implementation approval. Do not
    ask for a second approval or create a formal design, feature inventory,
    vertical-slice plan, plan file, or subagent task.
@@ -46,5 +52,8 @@ Switch to the standard PAVE workflow before expanding the change when:
 - meaningful verification requires broader integration work; or
 - any eligibility condition stops being true.
 
-Explain the reason for leaving the fast path and request consolidated approval
-only if the expanded scope is not already explicitly authorized.
+Before touching a third hand-edited file or exceeding twenty substantive
+hand-edited lines, stop, explain why the fast path no longer applies, surface
+the standard plan, and request consolidated approval. The original fast-path
+request does not approve expanded scope. Only an explicit implementation
+instruction given in response to the surfaced plan counts as approval.

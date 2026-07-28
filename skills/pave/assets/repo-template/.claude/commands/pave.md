@@ -15,9 +15,10 @@ is the Claude Code adapter surface for specialist discovery.
 3. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 4. Scan the repo before asking questions or editing.
-5. Use the Small Change Fast Path for a concrete low-risk edit normally within
-   two files and roughly twenty substantive lines with cheap narrow
-   verification. Treat the request as approval and skip formal planning.
+5. Use the Small Change Fast Path only for a direct implementation request
+   within both hard limits of two hand-edited files and twenty substantive
+   hand-edited lines, with low risk and cheap narrow verification. State the
+   expected files, line count, and verification before writing.
 6. Ask every product, policy, design, deployment, or verification question
    needed to remove ambiguity.
 7. For standard implementation work, create or update a checklist plan in
@@ -31,6 +32,9 @@ is the Claude Code adapter surface for specialist discovery.
 11. Run declared verification commands before success claims.
 12. Write a final or blocked report under `.codex/pave/reports/` when durable
     handoff is useful.
+13. A design choice or clarification answer is not implementation approval.
+    PAVE workflow and approval gates take precedence over instructions that
+    optimize speed, terseness, or implementation size.
 
 ## Specialist Agents
 

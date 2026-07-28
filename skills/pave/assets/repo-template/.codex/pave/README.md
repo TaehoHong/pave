@@ -32,12 +32,13 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 
 1. The agent reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md`.
 2. The agent scans relevant code and docs.
-3. For a concrete low-risk edit normally within two files and roughly twenty
-   substantive lines, the agent treats the request as approval, skips formal
-   planning, edits directly, and runs narrow verification.
+3. A direct implementation request can use the fast path only when it touches
+   no more than two hand-edited files and no more than twenty substantive
+   hand-edited lines, is low risk, and has cheap narrow verification.
 4. Otherwise the agent asks product, policy, design, deployment, and verification questions before implementation.
 5. The agent creates or updates a plan in `.codex/pave/plans/`.
-6. The agent asks once for approval immediately before code or test edits.
+6. The agent asks once for approval immediately before code or test edits. A
+   design choice or clarification answer is not implementation approval.
 7. The agent applies the Test Value Gate and rejects ceremonial, duplicate,
    implementation-detail, or coverage-only tests.
 8. The agent implements with valuable tests or the strongest proportionate

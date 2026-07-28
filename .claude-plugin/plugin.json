@@ -1,7 +1,7 @@
 {
   "name": "pave",
   "displayName": "PAVE",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "PAVE: Plan, Approve, Verify, Execute for Claude Code development workflows.",
   "author": {
     "name": "TaehoHong",

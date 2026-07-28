@@ -22,6 +22,11 @@ Produce a decision-complete checklist plan before implementation.
 9. Ask once for consolidated approval immediately before code or
    test edits.
 
+Approval must be an explicit implementation instruction given after the
+design, implementation boundary, and checklist have been surfaced. Selecting a
+design option, answering a clarification, or adding requirements is not
+implementation approval.
+
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,
 configuration, and documentation into the feature item that needs them rather
