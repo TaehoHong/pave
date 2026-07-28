@@ -1,3 +1,7 @@
+---
+description: Sync durable project docs from evidence and user decisions.
+---
+
 # /sync-docs
 
 Sync project direction docs with current repo evidence and user decisions.

@@ -1,12 +1,18 @@
 # PAVE
 
-PAVE means **Plan, Approve, Verify, Execute**.
+> Plan, Approve, Verify, Execute — a lightweight development workflow for
+> Codex and Claude Code.
 
-PAVE is a Codex-first development harness. It lets an agent plan work, ask the important product questions, get one approval before edits, verify the result, and keep durable project direction when you opt in.
+PAVE helps coding agents clarify important decisions, make the smallest
+approved change, and prove the result with fresh verification. It works as an
+installable plugin without adding files to your project. Optional project
+initialization can preserve long-lived product direction and engineering rules
+in the repository.
 
-PAVE is standalone and has no companion dependencies.
+PAVE is standalone: no companion plugin, hosted service, MCP server, or
+credentials are required.
 
-Korean documentation: [README.kr.md](README.kr.md)
+한국어 문서: [README.kr.md](README.kr.md)
 
 ## Quick Start
 
@@ -17,13 +23,11 @@ codex plugin marketplace add TaehoHong/pave --ref main
 codex plugin add pave@pave
 ```
 
-Then open a new Codex thread in your target repo:
+Open a new Codex thread in the target repository:
 
 ```text
-/pave <your request>
+$pave:pave Fix the login timeout bug and verify the regression.
 ```
-
-Plugin install does not create project files. Optional project docs: run `/project-init` to preserve project direction, onboarding context, and durable product decisions in repo-local docs and PAVE runtime files.
 
 ### Claude Code
 
@@ -32,58 +36,54 @@ claude plugin marketplace add TaehoHong/pave
 claude plugin install pave@pave
 ```
 
-Then run:
+Restart Claude Code, open the target repository, and run:
 
 ```text
-/pave <your request>
+/pave:pave Fix the login timeout bug and verify the regression.
 ```
 
-### Advanced
+Both agents may also select PAVE automatically when a request matches one of
+its installed skills.
 
-```bash
-# Local source plugin development
-git clone https://github.com/TaehoHong/pave.git
-cd pave
-./scripts/install_plugin.sh
+## What Happens
 
-# Manual/offline repo runtime install
-./scripts/install.sh <repo-path>
-
-# Check a configured project
-./scripts/doctor.js <repo-path>
+```text
+Request
+  ├─ Small, clear, low-risk change
+  │    └─ Inspect → Edit → Verify
+  └─ Standard work
+       └─ Inspect → Plan → Approve → Execute → Verify → Report
 ```
 
-## Commands
+PAVE scans the repository before asking questions. It uses a fast path for
+small, obvious edits; investigates root causes for bugs; adds tests only when
+they protect meaningful behavior; and does not claim completion without fresh
+evidence.
 
-| Command | What it does |
-| --- | --- |
-| `/pave` | Default workflow for features, bugs, reviews, refactors, analysis, and docs work. |
-| `/project-init` | Optional repo-local setup for product direction, onboarding docs, rules, and architecture. |
-| `/doctor` | Checks install, runtime, and docs health. |
-| `/status` | Summarizes branch state, PAVE runtime state, latest plans/reports, and next actions without edits. |
-| `/plan` | Creates an implementation plan only; no code or test edits before approval. |
-| `/verify` | Runs fresh verification only; no source changes. |
-| `/sync-docs` | Updates overview, roadmap, rules, and architecture docs from evidence and user decisions. |
-| `/token-save` | One-off low-cost implementation contract; for normal use, enable token-save mode in `.codex/pave/config.md` and run `/pave`. |
+## Skills
 
-## How It Works
+| Purpose | Codex | Claude Code |
+| --- | --- | --- |
+| Default workflow | `$pave:pave` | `/pave:pave` |
+| Initialize optional project runtime | `$pave:project-init` | `/pave:project-init` |
+| Check installation and project health | `$pave:doctor` | `/pave:doctor` |
+| Show project and workflow status | `$pave:status` | `/pave:status` |
+| Create a plan without editing source | `$pave:plan` | `/pave:plan` |
+| Run verification without source edits | `$pave:verify` | `/pave:verify` |
+| Sync durable project documentation | `$pave:sync-docs` | `/pave:sync-docs` |
+| Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
 
-- The default source of truth is the plugin-local PAVE skill, references, commands, and role briefs.
-- PAVE reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md` only when they already exist.
-- When token-save mode is enabled in `.codex/pave/config.md`, `/pave` keeps the current configured model for planning and final review, and uses a configured low-cost implementer only for bounded low-reasoning implementation work.
-- `.claude/agents/` is a Claude Code adapter copy used for agent discovery after optional project initialization.
-- `/project-init` creates optional repo-local docs under `docs/`, including `00-overview.md`, `01-roadmap.md`, development/deployment/design/quality rules, and `06-architecture.md`.
-- Obvious low-risk edits of roughly twenty substantive lines across at most two
-  files use a small-change fast path: the concrete request counts as approval,
-  formal planning is skipped, and only narrow verification is run.
-- PAVE owns its design, root-cause debugging, risk-based testing, review, and
-  fresh-evidence verification workflows; it does not invoke an external
-  workflow plugin.
-- Implementation work follows plan, approval, execution, verification, and final reporting.
+## Plugin-Only vs Project Runtime
 
-## Optional Repo Runtime
+| Mode | What changes in the repository | Best for |
+| --- | --- | --- |
+| Plugin only | Nothing | Normal feature, bug, review, refactor, analysis, and documentation work |
+| `$pave:project-init` / `/pave:project-init` | Adds approved PAVE runtime and project docs | Teams that want durable product direction, rules, and onboarding context |
 
-Plugin installation alone does not add files to your project. `/project-init` or `./scripts/install.sh <repo-path>` can create:
+Plugin-only mode is the default. Project initialization is optional and asks
+before writing durable repository files.
+
+The optional runtime can include:
 
 ```text
 repo/
@@ -91,6 +91,10 @@ repo/
 ├── CLAUDE.md
 ├── .claude/
 ├── .codex/pave/
+│   ├── adapters/
+│   ├── plans/
+│   ├── reports/
+│   └── config.md
 └── docs/
     ├── 00-overview.md
     ├── 01-roadmap.md
@@ -101,8 +105,94 @@ repo/
     └── 06-architecture.md
 ```
 
-These docs preserve product direction, onboarding context, architecture, design rules, development rules, and durable decisions so future work stays aligned.
+Codex and Claude Code share the PAVE contract but use separate runtime
+adapters. Model choice, reasoning effort, permissions, and agent discovery
+remain native to each host.
 
-## Plugin Mechanics
+## Update
 
-PAVE is both a Codex plugin and a Claude Code plugin. Codex uses `.codex-plugin/plugin.json` with `.agents/plugins/marketplace.json`; Claude Code uses `.claude-plugin/plugin.json` with `.claude-plugin/marketplace.json`. PAVE has no companion dependency or external workflow runtime.
+### Codex
+
+```bash
+codex plugin marketplace upgrade pave
+codex plugin add pave@pave
+```
+
+Start a new thread after reinstalling.
+
+### Claude Code
+
+```bash
+claude plugin marketplace update pave
+claude plugin update pave@pave
+```
+
+Restart Claude Code after updating.
+
+Plugin updates refresh plugin-local workflows. Existing repo-local runtime
+files remain unchanged until you explicitly run project initialization or
+synchronize them again.
+
+## Verify or Remove
+
+```bash
+# Codex
+codex plugin list --marketplace pave
+codex plugin remove pave@pave
+
+# Claude Code
+claude plugin list
+claude plugin uninstall pave@pave
+```
+
+For an initialized project, run `$pave:doctor` in Codex or `/pave:doctor` in
+Claude Code before relying on the repo-local runtime.
+
+## Manual Project Runtime Installation
+
+Node.js 18 or newer is required only for the optional repository scripts:
+
+```bash
+git clone https://github.com/TaehoHong/pave.git
+cd pave
+
+# Preview without writing
+./scripts/install.sh <repo-path> --dry-run
+
+# Install runtime and starter docs without overwriting existing files
+./scripts/install.sh <repo-path>
+
+# Check the initialized project
+node ./scripts/doctor.js <repo-path>
+```
+
+Use `--force` only after reviewing the target files; it overwrites matching
+runtime and documentation templates.
+
+## Limitations
+
+- PAVE does not automatically commit, push, deploy, or contact external
+  services unless the user explicitly requests and authorizes that work.
+- Updating the plugin does not overwrite project-owned `AGENTS.md`,
+  `CLAUDE.md`, `.codex/pave/`, or `docs/`.
+- Codex and Claude Code are the supported plugin surfaces. Other agents may
+  read the Markdown skills, but their installation and behavior are not
+  documented as supported.
+
+## Local Development
+
+```bash
+git clone https://github.com/TaehoHong/pave.git
+cd pave
+./scripts/install_plugin.sh
+npm test
+npm run check
+claude plugin validate --strict .claude-plugin/plugin.json
+```
+
+The repository contains one source set of PAVE skills and role briefs, plus
+native Codex and Claude Code manifests and adapters.
+
+## License
+
+[MIT](LICENSE) © TaehoHong

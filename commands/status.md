@@ -1,3 +1,7 @@
+---
+description: Report read-only project and PAVE workflow status.
+---
+
 # /status
 
 Read-only PAVE status for the current repository.

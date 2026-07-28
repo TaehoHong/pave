@@ -1,3 +1,7 @@
+---
+description: Check PAVE installation, repo runtime, and documentation health.
+---
+
 # /doctor
 
 Run PAVE Doctor for the current repository.

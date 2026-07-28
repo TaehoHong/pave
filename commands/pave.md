@@ -1,3 +1,7 @@
+---
+description: Run the PAVE workflow for software development work.
+---
+
 # /pave
 
 Use PAVE: Plan, Approve, Verify, Execute.

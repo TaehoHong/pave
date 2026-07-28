@@ -69,6 +69,15 @@ test('marketplace manifests expose one synchronized plugin', () => {
   assert.equal(fs.readlinkSync(path.join(repoRoot, 'plugins', 'pave')), '..');
   assert.equal(codexPlugin.skills, './skills/');
   assert.doesNotMatch(codexPlugin.interface.defaultPrompt[0], /Initialize/i);
+  assert.equal(codexPlugin.author.name, 'TaehoHong');
+  assert.equal(codexPlugin.homepage, 'https://github.com/TaehoHong/pave');
+  assert.equal(codexPlugin.repository, 'https://github.com/TaehoHong/pave');
+  assert.equal(codexPlugin.license, 'MIT');
+  assert.ok(codexPlugin.interface.defaultPrompt.length <= 3);
+  assert.equal(claudePlugin.author.name, 'TaehoHong');
+  assert.equal(claudePlugin.repository, 'https://github.com/TaehoHong/pave');
+  assert.equal(claudePlugin.license, 'MIT');
+  assert.equal(fs.existsSync(path.join(repoRoot, 'LICENSE')), true);
 
   assert.equal(claudeMarketplace.plugins[0].source, './plugins/pave');
   assert.equal(fs.existsSync(path.join(repoRoot, 'commands', 'pave.md')), true);

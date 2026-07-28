@@ -1,3 +1,7 @@
+---
+description: Create a PAVE implementation plan without editing source files.
+---
+
 # /plan
 
 Plan only for the user's request.

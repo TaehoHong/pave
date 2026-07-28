@@ -1,8 +1,19 @@
 {
   "name": "pave",
-  "version": "0.3.2",
+  "displayName": "PAVE",
+  "version": "0.3.3",
   "description": "PAVE: Plan, Approve, Verify, Execute for Claude Code development workflows.",
   "author": {
-    "name": "TaehoHong"
-  }
+    "name": "TaehoHong",
+    "url": "https://github.com/TaehoHong"
+  },
+  "homepage": "https://github.com/TaehoHong/pave",
+  "repository": "https://github.com/TaehoHong/pave",
+  "license": "MIT",
+  "keywords": [
+    "agentic-development",
+    "planning",
+    "verification",
+    "project-init"
+  ]
 }

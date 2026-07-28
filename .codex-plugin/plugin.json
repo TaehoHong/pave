@@ -1,11 +1,13 @@
 {
   "name": "pave",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Plan, Approve, Verify, Execute: a Codex plugin for session-based agentic development workflows.",
   "author": {
-    "name": "Local developer"
+    "name": "TaehoHong",
+    "url": "https://github.com/TaehoHong"
   },
-  "homepage": "https://localhost/pave",
+  "homepage": "https://github.com/TaehoHong/pave",
+  "repository": "https://github.com/TaehoHong/pave",
   "license": "MIT",
   "keywords": [
     "agentic-development",
@@ -20,18 +22,18 @@
     "displayName": "PAVE",
     "shortDescription": "Plan, approve, verify, and execute software work.",
     "longDescription": "PAVE provides a plugin-local session workflow for feature work, bug fixes, reviews, documentation sync, doctor, status, plan, verify, sync-docs, optional project initialization, and bounded specialist subagent briefs.",
-    "developerName": "Local developer",
+    "developerName": "TaehoHong",
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
       "Read",
       "Write"
     ],
+    "websiteURL": "https://github.com/TaehoHong/pave",
     "defaultPrompt": [
-      "Use PAVE for this request.",
+      "Use PAVE to fix this bug and verify the regression.",
       "Plan and implement this feature with PAVE.",
-      "Initialize this repository with optional PAVE runtime files.",
-      "Check this repository with PAVE doctor."
+      "Initialize this repository with PAVE project docs."
     ]
   }
 }

@@ -1,3 +1,7 @@
+---
+description: Run fresh repository verification without source changes.
+---
+
 # /verify
 
 Run verification only for the current repository.

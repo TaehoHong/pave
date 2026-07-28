@@ -1,3 +1,7 @@
+---
+description: Initialize optional repo-local PAVE runtime and project docs.
+---
+
 # /project-init
 
 Run PAVE Project Initialization for the current repository.
