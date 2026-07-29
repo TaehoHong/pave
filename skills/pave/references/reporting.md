@@ -19,6 +19,8 @@ Include:
   `verified; human review required before merge` instead of unqualified
   completion.
 - Memory capture or skip reason.
+- Codebase guide update, or why the verified change did not affect durable
+  module, shared-owner, convention, or verification knowledge.
 
 ## Blocked Report
 

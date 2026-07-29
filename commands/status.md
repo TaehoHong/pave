@@ -21,7 +21,10 @@ next action.
    - `docs/`
 5. Identify the latest relevant plan, report, unresolved decision, and declared
    verification command when present.
-6. Report likely next commands, such as `/project-init`, `/plan`, `/verify`, or
+6. When `docs/07-codebase-guide.md` exists, report whether it has a committed
+   revision and whether its recorded evidence paths have newer committed,
+   staged, or unstaged changes. Do not inspect unrelated source.
+7. Report likely next commands, such as `/project-init`, `/plan`, `/verify`, or
    `/sync-docs`.
 
 ## Output

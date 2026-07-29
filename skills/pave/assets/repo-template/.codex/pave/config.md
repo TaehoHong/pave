@@ -8,7 +8,17 @@
 - Approval gate: ask once immediately before code or test edits.
 - Clarification: ask every product or policy question needed to
   remove ambiguity before implementation.
-- Durable artifacts: `plans/`, `reports/`, and optional `.wiki/`.
+- Durable artifacts: `plans/`, `reports/`, `docs/07-codebase-guide.md`, and
+  optional `.wiki/`.
+
+## Context Retrieval
+
+- Read `docs/07-codebase-guide.md` before source discovery.
+- Check staleness only for request-relevant entries and their evidence paths.
+- Inspect the target, direct callers and callees, relevant tests, shared
+  owners, and canonical examples before expanding the search.
+- Current code overrides stale guide entries.
+- Update affected guide entries when shared structure or conventions change.
 
 ## Request Routing
 

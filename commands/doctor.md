@@ -20,7 +20,7 @@ correctly.
    - `CLAUDE.md`
    - `.codex/pave/`
    - `.claude/`
-   - `docs/00-overview.md` through `docs/06-architecture.md`
+   - `docs/00-overview.md` through `docs/07-codebase-guide.md`
 6. Report missing files, setup gaps, and suggested next
    commands.
 

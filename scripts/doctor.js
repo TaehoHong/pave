@@ -30,6 +30,7 @@ const requiredFiles = [
   'docs/04-design-rules.md',
   'docs/05-quality-rules.md',
   'docs/06-architecture.md',
+  'docs/07-codebase-guide.md',
 ];
 
 const requiredDirs = [

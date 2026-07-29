@@ -31,7 +31,10 @@ Claude Code에서는 `/pave`로 요청합니다.
 ## 작업 흐름
 
 1. AI가 `AGENTS.md`, `CLAUDE.md`, `.codex/pave/config.md`를 읽습니다.
-2. 현재 프로젝트 구조와 관련 코드를 확인합니다.
+2. `docs/07-codebase-guide.md`를 먼저 읽고 요청 관련 evidence path의
+   신선도를 확인한 뒤, 대상 코드·직접 의존 코드·관련 테스트·canonical
+   example만 조사합니다. 소유권이 없거나 오래됐거나 충돌할 때만 범위를
+   넓힙니다.
 3. 사용자가 구현을 직접 요청했고, 직접 수정 파일 2개 이하와 실질 변경
    20줄 이하를 모두 만족하며, 저위험이고 좁은 검증이 가능할 때만 fast
    path를 사용합니다.
@@ -59,6 +62,8 @@ Claude Code에서는 `/pave`로 요청합니다.
 ## 이 폴더 안의 파일
 
 - `config.md`: 이 프로젝트에서 PAVE가 따를 규칙입니다.
+- `../../docs/07-codebase-guide.md`: 모듈, 공통 코드, 관례, 검증 위치를
+  재사용하는 영속 탐색 인덱스입니다.
 - `plans/`: 구현 전 계획서가 저장됩니다.
 - `reports/`: 완료 또는 blocked 보고서가 저장됩니다.
 - `templates/`: 계획서와 보고서 양식입니다.

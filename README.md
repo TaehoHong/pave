@@ -61,6 +61,9 @@ hand-edited files and no more than twenty substantive hand-edited lines.
 Design choices and clarification answers do not count as implementation
 approval. PAVE also investigates root causes for bugs, adds tests only when
 they protect meaningful behavior, and requires fresh evidence for completion.
+When the optional runtime is initialized, PAVE reuses a freshness-checked
+`docs/07-codebase-guide.md` to find module owners, shared code, conventions,
+canonical examples, and narrow verification without rereading unrelated code.
 
 ## Skills
 
@@ -104,7 +107,8 @@ repo/
     ├── 03-deployment-rules.md
     ├── 04-design-rules.md
     ├── 05-quality-rules.md
-    └── 06-architecture.md
+    ├── 06-architecture.md
+    └── 07-codebase-guide.md
 ```
 
 Codex and Claude Code share the PAVE contract but use separate runtime

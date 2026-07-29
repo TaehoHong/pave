@@ -36,8 +36,12 @@ Read only:
 
 1. Required repo instructions such as `CLAUDE.md`, `AGENTS.md`, and directly
    relevant local workflow files.
-2. The smallest set of source files needed to identify the target surface.
-3. Tests or fixtures directly related to the requested behavior.
+2. Relevant entries from `docs/07-codebase-guide.md` when present. Apply the
+   PAVE context retrieval protocol and check only their evidence paths for
+   staleness.
+3. The smallest set of source files needed to identify the target surface,
+   direct callers and callees, shared owners, and named canonical examples.
+4. Tests or fixtures directly related to the requested behavior.
 
 Then write an Implementation Contract with exactly these sections:
 

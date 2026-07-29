@@ -12,7 +12,12 @@ analysis, reviews, refactors, docs sync, and continuation:
 
 1. Read this file and `.codex/pave/config.md`.
    When running in Codex, also read `.codex/pave/adapters/codex.md`.
-2. Scan the repo before asking questions or editing.
+2. For code work, read `docs/07-codebase-guide.md` before source discovery and
+   apply the plugin's context retrieval protocol. Check only relevant guide
+   entries for newer committed, staged, or unstaged evidence-path changes.
+   Then inspect the target, direct callers and callees, relevant tests, and
+   named canonical examples. Expand the search only when ownership is missing,
+   stale, or contradicted.
 3. Use the Small Change Fast Path only for a direct implementation request
    touching no more than two hand-edited files and no more than twenty
    substantive hand-edited lines, with low risk and cheap narrow verification.
@@ -31,6 +36,9 @@ analysis, reviews, refactors, docs sync, and continuation:
 8. Use bounded subagents only when useful.
 9. Run declared verification commands before success claims.
 10. Write final or blocked reports when durable handoff is useful.
+11. Update affected codebase-guide entries when verified work changes module
+    boundaries, shared ownership, canonical examples, conventions, dependency
+    rules, test locations, verification commands, or excluded paths.
 
 A design choice or clarification answer is not implementation approval. PAVE
 workflow and approval gates take precedence over instructions that optimize

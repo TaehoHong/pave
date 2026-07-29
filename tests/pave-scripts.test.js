@@ -34,6 +34,7 @@ test('init installs canonical role agents and doctor accepts the result', () => 
   assert.equal(init.status, 0, init.stderr || init.stdout);
   assert.match(init.stdout, /PAVE initialization complete/);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '06-architecture.md')), true);
+  assert.equal(fs.existsSync(path.join(tmp, 'docs', '07-codebase-guide.md')), true);
 
   for (const role of roles) {
     assert.equal(
@@ -178,6 +179,28 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
   assert.match(testing, /realistic defect/);
   assert.match(testing, /machine-consumed or explicitly supported public interface/);
   assert.match(verification, /run that\s+command fresh/);
+});
+
+test('code work reuses a freshness-checked durable codebase guide', () => {
+  const pave = read('skills/pave/SKILL.md');
+  const context = read('skills/pave/references/context-retrieval.md');
+  const guide = read('skills/pave/assets/docs-templates/07-codebase-guide.md');
+  const projectInit = read('skills/pave/references/project-init.md');
+  const syncDocs = read('commands/sync-docs.md');
+  const runtimeAgent = read('skills/pave/assets/repo-template/AGENTS.md');
+
+  assert.match(pave, /read `docs\/07-codebase-guide\.md` when present/);
+  assert.match(context, /Do not begin with a repository-wide source read/);
+  assert.match(context, /git log -1 --format=%H -- docs\/07-codebase-guide\.md/);
+  assert.match(context, /git diff --cached --name-only -- <evidence-paths>/);
+  assert.match(context, /direct callers and callees/);
+  assert.match(context, /Update the affected guide entries in the same work/);
+  assert.match(guide, /Shared Capability Catalog/);
+  assert.match(guide, /Code Conventions and Canonical Examples/);
+  assert.match(guide, /Evidence paths/);
+  assert.match(projectInit, /Populate `docs\/07-codebase-guide\.md` from code evidence/);
+  assert.match(syncDocs, /Do not rewrite unrelated\s+entries/);
+  assert.match(runtimeAgent, /Expand the search only when ownership is missing/);
 });
 
 test('every fast-path entrypoint preserves the hard size and approval gates', () => {

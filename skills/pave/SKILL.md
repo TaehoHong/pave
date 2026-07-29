@@ -15,6 +15,8 @@ session harness for software development work.
 2. Read repo instructions when present: root `AGENTS.md`, nested `AGENTS.md`
    files that apply to touched paths, `CLAUDE.md` for Claude Code, then
    `.codex/pave/config.md` when present.
+   For code work, read `docs/07-codebase-guide.md` when present and follow
+   `references/context-retrieval.md` before source discovery.
 3. If `.codex/pave/` is missing, continue in plugin-only mode. Do not create repo-local runtime files unless the user runs `/project-init` or explicitly asks for durable repo-local PAVE files.
 4. If `.codex/pave/` is missing but `.codex/ai-dev-harness/` exists,
    treat the repo as legacy-compatible and offer migration before changing
@@ -76,6 +78,8 @@ Load only the reference needed for the current step:
 
 - Project setup: `references/project-init.md`
 - Request classification: `references/request-routing.md`
+- Durable codebase context and scoped source discovery:
+  `references/context-retrieval.md`
 - Small low-risk edits: `references/fast-path.md`
 - Intent and design: `references/design.md`
 - Planning and approval: `references/planning.md`

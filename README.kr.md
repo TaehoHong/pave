@@ -59,6 +59,10 @@ PAVE는 질문이나 수정 전에 저장소를 조사합니다. 사용자가 �
 저위험 변경에만 fast path를 사용합니다. 설계 선택이나 질문에 대한 답변은
 구현 승인이 아닙니다. 버그는 근본 원인을 찾고, 의미 있는 동작을 보호할
 때만 테스트를 추가하며, fresh evidence 없이는 완료를 주장하지 않습니다.
+선택적 runtime이 초기화된 저장소에서는 신선도를 확인한
+`docs/07-codebase-guide.md`를 먼저 사용해 모듈 소유자, 공통 코드, 관례,
+canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시 읽지
+않습니다.
 
 ## Skills
 
@@ -102,7 +106,8 @@ repo/
     ├── 03-deployment-rules.md
     ├── 04-design-rules.md
     ├── 05-quality-rules.md
-    └── 06-architecture.md
+    ├── 06-architecture.md
+    └── 07-codebase-guide.md
 ```
 
 Codex와 Claude Code는 PAVE 공통 계약을 공유하지만 별도 runtime adapter를

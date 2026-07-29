@@ -20,7 +20,8 @@ workflows.
 
 1. Read repo instructions and inspect the project tree.
 2. Identify framework, package manager, test runner, build command,
-   deployment shape, and existing docs.
+   deployment shape, existing docs, module boundaries, shared capabilities,
+   canonical examples, and generated or excluded paths.
 3. Split the work into two phases:
    - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
      `.codex/pave/`, `.claude/`, and adapter files from repo
@@ -85,10 +86,14 @@ workflows.
    - `docs/04-design-rules.md`
    - `docs/05-quality-rules.md`
    - `docs/06-architecture.md`
+   - `docs/07-codebase-guide.md`
 16. Do not stop at copying templates. Populate the docs with clearly separated
     repo facts, user decisions, unresolved-after-asking questions, deferred
     decisions, not-applicable reasons, and setup gaps so future work keeps the
-    same direction.
+    same direction. Populate `docs/07-codebase-guide.md` from code evidence
+    with module paths, shared owners, canonical symbols or examples,
+    dependency rules, test locations, verification commands, excluded paths,
+    and per-entry evidence paths.
 17. Run `scripts/doctor.js <repo>`.
 18. Report generated files, decision coverage, setup gaps,
     and verification commands.
@@ -123,6 +128,9 @@ workflows.
   with reason.
 - Product docs distinguish facts, decisions, assumptions, and unresolved
   questions.
+- The codebase guide can route a typical task to the owning module, shared
+  capability, canonical example, and narrow verification without a whole-repo
+  source read.
 - Declared verification commands are present and checked.
 
 ## Outputs
@@ -132,7 +140,7 @@ workflows.
 - Claude Code command and role agents under `.claude/`.
 - Initial project docs under `docs/`, including overview, roadmap,
   development rules, deployment rules, design rules, quality rules, and
-  architecture.
+  architecture, plus the codebase guide.
 - Doctor result.
 
 ## Blocked Conditions

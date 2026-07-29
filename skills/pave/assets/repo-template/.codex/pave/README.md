@@ -31,7 +31,9 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 ## Workflow
 
 1. The agent reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md`.
-2. The agent scans relevant code and docs.
+2. The agent reads `docs/07-codebase-guide.md`, checks request-relevant
+   evidence paths for staleness, and scans only the target code, direct
+   dependencies, relevant tests, and canonical examples before expanding.
 3. A direct implementation request can use the fast path only when it touches
    no more than two hand-edited files and no more than twenty substantive
    hand-edited lines, is low risk, and has cheap narrow verification.
@@ -60,6 +62,8 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 ## Files Here
 
 - `config.md`: repo-local PAVE policy.
+- `../../docs/07-codebase-guide.md`: durable module, shared-code, convention,
+  and verification navigation index.
 - `plans/`: task plans.
 - `reports/`: final and blocked reports.
 - `templates/`: plan and report templates.

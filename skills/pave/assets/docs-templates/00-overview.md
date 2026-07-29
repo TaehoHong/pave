@@ -45,3 +45,4 @@ technical shape, and current priorities.
 - [04-design-rules.md](./04-design-rules.md)
 - [05-quality-rules.md](./05-quality-rules.md)
 - [06-architecture.md](./06-architecture.md)
+- [07-codebase-guide.md](./07-codebase-guide.md)
