@@ -29,8 +29,11 @@ specialist discovery when the optional repo runtime has been initialized.
    are hard conditions. State the expected files, line count, and verification
    before writing, then treat the request as approval and edit without formal
    planning.
-7. Ask every product, policy, design, deployment, or verification question
-   needed to remove ambiguity.
+7. When a feature request states an outcome without decision-complete
+   requirements, run a focused planning interview before presenting a final
+   design or asking for implementation approval. Ask every product, policy,
+   design, deployment, or verification question needed to remove ambiguity,
+   and follow up on incomplete answers.
 8. Apply the Feature Decision Gate before standard implementation work.
 9. For standard implementation work, keep a checklist in the conversation by default.
    Create or update `.codex/pave/plans/` only when the optional repo runtime
@@ -55,8 +58,11 @@ specialist discovery when the optional repo runtime has been initialized.
 Before code or test edits, identify the feature inventory for the requested
 product slice and settle per-feature policy decisions: actor, trigger, happy
 path, edge cases, permissions, data rules, errors, acceptance criteria, and
-verification. If any of these change behavior or scope and remain unknown, ask
-before implementation.
+verification. Label each decision `user-confirmed`, `repo-evidenced`, or
+`recommended-unconfirmed`. Recommendations do not become decisions until the
+user confirms them. If any behavior-changing decision remains unknown or
+`recommended-unconfirmed`, ask before presenting a final plan or requesting
+implementation approval.
 
 A design choice, clarification answer, or requirement update is not
 implementation approval. Standard-work approval must be an explicit

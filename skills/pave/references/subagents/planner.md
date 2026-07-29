@@ -23,7 +23,10 @@ Do not dispatch for trivial single-step implementation when the next action is a
 - Stay inside the assigned scope.
 - Planning defaults to read-only; do not edit files unless explicitly assigned.
 - Prefer the smallest maintainable plan that satisfies the current request.
-- State assumptions when safe; block only when a missing decision would materially change the plan.
+- State assumptions only for non-behavioral details. For product or policy
+  decisions, label the source `user-confirmed`, `repo-evidenced`, or
+  `recommended-unconfirmed`; ask the user about every behavior-changing
+  recommendation before finalizing the plan.
 - Break work into independently verifiable items.
 - Include ordering, dependencies, likely files, and verification for each item.
 - Do not revert unrelated changes.
@@ -35,7 +38,9 @@ Do not dispatch for trivial single-step implementation when the next action is a
 - Requirements and assumptions.
 - Ordered plan items, each with objective, scope, likely files, dependencies, and verification.
 - Risks or gaps.
-- Questions for the user, only if blocking or materially plan-changing.
+- Focused, grouped questions for every unknown or `recommended-unconfirmed`
+  decision that affects behavior, scope, UX, security, data, compatibility,
+  rollout, or verification.
 - Suggested first action.
 - Files changed, only if explicitly assigned to edit.
 

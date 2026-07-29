@@ -24,10 +24,13 @@ session harness for software development work.
    workflow skill as part of PAVE operation.
 6. Scan the repo before asking product, policy, design, deployment, or
    verification questions.
-7. Ask every product or policy clarification during planning. Establish a
-   feature inventory and per-feature policy decisions before implementation.
-   Do not guess when behavior, UX, security, data handling, compatibility,
-   rollout, or verification could change.
+7. For a feature request that states an outcome without decision-complete
+   requirements, run a focused planning interview before presenting a final
+   design or asking for implementation approval. Ask every product or policy
+   clarification, follow up until the feature inventory and per-feature policy
+   decisions are complete, and do not turn a recommendation into a user
+   decision. Do not guess when behavior, UX, security, data handling,
+   compatibility, rollout, or verification could change.
 8. Apply `references/fast-path.md` before standard planning. For an eligible
    small change, the user's concrete request is implementation approval. For
    other code or test edits, ask for one consolidated approval immediately

@@ -137,6 +137,28 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   }
 });
 
+test('outcome-only feature requests require discovery before approval', () => {
+  const pave = read('skills/pave/SKILL.md');
+  const command = read('commands/pave.md');
+  const design = read('skills/pave/references/design.md');
+  const planning = read('skills/pave/references/planning.md');
+  const planners = [
+    read('agents/planner.md'),
+    read('skills/pave/references/subagents/planner.md'),
+  ];
+
+  assert.match(pave, /states an outcome without decision-complete\s+requirements/);
+  assert.match(command, /planning interview before presenting a final\s+design or asking for implementation approval/);
+  assert.match(design, /recommended-unconfirmed/);
+  assert.match(design, /Do not call a design\s+confirmed or ask for implementation approval/);
+  assert.match(planning, /A recommendation is never settled by the agent/);
+
+  for (const planner of planners) {
+    assert.match(planner, /ask the user about every behavior-changing\s+recommendation/);
+    assert.doesNotMatch(planner, /Questions for the user, only if blocking/);
+  }
+});
+
 test('plugin-only workflows preserve safety and verification contracts', () => {
   const pave = read('skills/pave/SKILL.md');
   const command = read('commands/pave.md');

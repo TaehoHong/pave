@@ -41,8 +41,11 @@ ritual. The plan must state the behavior or risk each proposed test protects.
 Before implementation, list the feature inventory for the requested product
 slice and record per-feature acceptance criteria and policy decisions: actor,
 trigger, happy path, edge cases, permissions, data rules, error handling, and
-verification. Do not start implementation while behavior-changing decisions are
-unknown; ask or mark the item blocked.
+verification. Label each decision `user-confirmed`, `repo-evidenced`, or
+`recommended-unconfirmed`. A recommendation is never settled by the agent:
+ask the user and change its source to `user-confirmed`. Do not present the plan
+as final or ask for implementation approval while a behavior-changing decision
+is unknown or `recommended-unconfirmed`; ask or mark the item blocked.
 
 ## Outputs
 
