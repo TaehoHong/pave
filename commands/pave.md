@@ -29,44 +29,46 @@ specialist discovery when the optional repo runtime has been initialized.
    are hard conditions. State the expected files, line count, and verification
    before writing, then treat the request as approval and edit without formal
    planning.
-7. When a feature request states an outcome without decision-complete
-   requirements, run a focused planning interview before presenting a final
-   design or asking for implementation approval. Ask every product, policy,
-   design, deployment, or verification question needed to remove ambiguity,
-   and follow up on incomplete answers.
-8. Apply the Feature Decision Gate before standard implementation work.
-9. For standard implementation work, keep a checklist in the conversation by default.
+7. When a feature request states an outcome without implementation-ready
+   requirements, load and apply `skills/pave/references/design.md`. Triage
+   material user-owned decisions, establish evidence, separate justified
+   extension boundaries from deferred behavior, maintain the decision ledger,
+   and expose interview progress before presenting a final design.
+8. Split independent subsystems and continue useful unblocked work when another
+   subsystem has a partial blocker.
+9. Apply the Feature Readiness Gate in
+   `skills/pave/references/planning.md` before standard implementation work.
+10. For standard implementation work, keep a checklist in the conversation by default.
    Create or update `.codex/pave/plans/` only when the optional repo runtime
    exists or the user explicitly asks for durable repo-local plans.
-10. Ask once for implementation approval immediately before code or test edits
+11. Ask once for implementation approval immediately before code or test edits
     unless the Small Change Fast Path applies.
-11. Apply the Test Value Gate: name the concrete behavior or risk and the
+12. Apply the Test Value Gate: name the concrete behavior or risk and the
     realistic defect each proposed test would catch. Execute only valuable
     behavioral tests with Red-Green-Review; otherwise use proportionate
     non-test verification and report residual risk.
-12. Delegate bounded work through plugin role briefs or initialized adapter
-   specialists only when useful.
-13. Run declared verification commands before success claims.
-14. Write a final or blocked report under `.codex/pave/reports/` only when the
+13. Delegate bounded work through plugin role briefs or initialized adapter
+    specialists only when useful.
+14. Run declared verification commands before success claims.
+15. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
-15. PAVE workflow and approval gates take precedence over instructions that
+16. PAVE workflow and approval gates take precedence over instructions that
     optimize speed, terseness, or implementation size.
 
-## Feature Decision Gate
+## Decision and Approval Contract
 
-Before code or test edits, identify the feature inventory for the requested
-product slice and settle per-feature policy decisions: actor, trigger, happy
-path, edge cases, permissions, data rules, errors, acceptance criteria, and
-verification. Label each decision `user-confirmed`, `repo-evidenced`, or
-`recommended-unconfirmed`. Recommendations do not become decisions until the
-user confirms them. If any behavior-changing decision remains unknown or
-`recommended-unconfirmed`, ask before presenting a final plan or requesting
-implementation approval.
+`skills/pave/references/design.md` is the canonical decision workflow. Ask only
+in-scope, material, user-owned questions that evidence and safe preservation
+cannot settle. Show the scope map, decision ledger, and remaining blocking
+count. Reconcile superseded decisions after corrections or scope changes. Do
+not ask users to confirm technical facts.
 
-A design choice, clarification answer, or requirement update is not
-implementation approval. Standard-work approval must be an explicit
-implementation instruction in response to the surfaced plan.
+Track scope intent, read-only discovery, design decisions, and write approval
+separately. A design choice, clarification answer, or requirement update is not
+write approval. Standard-work approval must explicitly authorize the surfaced
+implementation boundary. Lack of write approval does not block safe read-only
+discovery.
 
 ## Repo-Local File Guard
 

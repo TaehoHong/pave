@@ -14,9 +14,14 @@ Route each user request to the smallest safe PAVE workflow.
    then skip standard planning and use the direct implementation request as
    approval.
 4. Otherwise decide whether implementation planning is required.
-5. Ask every product or policy question that affects behavior, UX,
-   security, data handling, compatibility, rollout, or verification.
-6. If the repo has only `.codex/ai-dev-harness/`, state legacy
+5. For feature or behavior work, apply the Decision Triage and scope map from
+   `design.md`. Ask only material user-owned questions that block the current
+   slice.
+6. Split independent subsystems. Report a partial blocker and continue
+   unblocked in-scope work when doing so is useful and safe.
+7. Track scope intent, read-only discovery, design decisions, and
+   implementation approval as separate workflow states.
+8. If the repo has only `.codex/ai-dev-harness/`, state legacy
    compatibility mode and propose migration when harness files need
    to change.
 
@@ -25,6 +30,8 @@ Route each user request to the smallest safe PAVE workflow.
 - Request type.
 - Required workflow.
 - Plan requirement.
+- Scope map, blocking decision count, and approval state when planning is
+  required.
 - Subagent recommendation when useful.
 
 ## Blocked Conditions

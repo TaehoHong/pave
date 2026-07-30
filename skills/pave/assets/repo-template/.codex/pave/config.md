@@ -6,8 +6,14 @@
 - Orchestrator: main agent owns routing, plan approval, verification,
   and final claims.
 - Approval gate: ask once immediately before code or test edits.
-- Clarification: ask every product or policy question needed to
-  remove ambiguity before implementation.
+- Clarification: ask only material user-owned questions that block the current
+  slice; show the scope map, decision ledger, and remaining blocking count.
+- Evidence: distinguish user decisions, repo evidence, authoritative external
+  constraints, and reversible agent assumptions.
+- Extensibility: keep justified extension boundaries without prebuilding
+  deferred providers, workflows, abstractions, or policies.
+- Workflow state: scope intent permits read-only discovery; only consolidated
+  implementation approval permits code or test edits.
 - Durable artifacts: `plans/`, `reports/`, `docs/07-codebase-guide.md`, and
   optional `.wiki/`.
 
@@ -30,6 +36,8 @@
   writing.
 - Feature/change: plan first, apply the Test Value Gate, then use
   Red-Green-Review only for tests with material regression value.
+- Partial blocker: continue independent safe in-scope work and report the
+  blocked subsystem separately.
 - Bug: investigate root cause before proposing fixes.
 - Analysis: scan repo, cite evidence, avoid edits unless requested.
 - Review: findings first, severity ordered, with file and line evidence.

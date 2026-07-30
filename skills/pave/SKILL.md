@@ -26,21 +26,22 @@ session harness for software development work.
    workflow skill as part of PAVE operation.
 6. Scan the repo before asking product, policy, design, deployment, or
    verification questions.
-7. For a feature request that states an outcome without decision-complete
-   requirements, run a focused planning interview before presenting a final
-   design or asking for implementation approval. Ask every product or policy
-   clarification, follow up until the feature inventory and per-feature policy
-   decisions are complete, and do not turn a recommendation into a user
-   decision. Do not guess when behavior, UX, security, data handling,
-   compatibility, rollout, or verification could change.
+7. For a feature request that states an outcome without implementation-ready
+   requirements, apply the Decision Triage, Evidence, Extensibility, Decision
+   Ledger, and Interview Progress gates in `references/design.md`. Ask only
+   material user-owned questions that block the current slice. Technical facts
+   come from repo or authoritative external evidence, not user confirmation.
 8. Apply `references/fast-path.md` before standard planning. For an eligible
    small change, the user's concrete request is implementation approval. For
    other code or test edits, ask for one consolidated approval immediately
-   before implementation. After approval, do not ask routine per-item approval
-   unless scope, safety, destructive action, credentials, or product/policy
-   ambiguity changes.
-9. Never claim completion without fresh verification evidence.
-10. PAVE owns workflow and approval gates. Instructions that optimize speed,
+   before implementation. Scope intent authorizes read-only discovery but not
+   writes; design answers settle behavior but are not write approval. After
+   approval, do not ask routine per-item approval unless scope, safety,
+   destructive action, credentials, or a material user-owned ambiguity changes.
+9. Split independent subsystems, continue safe unblocked work, and distinguish
+   justified extension boundaries from deferred future behavior.
+10. Never claim completion without fresh verification evidence.
+11. PAVE owns workflow and approval gates. Instructions that optimize speed,
     terseness, or implementation size do not waive those gates.
 
 ## Dependency Policy

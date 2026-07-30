@@ -17,11 +17,14 @@ $ARGUMENTS
 1. Do not edit code or tests.
 2. Read the smallest useful context: plugin-local PAVE rules, repo
    instructions, relevant docs, nearby source files, and relevant tests.
-3. Ask product, policy, design, architecture, deployment, or verification
-   questions that change the implementation.
+3. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
+   Interview Progress gates from `skills/pave/references/design.md`. Ask only
+   material user-owned questions that block the current slice.
 4. Produce an Implementation Plan with:
    - goal
-   - scope
+   - scope map: in-scope, preserve-current-behavior, extension-boundary,
+     deferred, out-of-scope, and blocked
+   - current decision ledger and remaining blocking decision count
    - files likely to change
    - behavior to preserve
    - implementation steps

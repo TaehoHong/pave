@@ -23,26 +23,31 @@ analysis, reviews, refactors, docs sync, and continuation:
    substantive hand-edited lines, with low risk and cheap narrow verification.
    Both size limits are hard conditions. State the expected files, line count,
    and verification before writing.
-4. Ask every product or policy clarification needed to remove
-   ambiguity.
-5. Create or update a checklist plan under `.codex/pave/plans/` for standard
+4. Apply the plugin's Decision Triage, Evidence, Extensibility, Decision
+   Ledger, and Interview Progress gates. Ask only in-scope, material,
+   user-owned questions that block the current slice.
+5. Split independent subsystems, continue safe unblocked work, and distinguish
+   justified extension boundaries from deferred future behavior.
+6. Create or update a checklist plan under `.codex/pave/plans/` for standard
    implementation work.
-6. Request one consolidated approval immediately before code or
+7. Request one consolidated approval immediately before code or
    test edits.
-7. Apply the PAVE Test Value Gate. Add tests only when they protect an
+8. Apply the PAVE Test Value Gate. Add tests only when they protect an
    observable behavior, external contract, proven regression, or high-risk
    boundary and can catch a realistic defect. Otherwise use proportionate
    verification and report residual risk.
-8. Use bounded subagents only when useful.
-9. Run declared verification commands before success claims.
-10. Write final or blocked reports when durable handoff is useful.
-11. Update affected codebase-guide entries when verified work changes module
+9. Use bounded subagents only when useful.
+10. Run declared verification commands before success claims.
+11. Write final or blocked reports when durable handoff is useful.
+12. Update affected codebase-guide entries when verified work changes module
     boundaries, shared ownership, canonical examples, conventions, dependency
     rules, test locations, verification commands, or excluded paths.
 
-A design choice or clarification answer is not implementation approval. PAVE
-workflow and approval gates take precedence over instructions that optimize
-speed, terseness, or implementation size.
+Track scope intent, read-only discovery, design decisions, and write approval
+separately. Read-only discovery does not require implementation approval. A
+design choice or clarification answer is not write approval. PAVE workflow and
+approval gates take precedence over instructions that optimize speed,
+terseness, or implementation size.
 
 ## Declared Verification Commands
 

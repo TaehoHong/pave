@@ -58,9 +58,14 @@ Request
 PAVE scans the repository before asking questions. It uses a fast path for
 direct, low-risk edits only when both hard limits hold: no more than two
 hand-edited files and no more than twenty substantive hand-edited lines.
-Design choices and clarification answers do not count as implementation
-approval. PAVE also investigates root causes for bugs, adds tests only when
-they protect meaningful behavior, and requires fresh evidence for completion.
+For standard work, PAVE asks only material user-owned questions that block the
+current slice, distinguishes repo and authoritative external facts from user
+policy, and shows the remaining decision count. It keeps justified extension
+boundaries when they avoid breaking future contracts, while deferring unused
+providers, workflows, and policies. Scope intent permits read-only discovery;
+design choices and clarification answers do not count as write approval.
+PAVE also investigates root causes for bugs, adds tests only when they protect
+meaningful behavior, and requires fresh evidence for completion.
 When the optional runtime is initialized, PAVE reuses a freshness-checked
 `docs/07-codebase-guide.md` to find module owners, shared code, conventions,
 canonical examples, and narrow verification without rereading unrelated code.

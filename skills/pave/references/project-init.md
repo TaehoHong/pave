@@ -2,9 +2,11 @@
 
 ## Purpose
 
-Create repo-local PAVE runtime files and a first
-project knowledge set that preserves direction for future development and
-onboarding. Normal feature work does not require this step.
+Create repo-local PAVE runtime files and a deeply considered project charter
+that preserves direction for future development and onboarding. Establish the
+project-wide product, system, architecture, operation, design, and quality
+constraints that future features must respect. Do not pre-design the detailed
+behavior or implementation of individual features.
 
 ## Trigger
 
@@ -26,41 +28,43 @@ workflows.
    - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
      `.codex/pave/`, `.claude/`, and adapter files from repo
      facts only.
-   - Direction init: collect product direction, policy, architecture,
-     operation, and verification decisions through user interview before
-     writing product direction docs or runtime policy.
+   - Direction init: collect project-wide product direction, policy,
+     architecture, operation, design, and verification decisions through user
+     interview before writing product direction docs or runtime policy.
 4. Audit existing docs before using them. Classify each relevant statement as
    `repo fact`, `user decision`, `unsupported assumption`, `stale statement`,
    or `open decision`. Do not promote unsupported assumptions or open
    decisions into durable docs.
-5. Ask product, policy, deployment, design, architecture, and verification
-   questions that cannot be answered from the repo.
+5. Ask project-wide product, policy, deployment, design, architecture, and
+   verification questions that cannot be answered from the repo. Do not ask
+   for feature-level details merely to make initialization appear complete.
 6. Must interview the user about product direction, target users, positioning,
-   product principles, technical constraints, design expectations, and
-   onboarding context.
+   product principles, system boundaries, technical constraints, design
+   expectations, operations, quality expectations, and onboarding context.
 7. Before editing product direction docs, stop unless the conversation already
-   contains explicit user decisions for every required decision domain. Repo
-   facts, existing docs, inferred defaults, current implementation shape, and
-   common industry defaults are not substitutes for user decisions. If
-   required decisions are missing, produce only an interview agenda and
-   decision gap register. Do not modify product direction docs.
-8. Classify every required decision domain as `decided`,
+   contains explicit user decisions for every required project-level decision
+   domain. Repo facts, existing docs, inferred defaults, current implementation
+   shape, and common industry defaults are not substitutes for user decisions.
+   If required project-level decisions are missing, produce only an interview
+   agenda and decision gap register. Do not modify product direction docs.
+8. Classify every required project-level decision domain as `decided`,
    `unresolved-after-asking`, `deferred-by-user`, or
    `not-applicable-with-reason`:
-   - Product actors and permissions
-   - Auth/session model
-   - Core user workflows
-   - API protocol and realtime protocol choices
-   - Data ownership and lifecycle
-   - Privacy and security boundaries
-   - Moderation and safety policy
-   - Payment/credits policy, if applicable
-   - Background jobs and automation boundaries
-   - External integrations and providers
-   - Deployment and operations model
-   - Verification and acceptance criteria
+   - Product purpose, positioning, actors, and success measures
+   - Project-wide capability map, priorities, and explicit non-goals
+   - System context, domain ownership, module boundaries, dependency direction,
+     and shared capabilities
+   - Project-wide auth/session, API/realtime, and compatibility strategy
+   - Data ownership, lifecycle, privacy, and security invariants
+   - Project-wide moderation, safety, and payment/credits policy, if applicable
+   - Background jobs, automation boundaries, integrations, and providers
+   - Deployment, environments, observability, recovery, and operations model
+   - Product-wide design principles, accessibility, and supported device classes
+   - Quality strategy, project-level acceptance bar, and verification commands
+   - Onboarding context and ownership of future product and architecture review
    - Explicit non-goals
-9. Apply the Interview Quality Gate before generating docs.
+9. Apply the Project Design Gate and Interview Quality Gate before generating
+   docs.
 10. Treat plugin installation and repo runtime setup as separate steps.
    For Codex, install the plugin through the marketplace first:
    `codex plugin marketplace add TaehoHong/pave --ref main`, then
@@ -103,29 +107,59 @@ workflows.
 - Do not treat catch-all answers like "all standard features", "backend only",
   "not applicable", "same as the reference product except one feature", or
   "you decide" as enough to create durable project direction.
-- Ask follow-up questions until the answer is document-ready: target actors,
-  first-version user flows, explicit non-goals, automation boundaries,
-  security/data/moderation choices, architecture, deployment, and
-  verification must be concrete or listed as unresolved.
-- Capture a first-version feature inventory. For each feature, record the
-  actor, trigger, happy path, edge cases, permissions, data rules, errors,
-  per-feature policy decisions, acceptance criteria, and verification.
+- Ask follow-up questions until the project charter is document-ready: target
+  actors, project-wide capability map, explicit non-goals, system boundaries,
+  automation boundaries, cross-cutting security/data/moderation choices,
+  architecture, deployment, design principles, and verification must be
+  concrete or listed as unresolved.
+- Capture a first-version capability inventory. For each capability, record
+  only its actor, intended outcome, owning domain, system dependencies,
+  cross-cutting project constraints, and unresolved project-level decisions.
+  This inventory is a scope and ownership map, not a feature specification.
 - Prefer concrete follow-ups over broad prompts. Clarify primary domain
-  objects, user roles, auth/session model, core workflows and APIs, data
-  lifecycle, permissions, operational limits, storage, background jobs,
-  integrations, package manager/runtime, deploy target, and first-version
-  exclusions.
+  objects, user roles, project-wide auth/session and API strategy, representative
+  core workflows needed to establish boundaries, data lifecycle invariants,
+  operational limits, storage, background jobs, integrations, package
+  manager/runtime, deploy target, and first-version exclusions.
 - Only record a decision as unresolved after the agent has asked the user or
   the user explicitly chose to defer that decision. Do not skip the interview
-  by marking missing decisions as unresolved. Do not turn vague answers into durable project facts.
+  by marking missing decisions as unresolved. Do not turn vague answers into
+  durable project facts.
+
+## Project Design Gate
+
+Use project initialization to make future feature work coherent, not to make
+all future feature decisions in advance.
+
+- Decide a subject during project initialization when it constrains multiple
+  features, establishes a system or domain boundary, defines shared ownership,
+  creates a cross-cutting product or technical invariant, or determines how the
+  project is operated, reviewed, or verified.
+- Defer a subject when it belongs to one feature, screen, endpoint, workflow,
+  background job, or local implementation and can be decided later without
+  changing a project-wide contract.
+- Mark deferred subjects `deferred-to-feature-planning`. This status is the
+  intended owner and timing of the decision, not an unresolved project-init
+  gap and not permission for the agent to choose a default.
+- Do not decide feature-specific layouts, interaction details, fields, payload
+  shapes, state machines, permissions, edge cases, error behavior, data
+  granularity, acceptance criteria, types, method signatures, call graphs,
+  component trees, module edits, vertical slices, or test cases during project
+  initialization.
+- During implementation of a consequential feature, apply `design.md` and
+  `planning.md` to perform feature-level product review, system-impact review,
+  program design, vertical slicing, acceptance design, and verification before
+  code generation. Small eligible work may still use `fast-path.md`.
 
 ## Completion Criteria
 
 - Runtime files are present or intentionally skipped.
 - Repo facts are captured separately from user decisions.
-- Required decision domains are covered.
-- Missing decisions were asked, explicitly deferred, or marked not applicable
-  with reason.
+- Required project-level decision domains are covered.
+- Missing project-level decisions were asked, explicitly deferred, or marked
+  not applicable with reason.
+- Feature-level decisions are explicitly owned by feature planning rather than
+  guessed or prematurely fixed during initialization.
 - Product docs distinguish facts, decisions, assumptions, and unresolved
   questions.
 - The codebase guide can route a typical task to the owning module, shared

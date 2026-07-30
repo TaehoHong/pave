@@ -101,14 +101,22 @@ test('project-init uses one canonical workflow reference', () => {
   for (const pattern of [
     /Runtime init/,
     /Direction init/,
-    /explicit user decisions/,
+    /explicit user decisions for every required project-level decision/,
     /decision gap register/,
+    /Project Design Gate/,
+    /deferred-to-feature-planning/,
+    /scope and ownership map, not a feature specification/,
+    /feature-level product review, system-impact review,\s+program design, vertical slicing/,
     /require approval/,
     /must stop after project initialization/,
   ]) {
     assert.match(reference, pattern);
   }
 
+  assert.doesNotMatch(
+    reference,
+    /For each feature, record the\s+actor, trigger, happy path, edge cases/,
+  );
   assert.match(alias, /\.\.\/pave\/references\/project-init\.md/);
   assert.doesNotMatch(alias, /\.\.\/\.\.\/commands\/project-init\.md/);
   assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/pave\/references\/project-init\.md/);
@@ -138,25 +146,63 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   }
 });
 
-test('outcome-only feature requests require discovery before approval', () => {
+test('outcome-only feature requests triage material decisions and bound interviews', () => {
   const pave = read('skills/pave/SKILL.md');
   const command = read('commands/pave.md');
   const design = read('skills/pave/references/design.md');
   const planning = read('skills/pave/references/planning.md');
+  const routing = read('skills/pave/references/request-routing.md');
+  const planCommand = read('commands/plan.md');
+  const runtimePlan = read(
+    'skills/pave/assets/repo-template/.codex/pave/templates/plan.md',
+  );
   const planners = [
     read('agents/planner.md'),
     read('skills/pave/references/subagents/planner.md'),
   ];
 
-  assert.match(pave, /states an outcome without decision-complete\s+requirements/);
-  assert.match(command, /planning interview before presenting a final\s+design or asking for implementation approval/);
-  assert.match(design, /recommended-unconfirmed/);
-  assert.match(design, /Do not call a design\s+confirmed or ask for implementation approval/);
-  assert.match(planning, /A recommendation is never settled by the agent/);
+  assert.match(pave, /states an outcome without implementation-ready\s+requirements/);
+  assert.match(command, /load and apply `skills\/pave\/references\/design\.md`/);
+  assert.match(design, /Ask the user only when all of these are true/);
+  assert.match(design, /`externally-evidenced`/);
+  assert.match(design, /External facts are constraints, not user\s+preferences/);
+  assert.match(design, /Do not equate all forward-looking design with scope creep/);
+  assert.match(design, /evidence, current cost, avoided rework/);
+  assert.match(design, /status: `active`, `superseded`, or `deferred`/);
+  assert.match(design, /remaining blocking decision\s+count/);
+  assert.match(design, /Read-only discovery does not require implementation approval/);
+  assert.match(planning, /Agent-owned implementation details do not block readiness/);
+  assert.match(routing, /partial blocker and continue\s+unblocked in-scope work/);
+  assert.match(planCommand, /current decision ledger and remaining blocking decision count/);
+  assert.match(runtimePlan, /Extension boundaries: <evidence, current cost, avoided rework>/);
+  assert.match(runtimePlan, /externally-evidenced/);
+  assert.match(runtimePlan, /active, superseded, or deferred/);
 
   for (const planner of planners) {
-    assert.match(planner, /ask the user about every behavior-changing\s+recommendation/);
-    assert.doesNotMatch(planner, /Questions for the user, only if blocking/);
+    assert.match(planner, /Ask only material user-owned questions/);
+    assert.match(planner, /remaining blocking decision count/);
+    assert.doesNotMatch(
+      planner,
+      /ask the user about every behavior-changing|every unknown or `recommended-unconfirmed`/i,
+    );
+  }
+
+  for (const entrypoint of [
+    pave,
+    command,
+    design,
+    planning,
+    routing,
+    planCommand,
+    read('skills/pave/assets/repo-template/AGENTS.md'),
+    read('skills/pave/assets/repo-template/.claude/commands/pave.md'),
+    read('skills/pave/assets/repo-template/.codex/pave/config.md'),
+    read('skills/pave/assets/repo-template/.codex/pave/adapters/generic-agent.md'),
+  ]) {
+    assert.doesNotMatch(
+      entrypoint,
+      /ask every product|ask every product or policy|including small details/i,
+    );
   }
 });
 
@@ -174,7 +220,8 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
   assert.match(fastPath, /Both limits are hard eligibility conditions/);
   assert.match(fastPath, /third hand-edited file/);
   assert.match(fastPath, /original fast-path\s+request does not approve expanded scope/);
-  assert.match(planning, /design option.+is not\s+implementation approval/s);
+  assert.match(planning, /Read-only discovery never requires this approval/);
+  assert.match(planning, /design option.+settles scope or behavior\s+only/s);
   assert.match(pave, /speed,\s+terseness, or implementation size do not waive those gates/);
   assert.match(testing, /realistic defect/);
   assert.match(testing, /machine-consumed or explicitly supported public interface/);
@@ -220,10 +267,10 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
     assert.doesNotMatch(content, /\bnormally\b|\broughly\b/, entrypoint);
   }
 
-  assert.match(read('commands/pave.md'), /design choice.+is not\s+implementation approval/s);
+  assert.match(read('commands/pave.md'), /design choice.+is not\s+write approval/s);
   assert.match(
     read('skills/pave/assets/repo-template/AGENTS.md'),
-    /design choice or clarification answer is not implementation approval/i,
+    /design choice or clarification answer is not write approval/i,
   );
 });
 

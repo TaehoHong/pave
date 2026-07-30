@@ -11,11 +11,22 @@
 
 ## Constraints
 
-- Product/policy ambiguity: <questions asked and resolved>
-- Out of scope: <explicit non-goals>
+- Scope map:
+  - In scope: <current product slice>
+  - Preserve current behavior: <untouched contracts>
+  - Extension boundaries: <evidence, current cost, avoided rework>
+  - Deferred: <future behavior and owning workflow>
+  - Out of scope: <explicit non-goals>
+- Remaining blocking decisions: <count>
 - Test Value Gate: each proposed test names the behavior or risk it protects
   and the realistic defect that would make it fail; otherwise use
   proportionate verification and record residual risk
+
+## Decision Ledger
+
+| ID | Scope owner | Source | Status | Decision / evidence | Replaced by |
+| --- | --- | --- | --- | --- | --- |
+| D-1 | <feature> | <user-confirmed, repo-evidenced, externally-evidenced, agent-assumed, or recommended-unconfirmed> | <active, superseded, or deferred> | <current decision> | <ID or n/a> |
 
 ## Current Context
 
@@ -24,6 +35,7 @@
 ## Execution Mode
 
 - Approval: one consolidated approval required immediately before code/test edits
+- Read-only discovery: authorized by scope intent; no implementation approval required
 - Re-approval required only for scope change, destructive action, new ambiguity, credentials, permissions, or invalidated verification strategy
 - Default: `go`
 

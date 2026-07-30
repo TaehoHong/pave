@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Produce a decision-complete checklist plan before implementation.
+Produce an implementation-ready checklist plan before implementation.
 
 ## Steps
 
@@ -16,16 +16,20 @@ Produce a decision-complete checklist plan before implementation.
    uses them. Risk or review-depth labels are metadata, not execution order.
 5. Apply `testing.md` and attach only tests with material regression value.
    Otherwise name the proportionate verification command and residual risk.
-6. Resolve every product or policy ambiguity, including small details.
-7. Apply the Feature Decision Gate.
+6. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
+   Interview Progress gates from `design.md`. Resolve only material,
+   user-owned decisions that block the current slice.
+7. Apply the Feature Readiness Gate.
 8. List out-of-scope work.
 9. Ask once for consolidated approval immediately before code or
    test edits.
 
-Approval must be an explicit implementation instruction given after the
-design, implementation boundary, and checklist have been surfaced. Selecting a
-design option, answering a clarification, or adding requirements is not
-implementation approval.
+Approval must be an explicit implementation instruction for the surfaced
+design, implementation boundary, and checklist. Selecting a design option,
+answering a clarification, or adding requirements settles scope or behavior
+only. An earlier request to implement records implementation intent but does
+not authorize a materially changed boundary that has not been surfaced.
+Read-only discovery never requires this approval.
 
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,
@@ -36,16 +40,18 @@ such as "add error handling".
 Do not create a test task merely to increase coverage or satisfy a test-first
 ritual. The plan must state the behavior or risk each proposed test protects.
 
-## Feature Decision Gate
+## Feature Readiness Gate
 
 Before implementation, list the feature inventory for the requested product
-slice and record per-feature acceptance criteria and policy decisions: actor,
-trigger, happy path, edge cases, permissions, data rules, error handling, and
-verification. Label each decision `user-confirmed`, `repo-evidenced`, or
-`recommended-unconfirmed`. A recommendation is never settled by the agent:
-ask the user and change its source to `user-confirmed`. Do not present the plan
-as final or ask for implementation approval while a behavior-changing decision
-is unknown or `recommended-unconfirmed`; ask or mark the item blocked.
+slice and record its actor, trigger, happy path, material edge cases,
+permissions, data rules, public error behavior, acceptance criteria, and
+verification. Also list `preserve-current-behavior`, justified
+`extension-boundary`, `deferred`, and `out-of-scope` items.
+
+Use the source labels and ledger statuses defined in `design.md`. Do not
+present the plan as final while an in-scope material user-owned decision is
+unknown or `recommended-unconfirmed`; ask or explicitly defer the affected
+behavior. Agent-owned implementation details do not block readiness.
 
 ## Outputs
 
@@ -53,6 +59,7 @@ is unknown or `recommended-unconfirmed`; ask or mark the item blocked.
 - For durable repo-local planning, write it under `.codex/pave/plans/` only when
   the optional repo runtime already exists or the user explicitly asks for it.
 - Vertically sliced checklist.
+- Scope map and current decision ledger.
 - Verification strategy.
 - Approval gate.
 
