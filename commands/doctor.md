@@ -14,7 +14,7 @@ correctly.
 1. Do not edit project files.
 2. Identify the current repository root.
 3. Check whether optional repo-local PAVE runtime files exist.
-4. Run `scripts/doctor.js <repo>` when available.
+4. Run `../scripts/doctor.js <repo>` when available.
 5. If the helper is unavailable, manually check:
    - `AGENTS.md`
    - `CLAUDE.md`

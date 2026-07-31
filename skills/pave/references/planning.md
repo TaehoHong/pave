@@ -14,11 +14,12 @@ Produce an implementation-ready checklist plan before implementation.
 4. Order slices by dependency and smallest useful behavior. Fold required
    scaffolding, core logic, integration, and surface work into the slice that
    uses them. Risk or review-depth labels are metadata, not execution order.
-5. Apply `testing.md` and attach only tests with material regression value.
-   Otherwise name the proportionate verification command and residual risk.
+5. Apply the Test Value Gate and attach only tests with material regression
+   value. Otherwise name the proportionate verification command and residual
+   risk.
 6. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
-   Interview Progress gates from `design.md`. Resolve only material,
-   user-owned decisions that block the current slice.
+   Interview Progress gates. Resolve only material, user-owned decisions that
+   block the current slice.
 7. Apply the Feature Readiness Gate.
 8. List out-of-scope work.
 9. Ask once for consolidated approval immediately before code or
@@ -48,10 +49,10 @@ permissions, data rules, public error behavior, acceptance criteria, and
 verification. Also list `preserve-current-behavior`, justified
 `extension-boundary`, `deferred`, and `out-of-scope` items.
 
-Use the source labels and ledger statuses defined in `design.md`. Do not
-present the plan as final while an in-scope material user-owned decision is
-unknown or `recommended-unconfirmed`; ask or explicitly defer the affected
-behavior. Agent-owned implementation details do not block readiness.
+Use the PAVE source labels and ledger statuses. Do not present the plan as final
+while an in-scope material user-owned decision is unknown or
+`recommended-unconfirmed`; ask or explicitly defer the affected behavior.
+Agent-owned implementation details do not block readiness.
 
 ## Outputs
 

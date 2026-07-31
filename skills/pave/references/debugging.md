@@ -23,9 +23,9 @@ code.
 
 ## Fix
 
-1. Apply `testing.md`. Add the smallest regression test only when it protects
-   the proven failure mode; otherwise preserve a reliable reproduction and
-   explain why an automated test would add little value.
+1. Apply the Test Value Gate. Add the smallest regression test only when it
+   protects the proven failure mode; otherwise preserve a reliable reproduction
+   and explain why an automated test would add little value.
 2. Fix the proven cause at its source without unrelated cleanup.
 3. Run the narrow reproduction, affected tests, and declared broader
    verification.

@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Use when the user asks for /project-init or optional PAVE repo-local runtime initialization.
+description: Use when the user asks for /project-init or explicit PAVE repo-local runtime and project docs initialization.
 ---
 
 # PAVE Project Init

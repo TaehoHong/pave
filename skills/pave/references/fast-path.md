@@ -38,8 +38,8 @@ said it would implement after the reply.
    ask for a second approval or create a formal design, feature inventory,
    vertical-slice plan, plan file, or subagent task.
 4. Make the smallest maintainable edit.
-5. Apply `testing.md`; do not add a low-value test for a tiny change merely to
-   satisfy process.
+5. Apply the Test Value Gate; do not add a low-value test for a tiny change
+   merely to satisfy process.
 6. Run the narrow verification, inspect the diff, and report the outcome.
 
 ## Fallback

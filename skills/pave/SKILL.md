@@ -50,52 +50,40 @@ session harness for software development work.
 - Do not present a skill prompt as the plugin installation method.
 - Do not add companion detection or plugin dependency fields.
 
-## Fast Path
+## Request Routing
 
 Classify the request:
 
-- Obvious low-risk local edit: read `references/fast-path.md` and finish with
-  narrow verification.
+- Obvious low-risk local edit: read `references/fast-path.md`,
+  `references/testing.md`, and `references/verification.md`.
 - Project initialization or optional repo runtime setup: read `references/project-init.md`.
 - Doctor or status request: read `references/request-routing.md`, then report
   health or state without editing files.
-- Plan-only request: read `references/planning.md` and stop before code or
-  test edits.
+- Plan-only request: read `references/design.md`, `references/testing.md`, and
+  `references/planning.md`; stop before code or test edits.
 - Feature or behavior change: read `references/design.md`,
-  `references/planning.md`, then `references/execution-loop.md`.
-- Bug: read `references/request-routing.md`, then
-  `references/debugging.md` before proposing a fix.
-- Review: findings first, ordered by severity, with file and line
-  evidence.
-- Documentation sync: update docs only when evidence supports the change.
+  `references/testing.md`, `references/planning.md`,
+  `references/execution-loop.md`, `references/review.md`, and
+  `references/verification.md` as the work reaches each step.
+- Bug: read `references/request-routing.md`, `references/debugging.md`, and
+  `references/testing.md` before proposing a fix; after approval, use
+  `references/execution-loop.md`, `references/review.md`, and
+  `references/verification.md`.
+- Review: read `references/review.md` and, when tests changed,
+  `references/testing.md`; report findings first with file and line evidence.
+- Documentation sync: update docs only when evidence supports the change; read
+  `references/context-retrieval.md` when codebase-guide ownership or freshness
+  is involved.
 - Verification-only request: read `references/verification.md` and do not edit
   source files.
 - Continuation: resume from the newest relevant repo-local plan when
   `.codex/pave/plans/` exists; otherwise continue from the conversation state.
 
-## Reference Routing
-
-Load only the reference needed for the current step:
-
-- Project setup: `references/project-init.md`
-- Request classification: `references/request-routing.md`
-- Durable codebase context and scoped source discovery:
-  `references/context-retrieval.md`
-- Small low-risk edits: `references/fast-path.md`
-- Intent and design: `references/design.md`
-- Planning and approval: `references/planning.md`
-- Root-cause debugging: `references/debugging.md`
-- Test value: `references/testing.md`
-- Red-Green-Review execution: `references/execution-loop.md`
-- Code review: `references/review.md`
-- Specialist delegation: `references/subagent-dispatch.md`
-- Verification: `references/verification.md`
-- Reporting: `references/reporting.md`
-- Memory and wiki capture: `references/memory.md`
-- Git policy: `references/git.md`
-
-Use role briefs from `references/subagents/` when dispatching bounded
-helpers. Use assets from `assets/` when initializing or syncing a repo.
+Before dispatching bounded helpers, read `references/subagent-dispatch.md` and
+use role briefs from `references/subagents/`. Before final reporting, read
+`references/reporting.md`; read `references/memory.md` or `references/git.md`
+only when the task requires memory capture or Git operations. Use assets from
+`assets/` when initializing or syncing a repo.
 
 ## Scripts
 
@@ -104,11 +92,11 @@ helpers. Use assets from `assets/` when initializing or syncing a repo.
 - Claude Code plugin install:
   `claude plugin marketplace add TaehoHong/pave`,
   then `claude plugin install pave@pave`
-- Local source plugin install helper: `scripts/install_plugin.sh`
-- Optional repo runtime install: `scripts/install.sh <repo-path>`
-- Initialize a repo with JavaScript: `scripts/init_repo.js <repo-path>`
-- Check a repo: `scripts/doctor.js <repo-path>`
-- Re-sync templates: `scripts/sync_template.js <repo-path>`
+- Local source plugin install helper: `../../scripts/install_plugin.sh`
+- Optional repo runtime install: `../../scripts/install.sh <repo-path>`
+- Initialize a repo with JavaScript: `../../scripts/init_repo.js <repo-path>`
+- Check a repo: `../../scripts/doctor.js <repo-path>`
+- Re-sync templates: `../../scripts/sync_template.js <repo-path>`
 
 ## Commands
 

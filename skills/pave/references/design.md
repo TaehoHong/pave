@@ -1,5 +1,17 @@
 # Design
 
+## Contents
+
+- [Purpose](#purpose)
+- [Steps](#steps)
+- [Decision Triage](#decision-triage)
+- [Evidence Gate](#evidence-gate)
+- [Extensibility Gate](#extensibility-gate)
+- [Decision Ledger](#decision-ledger)
+- [Interview Progress Gate](#interview-progress-gate)
+- [Design Quality Gate](#design-quality-gate)
+- [Blocked Conditions](#blocked-conditions)
+
 ## Purpose
 
 Turn a behavior-changing request into a small, explicit design before code or

@@ -1,5 +1,17 @@
 # Project Initialization
 
+## Contents
+
+- [Purpose](#purpose)
+- [Trigger](#trigger)
+- [Steps](#steps)
+- [Interview Quality Gate](#interview-quality-gate)
+- [Project Design Gate](#project-design-gate)
+- [Completion Criteria](#completion-criteria)
+- [Outputs](#outputs)
+- [Blocked Conditions](#blocked-conditions)
+- [Scope Guard](#scope-guard)
+
 ## Purpose
 
 Create repo-local PAVE runtime files and a deeply considered project charter
@@ -10,9 +22,9 @@ behavior or implementation of individual features.
 
 ## Trigger
 
-Use when the user asks to initialize a project, set up AI-assisted
-development, bootstrap a new repo, apply PAVE runtime files to a repo,
-or configure PAVE project instructions and docs.
+Use when the user asks for `/project-init`, explicitly asks to apply PAVE
+runtime files to a repo, or asks to configure PAVE project instructions and
+docs.
 
 Treat the request only as project initialization or repo runtime setup. Do not
 route it to feature, bug, review, refactor, docs sync, continuation, or status
@@ -74,8 +86,8 @@ workflows.
    then `claude plugin install pave@pave`. Do not present a skill prompt
    as the plugin installation method.
 11. To apply PAVE runtime files to the repo, run
-   `scripts/install.sh <repo>`.
-12. Use `scripts/init_repo.js <repo>` as the JavaScript automation
+   `../../../scripts/install.sh <repo>`.
+12. Use `../../../scripts/init_repo.js <repo>` as the JavaScript automation
    helper when direct repo initialization is preferred.
 13. For project-init, edits to product docs, `AGENTS.md`, `CLAUDE.md`, and
    PAVE runtime policy files require approval after the interview summary
@@ -98,7 +110,7 @@ workflows.
     with module paths, shared owners, canonical symbols or examples,
     dependency rules, test locations, verification commands, excluded paths,
     and per-entry evidence paths.
-17. Run `scripts/doctor.js <repo>`.
+17. Run `../../../scripts/doctor.js <repo>`.
 18. Report generated files, decision coverage, setup gaps,
     and verification commands.
 
@@ -146,10 +158,10 @@ all future feature decisions in advance.
   granularity, acceptance criteria, types, method signatures, call graphs,
   component trees, module edits, vertical slices, or test cases during project
   initialization.
-- During implementation of a consequential feature, apply `design.md` and
-  `planning.md` to perform feature-level product review, system-impact review,
-  program design, vertical slicing, acceptance design, and verification before
-  code generation. Small eligible work may still use `fast-path.md`.
+- During implementation of a consequential feature, use the standard PAVE
+  feature workflow to perform feature-level product review, system-impact
+  review, program design, vertical slicing, acceptance design, and verification
+  before code generation. Small eligible work may still use the PAVE fast path.
 
 ## Completion Criteria
 

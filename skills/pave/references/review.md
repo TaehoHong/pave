@@ -13,9 +13,9 @@ Check requirement compliance and code quality with evidence before completion.
 4. Check whether the patch fixes the shared cause at its existing owner,
    duplicates a rule, adds a parallel path, creates a shotgun change, or
    introduces an abstraction without current use.
-5. Apply `testing.md` to every new or modified test. Flag tests that duplicate
-   existing coverage, assert implementation details, or cannot catch a
-   realistic defect.
+5. Apply the Test Value Gate to every new or modified test. Flag tests that
+   duplicate existing coverage, assert implementation details, or cannot catch
+   a realistic defect.
 6. Cite file and line evidence for actionable findings and rank them by impact.
 7. Fix critical and major issues, rerun the covering tests, and review the
    resulting diff again.

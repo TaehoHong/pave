@@ -27,6 +27,21 @@ function run(args, options = {}) {
   });
 }
 
+function assertPluginScriptLinksResolve(rel) {
+  const links = [
+    ...read(rel).matchAll(/`((?:\.\.\/)*scripts\/[A-Za-z0-9_.-]+)(?:\s[^`]*)?`/g),
+  ];
+
+  assert.ok(links.length > 0, `${rel} should declare at least one plugin script`);
+  for (const [, target] of links) {
+    assert.equal(
+      fs.existsSync(path.resolve(repoRoot, path.dirname(rel), target)),
+      true,
+      `${rel}: ${target} should resolve from the declaring file`,
+    );
+  }
+}
+
 test('init installs canonical role agents and doctor accepts the result', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-init-test-'));
   const init = run([node, 'scripts/init_repo.js', tmp]);
@@ -106,7 +121,7 @@ test('project-init uses one canonical workflow reference', () => {
     /Project Design Gate/,
     /deferred-to-feature-planning/,
     /scope and ownership map, not a feature specification/,
-    /feature-level product review, system-impact review,\s+program design, vertical slicing/,
+    /standard PAVE\s+feature workflow[\s\S]+feature-level product review[\s\S]+program design, vertical slicing/,
     /require approval/,
     /must stop after project initialization/,
   ]) {
@@ -119,6 +134,11 @@ test('project-init uses one canonical workflow reference', () => {
   );
   assert.match(alias, /\.\.\/pave\/references\/project-init\.md/);
   assert.doesNotMatch(alias, /\.\.\/\.\.\/commands\/project-init\.md/);
+  assert.match(alias, /explicit PAVE repo-local runtime and project docs initialization/);
+  assert.doesNotMatch(
+    reference,
+    /set up AI-assisted\s+development|bootstrap a new repo/,
+  );
   assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/pave\/references\/project-init\.md/);
   assert.ok(command.split('\n').length <= 20, 'legacy command should stay a thin shim');
 });
@@ -143,6 +163,36 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     const skill = read(`skills/${name}/SKILL.md`);
     assert.match(skill, /\.\.\/pave\/SKILL\.md/);
     assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
+  }
+});
+
+test('plugin instruction files use resolvable script paths', () => {
+  for (const instruction of [
+    'skills/pave/SKILL.md',
+    'skills/pave/references/project-init.md',
+    'commands/doctor.md',
+  ]) {
+    assertPluginScriptLinksResolve(instruction);
+  }
+});
+
+test('workflow references do not chain to sibling workflow references', () => {
+  const referencesDir = path.join(repoRoot, 'skills/pave/references');
+  const workflowReferences = fs.readdirSync(referencesDir)
+    .filter((name) => name.endsWith('.md'));
+
+  for (const source of workflowReferences) {
+    const content = read(`skills/pave/references/${source}`);
+    const chainedReferences = [
+      ...content.matchAll(/`([^`\s]+\.md)`/g),
+    ].map((match) => path.basename(match[1]))
+      .filter((target) => target !== source && workflowReferences.includes(target));
+
+    assert.deepEqual(
+      chainedReferences,
+      [],
+      `${source} should not require another workflow reference`,
+    );
   }
 });
 
