@@ -10,10 +10,58 @@ const assetsRoot = path.join(pluginRoot, 'skills', 'pave', 'assets');
 const repoTemplate = path.join(assetsRoot, 'repo-template');
 const docTemplates = path.join(assetsRoot, 'docs-templates');
 
+const docRootNames = new Set([
+  '.wiki',
+  'adr',
+  'adrs',
+  'decisions',
+  'design',
+  'design-system',
+  'doc',
+  'documentation',
+  'guide',
+  'guides',
+  'handbook',
+  'rfc',
+  'rfcs',
+  'style-guide',
+  'styleguide',
+  'wiki',
+]);
+
+const docFileNames = new Set([
+  'architecture.md',
+  'changelog.md',
+  'codeowners',
+  'contributing.md',
+  'design.md',
+  'readme.md',
+  'security.md',
+  'style-guide.md',
+  'styleguide.md',
+]);
+
+const skippedScanDirs = new Set([
+  '.git',
+  'build',
+  'coverage',
+  'dist',
+  'docs',
+  'node_modules',
+  'out',
+  'target',
+  'tmp',
+  'vendor',
+]);
+
+const maxScanDepth = 3;
+
 function usage() {
   console.log(`Usage: init_repo.js <repo-path> [--force] [--dry-run] [--skip-docs]
 
 Initialize a repository with PAVE runtime and starter docs.
+Existing documentation found in the repository is reported so it can be linked
+from docs/ instead of duplicated.
 `);
 }
 
@@ -88,6 +136,41 @@ function collectFiles(rootDir) {
   return files;
 }
 
+function findExistingDocs(repo) {
+  const found = [];
+
+  function walk(current, depth) {
+    let entries;
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true })
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      const next = path.join(current, entry.name);
+      const rel = path.relative(repo, next);
+      const name = entry.name.toLowerCase();
+
+      if (entry.isDirectory()) {
+        if (docRootNames.has(name)) {
+          found.push(rel);
+          continue;
+        }
+        if (depth >= maxScanDepth || skippedScanDirs.has(name)) continue;
+        if (name.startsWith('.') && name !== '.github') continue;
+        walk(next, depth + 1);
+      } else if (entry.isFile() && docFileNames.has(name)) {
+        found.push(rel);
+      }
+    }
+  }
+
+  walk(repo, 1);
+  return found;
+}
+
 function copyTree(srcRoot, dstRoot, options) {
   const created = [];
   const skipped = [];
@@ -130,6 +213,7 @@ function run(argv = process.argv.slice(2)) {
     console.log('PAVE will install .codex/pave without deleting legacy files.');
   }
 
+  const existingDocs = findExistingDocs(repo);
   const runtime = copyTree(repoTemplate, repo, options);
   const agents = copyTree(agentsRoot, path.join(repo, '.claude', 'agents'), options);
   const docs = options.skipDocs
@@ -144,6 +228,14 @@ function run(argv = process.argv.slice(2)) {
     console.log(`skipped existing: ${filePath}`);
   }
 
+  for (const docPath of existingDocs) {
+    console.log(`existing documentation detected: ${docPath}`);
+  }
+
+  if (existingDocs.length > 0) {
+    console.log('link these from docs/ instead of duplicating them.');
+  }
+
   console.log(options.dryRun ? 'PAVE dry run complete.' : 'PAVE initialization complete.');
   return 0;
 }
@@ -152,4 +244,4 @@ if (require.main === module) {
   process.exitCode = run();
 }
 
-module.exports = { run, copyTree, collectFiles };
+module.exports = { run, copyTree, collectFiles, findExistingDocs };

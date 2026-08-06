@@ -28,18 +28,23 @@ analysis, reviews, refactors, docs sync, and continuation:
    user-owned questions that block the current slice.
 5. Split independent subsystems, continue safe unblocked work, and distinguish
    justified extension boundaries from deferred future behavior.
-6. Create or update a checklist plan under `.codex/pave/plans/` for standard
+6. For user-visible work, resolve the design system from `docs/04-design-rules.md`,
+   token or theme files, the shared component library, or the nearest canonical
+   component. Reuse its existing components, tokens, variants, and states
+   instead of hardcoding values or adding one-off patterns, and raise every
+   deviation as a material user-owned decision.
+7. Create or update a checklist plan under `.codex/pave/plans/` for standard
    implementation work.
-7. Request one consolidated approval immediately before code or
+8. Request one consolidated approval immediately before code or
    test edits.
-8. Apply the PAVE Test Value Gate. Add tests only when they protect an
+9. Apply the PAVE Test Value Gate. Add tests only when they protect an
    observable behavior, external contract, proven regression, or high-risk
    boundary and can catch a realistic defect. Otherwise use proportionate
    verification and report residual risk.
-9. Use bounded subagents only when useful.
-10. Run declared verification commands before success claims.
-11. Write final or blocked reports when durable handoff is useful.
-12. Update affected codebase-guide entries when verified work changes module
+10. Use bounded subagents only when useful.
+11. Run declared verification commands before success claims.
+12. Write final or blocked reports when durable handoff is useful.
+13. Update affected codebase-guide entries when verified work changes module
     boundaries, shared ownership, canonical examples, conventions, dependency
     rules, test locations, verification commands, or excluded paths.
 

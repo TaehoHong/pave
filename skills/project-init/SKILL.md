@@ -12,3 +12,7 @@ Before acting:
 2. Read `../pave/references/project-init.md`.
 
 Then follow the reference. Stop after project initialization.
+
+On an existing repository, inventory documentation the project already has,
+link each PAVE doc to the existing document that owns its subject, and keep
+that document as the source of truth instead of duplicating it.

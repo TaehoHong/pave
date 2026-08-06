@@ -24,18 +24,22 @@ is the Claude Code adapter surface for specialist discovery.
    questions that block the current slice.
 7. Split independent subsystems and continue useful safe work when another
    subsystem has a partial blocker.
-8. For standard implementation work, create or update a checklist plan in
+8. For user-visible work, resolve the design system from
+   `docs/04-design-rules.md`, token or theme files, the shared component
+   library, or the nearest canonical component. Reuse its existing components
+   and tokens, and raise every deviation as a material user-owned decision.
+9. For standard implementation work, create or update a checklist plan in
    `.codex/pave/plans/`.
-9. Ask once for implementation approval immediately before code or test edits
-   unless the Small Change Fast Path applies.
-10. Apply the PAVE Test Value Gate. Use Red-Green-Review only for tests that
-   protect a concrete behavior or risk and can catch a realistic defect;
-   otherwise use proportionate verification and report residual risk.
-11. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
-12. Run declared verification commands before success claims.
-13. Write a final or blocked report under `.codex/pave/reports/` when durable
+10. Ask once for implementation approval immediately before code or test edits
+    unless the Small Change Fast Path applies.
+11. Apply the PAVE Test Value Gate. Use Red-Green-Review only for tests that
+    protect a concrete behavior or risk and can catch a realistic defect;
+    otherwise use proportionate verification and report residual risk.
+12. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
+13. Run declared verification commands before success claims.
+14. Write a final or blocked report under `.codex/pave/reports/` when durable
     handoff is useful.
-14. Track scope intent, read-only discovery, design decisions, and write
+15. Track scope intent, read-only discovery, design decisions, and write
     approval separately. Read-only discovery does not require implementation
     approval. A design choice or clarification answer is not write approval.
     PAVE workflow and approval gates take precedence over instructions that

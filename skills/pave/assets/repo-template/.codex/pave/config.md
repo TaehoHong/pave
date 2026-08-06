@@ -38,6 +38,10 @@
   Red-Green-Review only for tests with material regression value.
 - Partial blocker: continue independent safe in-scope work and report the
   blocked subsystem separately.
+- UI/UX: resolve the design system from `docs/04-design-rules.md`, token or
+  theme files, the shared component library, or the nearest canonical
+  component. Reuse existing components and tokens; every deviation is a
+  user-owned decision.
 - Bug: investigate root cause before proposing fixes.
 - Analysis: scan repo, cite evidence, avoid edits unless requested.
 - Review: findings first, severity ordered, with file and line evidence.

@@ -324,6 +324,90 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
   );
 });
 
+test('project-init links existing documentation instead of duplicating it', () => {
+  const reference = read('skills/pave/references/project-init.md');
+  const command = read('commands/project-init.md');
+  const skill = read('skills/project-init/SKILL.md');
+
+  assert.match(reference, /## Existing Documentation Discovery/);
+  assert.match(reference, /Keep the discovered document canonical/);
+  assert.match(reference, /Never create a parallel duplicate tree silently/);
+  assert.match(reference, /### Interview Reduction/);
+  assert.match(reference, /link that root from `docs\/`, or adopt it as the docs location/);
+  assert.match(command, /link each PAVE doc to the existing document that owns its\s+subject/);
+  assert.match(skill, /source of truth instead of duplicating it/);
+
+  const templatesDir = 'skills/pave/assets/docs-templates';
+  const templates = fs.readdirSync(path.join(repoRoot, templatesDir));
+  assert.equal(templates.length, 8);
+  for (const template of templates) {
+    assert.match(read(`${templatesDir}/${template}`), /## Linked Sources/, template);
+  }
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-existing-docs-test-'));
+  fs.mkdirSync(path.join(tmp, 'documentation'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'apps', 'web', 'design'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'node_modules', 'pkg', 'doc'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'README.md'), '# existing\n');
+  fs.writeFileSync(path.join(tmp, 'node_modules', 'pkg', 'README.md'), '# vendor\n');
+
+  const init = run([node, 'scripts/init_repo.js', tmp]);
+
+  assert.equal(init.status, 0, init.stderr || init.stdout);
+  assert.match(init.stdout, /existing documentation detected: documentation$/m);
+  assert.match(init.stdout, /existing documentation detected: README\.md$/m);
+  assert.match(init.stdout, /existing documentation detected: apps\/web\/design$/m);
+  assert.doesNotMatch(init.stdout, /node_modules/);
+  assert.match(init.stdout, /link these from docs\/ instead of duplicating them\./);
+});
+
+test('user-visible work follows the resolved design system', () => {
+  const designSystem = read('skills/pave/references/design-system.md');
+  const pave = read('skills/pave/SKILL.md');
+  const command = read('commands/pave.md');
+  const design = read('skills/pave/references/design.md');
+  const review = read('skills/pave/references/review.md');
+  const fastPath = read('skills/pave/references/fast-path.md');
+  const designRules = read('skills/pave/assets/docs-templates/04-design-rules.md');
+
+  assert.match(designSystem, /Resolve the design system in this order/);
+  assert.match(designSystem, /docs\/04-design-rules\.md/);
+  assert.match(designSystem, /Reuse an existing component before creating a new one/);
+  assert.match(designSystem, /Do not hardcode a literal value that an\s+existing token already covers/);
+  assert.match(designSystem, /deviation from the resolved design system is a material user-owned\s+decision/);
+  assert.match(designSystem, /do not start a second parallel system/);
+
+  assert.match(pave, /references\/design-system\.md/);
+  assert.match(command, /skills\/pave\/references\/design-system\.md/);
+  assert.match(design, /resolve the project's design system/);
+  assert.match(review, /check design-system\s+compliance/);
+  assert.match(fastPath, /Needing a new component, token, or variant/);
+  assert.match(designRules, /## Design System/);
+  assert.match(designRules, /Deviation policy/);
+
+  for (const entrypoint of [
+    'skills/pave/assets/repo-template/AGENTS.md',
+    'skills/pave/assets/repo-template/.claude/commands/pave.md',
+    'skills/pave/assets/repo-template/.codex/pave/config.md',
+    'skills/pave/assets/repo-template/.codex/pave/adapters/generic-agent.md',
+  ]) {
+    const content = read(entrypoint);
+    assert.match(content, /design system/i, entrypoint);
+    assert.match(content, /docs\/04-design-rules\.md/, entrypoint);
+    assert.match(content, /deviation[^.]{0,40}user-owned decision/i, entrypoint);
+  }
+
+  for (const role of ['ui-ux-designer', 'fullstack-developer']) {
+    for (const brief of [
+      read(`agents/${role}.md`),
+      read(`skills/pave/references/subagents/${role}.md`),
+    ]) {
+      assert.match(brief, /design-system deviation/i, role);
+      assert.match(brief, /tokens/, role);
+    }
+  }
+});
+
 test('token-save remains an optional configured workflow', () => {
   assert.match(read('commands/pave.md'), /If token-save is enabled/);
   assert.match(read('commands/token-save.md'), /Implementation Contract/);
@@ -331,6 +415,33 @@ test('token-save remains an optional configured workflow', () => {
     read('skills/pave/assets/repo-template/.codex/pave/config.md'),
     /Token-save: disabled/,
   );
+});
+
+test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
+  const manifest = JSON.parse(read('.codex-plugin/plugin.json'));
+  const hooks = JSON.parse(read('hooks/hooks.json'));
+  const pave = read('skills/pave/SKILL.md');
+  const usage = read('skills/usage/SKILL.md');
+
+  assert.equal(manifest.hooks, undefined);
+  assert.equal(fs.existsSync(path.join(repoRoot, 'hooks', 'hooks.json')), true);
+  assert.equal(fs.existsSync(path.join(repoRoot, 'commands', 'usage.md')), false);
+  assert.match(usage, /Codex's native `\/usage`/);
+  assert.match(usage, /latest`, `daily`, `weekly`, or `cumulative`/);
+  assert.match(usage, /scripts\/usage\.js` relative to this `SKILL\.md`/);
+  assert.match(pave, /\[PAVE:inspect\]/);
+  assert.match(pave, /\[PAVE:approval\].+in progress/s);
+
+  assert.deepEqual(Object.keys(hooks.hooks).sort(), [
+    'PostToolUse',
+    'SessionEnd',
+    'Stop',
+    'UserPromptSubmit',
+  ]);
+  assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
+  for (const event of Object.values(hooks.hooks)) {
+    assert.match(event[0].hooks[0].command, /\$\{PLUGIN_ROOT\}\/scripts\/usage\.js/);
+  }
 });
 
 test('install dry-run never installs the plugin', () => {

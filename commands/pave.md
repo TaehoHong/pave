@@ -34,27 +34,36 @@ specialist discovery when the optional repo runtime has been initialized.
    material user-owned decisions, establish evidence, separate justified
    extension boundaries from deferred behavior, maintain the decision ledger,
    and expose interview progress before presenting a final design.
-8. Split independent subsystems and continue useful unblocked work when another
+8. When the work changes a user-visible surface, load and apply
+   `skills/pave/references/design-system.md`. Resolve the project's design
+   system, name a canonical example, reuse its existing components and tokens
+   instead of hardcoding values or adding one-off patterns, and raise every
+   deviation as a material user-owned decision.
+9. Split independent subsystems and continue useful unblocked work when another
    subsystem has a partial blocker.
-9. Apply the Feature Readiness Gate in
-   `skills/pave/references/planning.md` before standard implementation work.
-10. For standard implementation work, keep a checklist in the conversation by default.
-   Create or update `.codex/pave/plans/` only when the optional repo runtime
-   exists or the user explicitly asks for durable repo-local plans.
-11. Ask once for implementation approval immediately before code or test edits
+10. Apply the Feature Readiness Gate in
+    `skills/pave/references/planning.md` before standard implementation work.
+11. For standard implementation work, keep a checklist in the conversation by default.
+    Create or update `.codex/pave/plans/` only when the optional repo runtime
+    exists or the user explicitly asks for durable repo-local plans.
+12. Ask once for implementation approval immediately before code or test edits
     unless the Small Change Fast Path applies.
-12. Apply the Test Value Gate: name the concrete behavior or risk and the
+13. Apply the Test Value Gate: name the concrete behavior or risk and the
     realistic defect each proposed test would catch. Execute only valuable
     behavioral tests with Red-Green-Review; otherwise use proportionate
     non-test verification and report residual risk.
-13. Delegate bounded work through plugin role briefs or initialized adapter
+14. Delegate bounded work through plugin role briefs or initialized adapter
     specialists only when useful.
-14. Run declared verification commands before success claims.
-15. Write a final or blocked report under `.codex/pave/reports/` only when the
+15. Run declared verification commands before success claims.
+16. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
-16. PAVE workflow and approval gates take precedence over instructions that
+17. PAVE workflow and approval gates take precedence over instructions that
     optimize speed, terseness, or implementation size.
+18. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
+    on `update_plan` steps so the local usage hook can measure phase duration
+    and token deltas. This telemetry plan is not a substitute for the design,
+    approval, testing, or verification gates.
 
 ## Decision and Approval Contract
 

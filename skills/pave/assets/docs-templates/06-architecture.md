@@ -33,3 +33,13 @@ Record architecture decisions that affect future implementation direction.
 | Date | Decision | Reason | Alternatives |
 | --- | --- | --- | --- |
 |  |  |  |  |
+
+## Linked Sources
+
+Existing project documentation that owns part of this subject, including
+existing architecture documents and decision records. Keep the linked source
+canonical; record only what it owns and what it leaves open.
+
+| Source | Owns | Not covered | Evidence paths |
+| --- | --- | --- | --- |
+|  |  |  |  |

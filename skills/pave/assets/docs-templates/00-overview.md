@@ -37,6 +37,15 @@ technical shape, and current priorities.
 - External systems:
 - Main entry points:
 
+## Linked Sources
+
+Existing project documentation that owns part of this subject. Keep the linked
+source canonical; record only what it owns and what it leaves open.
+
+| Source | Owns | Not covered | Evidence paths |
+| --- | --- | --- | --- |
+|  |  |  |  |
+
 ## Document Index
 
 - [01-roadmap.md](./01-roadmap.md)

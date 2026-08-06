@@ -31,18 +31,31 @@ session harness for software development work.
    Ledger, and Interview Progress gates in `references/design.md`. Ask only
    material user-owned questions that block the current slice. Technical facts
    come from repo or authoritative external evidence, not user confirmation.
-8. Apply `references/fast-path.md` before standard planning. For an eligible
+8. For work that changes a user-visible surface, apply
+   `references/design-system.md`. Resolve the project's design system from
+   durable design policy, repo design artifacts, or the nearest canonical
+   component, reuse its existing components and tokens, and treat every
+   deviation as a material user-owned decision.
+9. Apply `references/fast-path.md` before standard planning. For an eligible
    small change, the user's concrete request is implementation approval. For
    other code or test edits, ask for one consolidated approval immediately
    before implementation. Scope intent authorizes read-only discovery but not
    writes; design answers settle behavior but are not write approval. After
    approval, do not ask routine per-item approval unless scope, safety,
    destructive action, credentials, or a material user-owned ambiguity changes.
-9. Split independent subsystems, continue safe unblocked work, and distinguish
-   justified extension boundaries from deferred future behavior.
-10. Never claim completion without fresh verification evidence.
-11. PAVE owns workflow and approval gates. Instructions that optimize speed,
+10. Split independent subsystems, continue safe unblocked work, and distinguish
+    justified extension boundaries from deferred future behavior.
+11. Never claim completion without fresh verification evidence.
+12. PAVE owns workflow and approval gates. Instructions that optimize speed,
     terseness, or implementation size do not waive those gates.
+13. On Codex, when `update_plan` is available, expose phase telemetry by
+    prefixing each plan step with exactly one of `[PAVE:inspect]`,
+    `[PAVE:plan]`, `[PAVE:approval]`, `[PAVE:execute]`, `[PAVE:verify]`, or
+    `[PAVE:report]`. Keep the task-specific outcome after the prefix, move the
+    matching step to `in_progress` at each phase boundary, and mark every step
+    completed immediately before the final response. Leave
+    `[PAVE:approval]` in progress while waiting for implementation approval.
+    Do not add these markers on non-Codex hosts.
 
 ## Dependency Policy
 
@@ -69,6 +82,10 @@ Classify the request:
   `references/testing.md` before proposing a fix; after approval, use
   `references/execution-loop.md`, `references/review.md`, and
   `references/verification.md`.
+- UI or UX work: additionally read `references/design-system.md` before editing
+  a user-visible surface and before claiming that change complete. This applies
+  to any request type, including a fast-path edit and the user-visible part of a
+  feature or bug fix.
 - Review: read `references/review.md` and, when tests changed,
   `references/testing.md`; report findings first with file and line evidence.
 - Documentation sync: update docs only when evidence supports the change; read
@@ -109,6 +126,7 @@ only when the task requires memory capture or Git operations. Use assets from
 - `/sync-docs`: update project direction docs from evidence and user decisions.
 - `/token-save`: one-off token-conscious contract; normal use is token-save
   mode in `.codex/pave/config.md` plus `/pave`.
+- `$pave:usage`: Codex-only local PAVE phase timing and token statistics.
 
 Scripts are optional helpers. Read their `--help` output before use when
 the requested action is sensitive or repo-specific.

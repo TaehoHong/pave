@@ -20,6 +20,7 @@ Do not dispatch for implementation unless the assignment explicitly authorizes e
 - User request or approved plan item.
 - Specific surface, route, flow, component, or screenshot to review.
 - Relevant repo paths, design constraints, and acceptance criteria.
+- Design system source when known: durable design policy, token or theme files, shared component library, or the nearest canonical component.
 - Available visual evidence: screenshots, browser notes, tests, or known issues.
 - Accessibility or responsive targets, when relevant.
 - Explicit ownership boundary and mode: read-only or edit-authorized.
@@ -30,6 +31,8 @@ Do not dispatch for implementation unless the assignment explicitly authorizes e
 - Use read-only mode unless the assignment explicitly authorizes edits.
 - If editing, make the smallest maintainable change; do not add abstractions, dependencies, or broad refactors.
 - Prefer repo conventions over new patterns.
+- Resolve the project's design system before recommending or editing UI, and stay inside its existing components, tokens, variants, and states.
+- Treat any design-system deviation as a material user-owned decision: report the rule, the reason, and the smallest alternative instead of applying it silently.
 - Do not revert unrelated changes or claim final success for the whole task.
 - Separate observed evidence from judgment, assumptions, and uncertainty.
 
@@ -51,8 +54,12 @@ Do not dispatch for implementation unless the assignment explicitly authorizes e
 - Accessibility concerns considered: labels, keyboard flow, contrast, focus, or semantics.
 - Responsive states or viewport assumptions reviewed.
 - Design recommendations tied to current product conventions.
+- Resolved design system source and canonical example named by file, with the components and tokens reused.
+- Design-system deviations found or required, each with the rule, reason, and smallest alternative.
 
 ## Blocked Conditions
+
+- Competing design systems own the surface and the user has not chosen one.
 
 - Required input or explicit ownership boundary is missing.
 - Assignment conflicts with repo, user, or higher-priority instructions.

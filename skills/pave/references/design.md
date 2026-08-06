@@ -35,8 +35,12 @@ test edits.
    existing shared owner of each rule, files and symbols, data or control flow,
    error location, and verification strategy. Keep this proportional; a
    mechanical local change does not need a program-design ceremony.
-7. Remove speculative features and unrelated refactors.
-8. Get approval for the behavior and implementation boundary before code or
+7. For a user-visible surface, resolve the project's design system from durable
+   design policy, repo design artifacts, or the nearest canonical component.
+   Name that source and design against its existing components, tokens,
+   variants, and states instead of inventing a parallel pattern.
+8. Remove speculative features and unrelated refactors.
+9. Get approval for the behavior and implementation boundary before code or
    test edits. A short design is enough for a small change.
 
 ## Decision Triage
@@ -148,6 +152,9 @@ read-only discovery merely because write approval has not been granted.
 - Each unit has one clear responsibility and boundary.
 - Existing project conventions are followed unless the requested work requires
   a targeted change.
+- User-visible surfaces reuse the project's resolved design system: existing
+  components, tokens, variants, states, and accessibility baseline. Every
+  deviation is a recorded material user-owned decision, not a silent choice.
 - Dependencies and ownership are visible.
 - Edge cases, failure behavior, and acceptance criteria are concrete.
 - Required extension boundaries are justified without prebuilding deferred

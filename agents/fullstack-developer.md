@@ -31,6 +31,8 @@ Do not dispatch for broad architecture, ambiguous ownership, repo-wide refactors
 - Use read-only mode unless the assignment explicitly authorizes edits.
 - If editing, make the smallest maintainable change; do not add abstractions, dependencies, or broad refactors.
 - Prefer repo conventions over new patterns.
+- For a user-visible surface, reuse the project's existing design-system components and tokens. Do not hardcode a value an existing token covers, and do not add a one-off component, variant, or style.
+- Report any required design-system deviation instead of applying it; that decision belongs to the user.
 - Add a test only when it protects observable behavior, an external contract,
   a proven regression, or a high-risk boundary and can catch a realistic
   defect. Otherwise use proportionate verification and report residual risk.
@@ -54,6 +56,7 @@ Do not dispatch for broad architecture, ambiguous ownership, repo-wide refactors
 - Valuable tests added or updated, or the Test Value Gate reason for not adding
   one.
 - Commands run and exact pass, fail, or blocked results.
+- Design-system components and tokens reused for user-visible changes, with file evidence, plus any deviation raised for user decision.
 - Integration assumptions about APIs, schemas, state, auth, or external services.
 - Manual verification performed, if any.
 

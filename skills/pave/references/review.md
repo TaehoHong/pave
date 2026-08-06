@@ -16,8 +16,12 @@ Check requirement compliance and code quality with evidence before completion.
 5. Apply the Test Value Gate to every new or modified test. Flag tests that
    duplicate existing coverage, assert implementation details, or cannot catch
    a realistic defect.
-6. Cite file and line evidence for actionable findings and rank them by impact.
-7. Fix critical and major issues, rerun the covering tests, and review the
+6. For a diff that changes a user-visible surface, check design-system
+   compliance: reused components and tokens, no hardcoded value that an existing
+   token covers, no parallel variant vocabulary, required states, accessibility
+   baseline, system breakpoints, and recorded deviations.
+7. Cite file and line evidence for actionable findings and rank them by impact.
+8. Fix critical and major issues, rerun the covering tests, and review the
    resulting diff again.
 
 ## Receiving Feedback

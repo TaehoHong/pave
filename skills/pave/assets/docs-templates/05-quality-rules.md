@@ -22,3 +22,12 @@ report explains why it cannot pass.
 ## Regression Risk
 
 Record risky areas, known gaps, and checks that catch regressions.
+
+## Linked Sources
+
+Existing project documentation that owns part of this subject. Keep the linked
+source canonical; record only what it owns and what it leaves open.
+
+| Source | Owns | Not covered | Evidence paths |
+| --- | --- | --- | --- |
+|  |  |  |  |

@@ -66,6 +66,10 @@ providers, workflows, and policies. Scope intent permits read-only discovery;
 design choices and clarification answers do not count as write approval.
 PAVE also investigates root causes for bugs, adds tests only when they protect
 meaningful behavior, and requires fresh evidence for completion.
+When work touches a user-visible surface, PAVE resolves the project's design
+system from durable design policy, design token or component files, or the
+nearest canonical component, reuses its existing components and tokens instead
+of adding one-off styles, and raises every deviation as a user decision.
 When the optional runtime is initialized, PAVE reuses a freshness-checked
 `docs/07-codebase-guide.md` to find module owners, shared code, conventions,
 canonical examples, and narrow verification without rereading unrelated code.
@@ -82,6 +86,29 @@ canonical examples, and narrow verification without rereading unrelated code.
 | Run verification without source edits | `$pave:verify` | `/pave:verify` |
 | Sync durable project documentation | `$pave:sync-docs` | `/pave:sync-docs` |
 | Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
+| Show phase timing and token usage | `$pave:usage` | Not supported yet |
+
+## Local Usage Statistics
+
+On Codex, PAVE can record elapsed time and token deltas for the `inspect`,
+`plan`, `approval`, `execute`, `verify`, and `report` phases. After installing
+or updating the plugin, review and trust its local lifecycle hook with
+`/hooks`, then use:
+
+```text
+$pave:usage latest
+$pave:usage daily
+$pave:usage weekly
+$pave:usage cumulative
+```
+
+Codex's native `/usage` remains the account-level usage command. PAVE stores
+only aggregated timestamps, token counters, model, and repository name under
+the plugin's writable data directory. It does not copy prompts, responses,
+source files, or transcript contents. Token statistics are shown as
+`unavailable` when the current Codex transcript does not expose a compatible
+`token_count` event; PAVE does not estimate missing values. Claude Code usage
+collection is deferred.
 
 ## Plugin-Only vs Project Runtime
 
@@ -92,6 +119,14 @@ canonical examples, and narrow verification without rereading unrelated code.
 
 Plugin-only mode is the default. Project initialization is optional and asks
 before writing durable repository files.
+
+On an existing repository, project initialization first inventories the
+documentation the project already has — other doc roots, `README`,
+`ARCHITECTURE`, ADRs, style guides, design tokens, and component libraries —
+and links each PAVE doc to the existing document that owns its subject through
+a `Linked Sources` table. The linked document stays the source of truth, so
+initialization narrows the interview instead of duplicating what is already
+written.
 
 The optional runtime can include:
 

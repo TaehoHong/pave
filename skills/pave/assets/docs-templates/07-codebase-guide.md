@@ -61,3 +61,12 @@ example. Do not promote a one-off pattern into a rule.
 ## Known Gaps
 
 Record only verified omissions, stale entries, or areas not yet mapped.
+
+## Linked Sources
+
+Existing project documentation that owns part of this subject. Keep the linked
+source canonical; record only what it owns and what it leaves open.
+
+| Source | Owns | Not covered | Evidence paths |
+| --- | --- | --- | --- |
+|  |  |  |  |

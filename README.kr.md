@@ -64,6 +64,10 @@ workflow, 정책은 미리 구현하지 않습니다. 범위 의도는 읽기 �
 허용하지만 설계 선택이나 질문에 대한 답변은 쓰기 승인이 아닙니다. 버그는
 근본 원인을 찾고, 의미 있는 동작을 보호할 때만 테스트를 추가하며, fresh
 evidence 없이는 완료를 주장하지 않습니다.
+사용자에게 보이는 화면을 바꾸는 작업에서는 durable 디자인 정책, design
+token·component 파일, 가장 가까운 canonical component 순서로 프로젝트
+디자인 시스템을 확정하고, 일회성 스타일을 추가하는 대신 기존 component와
+token을 재사용하며, 모든 이탈은 사용자 결정 사항으로 올립니다.
 선택적 runtime이 초기화된 저장소에서는 신선도를 확인한
 `docs/07-codebase-guide.md`를 먼저 사용해 모듈 소유자, 공통 코드, 관례,
 canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시 읽지
@@ -81,6 +85,28 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 | source 수정 없는 검증 실행 | `$pave:verify` | `/pave:verify` |
 | 장기 프로젝트 문서 동기화 | `$pave:sync-docs` | `/pave:sync-docs` |
 | 일회성 저비용 워크플로 | `$pave:token-save` | `/pave:token-save` |
+| 단계별 시간과 토큰 통계 확인 | `$pave:usage` | 아직 지원하지 않음 |
+
+## 로컬 사용량 통계
+
+Codex에서 PAVE는 `inspect`, `plan`, `approval`, `execute`, `verify`,
+`report` 단계의 소요시간과 토큰 차이를 기록할 수 있습니다. 플러그인을
+설치하거나 업데이트한 뒤 `/hooks`에서 PAVE의 로컬 lifecycle hook을 검토하고
+신뢰 처리한 다음 아래 명령을 사용합니다.
+
+```text
+$pave:usage latest
+$pave:usage daily
+$pave:usage weekly
+$pave:usage cumulative
+```
+
+Codex 내장 `/usage`는 기존처럼 계정 단위 사용량을 표시합니다. PAVE는
+플러그인의 쓰기 가능한 data 디렉터리에 집계된 시각, 토큰 수, 모델,
+저장소 이름만 보관하며 prompt, 응답, source 파일, transcript 내용은 복사하지
+않습니다. 현재 Codex transcript에서 호환되는 `token_count` 이벤트를 얻을 수
+없으면 토큰 값은 추정하지 않고 `unavailable`로 표시합니다. Claude Code의
+사용량 수집은 이번 범위에 포함하지 않았습니다.
 
 ## Plugin-only와 Project Runtime
 
@@ -91,6 +117,12 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 
 기본값은 plugin-only입니다. 프로젝트 초기화는 선택 사항이며, 장기 저장소
 파일을 쓰기 전에 승인을 요청합니다.
+
+이미 진행 중인 저장소에서는 초기화가 먼저 기존 문서를 조사합니다. 다른 문서
+루트, `README`, `ARCHITECTURE`, ADR, 스타일 가이드, design token, 컴포넌트
+라이브러리를 찾아 각 주제를 소유한 기존 문서를 PAVE 문서의 `Linked Sources`
+표에 연결합니다. 연결된 문서가 계속 source of truth이므로, 이미 적혀 있는
+내용을 다시 만들지 않고 인터뷰 범위만 좁힙니다.
 
 선택적 runtime은 다음 파일을 만들 수 있습니다.
 

@@ -17,6 +17,9 @@ Use this path only when all conditions hold:
 - No new abstraction, dependency, public API, schema, migration, auth,
   permission, security, data-lifecycle, concurrency, payment, deployment, or
   compatibility decision is involved.
+- A user-visible edit reuses the project's existing design-system components,
+  tokens, and variants. Needing a new component, token, or variant, or any
+  design-system deviation, ends eligibility.
 - No destructive or external side effect is required.
 - The target does not overlap unresolved user changes.
 - A narrow, inexpensive verification command or direct check is known.
@@ -37,6 +40,9 @@ said it would implement after the reply.
 3. Treat the user's concrete edit request as implementation approval. Do not
    ask for a second approval or create a formal design, feature inventory,
    vertical-slice plan, plan file, or subagent task.
+   On Codex, a compact `update_plan` containing only `[PAVE:inspect]`,
+   `[PAVE:execute]`, `[PAVE:verify]`, and `[PAVE:report]` telemetry steps is
+   allowed and does not turn the request into the standard planning workflow.
 4. Make the smallest maintainable edit.
 5. Apply the Test Value Gate; do not add a low-value test for a tiny change
    merely to satisfy process.
@@ -47,6 +53,8 @@ said it would implement after the reply.
 Switch to the standard PAVE workflow before expanding the change when:
 
 - inspection reveals ambiguity, hidden coupling, or a policy decision;
+- a user-visible edit needs a new component, token, or variant, or a
+  design-system deviation;
 - the edit grows beyond the expected local boundary;
 - verification fails for a reason not directly explained by the edit;
 - meaningful verification requires broader integration work; or
