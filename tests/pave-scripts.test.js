@@ -440,7 +440,7 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
   ]);
   assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
   for (const event of Object.values(hooks.hooks)) {
-    assert.match(event[0].hooks[0].command, /\$\{PLUGIN_ROOT\}\/scripts\/usage\.js/);
+    assert.match(event[0].hooks[0].command, /\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/usage\.js/);
   }
 });
 
