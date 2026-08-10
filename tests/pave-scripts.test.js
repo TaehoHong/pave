@@ -470,6 +470,7 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
   const hooks = JSON.parse(read('hooks/hooks.json'));
   const pave = read('skills/pave/SKILL.md');
   const usage = read('skills/usage/SKILL.md');
+  const hookData = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-hook-test-'));
 
   assert.equal(manifest.hooks, undefined);
   assert.equal(fs.existsSync(path.join(repoRoot, 'hooks', 'hooks.json')), true);
@@ -488,7 +489,44 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
   ]);
   assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
   for (const event of Object.values(hooks.hooks)) {
-    assert.match(event[0].hooks[0].command, /\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/usage\.js/);
+    const command = event[0].hooks[0].command;
+    assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT:-\}/);
+    assert.match(command, /\$\{PLUGIN_ROOT:-\}/);
+
+    for (const hostRoot of [
+      { PLUGIN_ROOT: repoRoot },
+      { CLAUDE_PLUGIN_ROOT: repoRoot },
+      {
+        CLAUDE_PLUGIN_ROOT: path.join(hookData, 'stale-plugin'),
+        PLUGIN_ROOT: repoRoot,
+      },
+    ]) {
+      const result = run(['/bin/sh', '-c', command], {
+        input: '{}\n',
+        env: {
+          PATH: process.env.PATH,
+          PLUGIN_DATA: hookData,
+          ...hostRoot,
+        },
+      });
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(result.stdout, '{}\n');
+    }
+
+    for (const missingRoot of [
+      {},
+      { PLUGIN_ROOT: path.join(hookData, 'missing-plugin') },
+    ]) {
+      const result = run(['/bin/sh', '-c', command], {
+        input: '{}\n',
+        env: {
+          PATH: process.env.PATH,
+          PLUGIN_DATA: hookData,
+          ...missingRoot,
+        },
+      });
+      assert.equal(result.status, 0, result.stderr);
+    }
   }
 });
 

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/usage.js\" hook",
+            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
             "timeout": 5
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/usage.js\" hook",
+            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
             "timeout": 5
           }
         ]
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/usage.js\" hook",
+            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
             "timeout": 5
           }
         ]
@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/usage.js\" hook",
+            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
             "timeout": 3
           }
         ]
