@@ -23,6 +23,16 @@ Do not write secrets into docs, plans, reports, or wiki entries.
 - Backups:
 - Monitoring:
 
+## Recovery Knowledge
+
+Record only verified operational failure modes and current recovery guards.
+Keep detailed incident evidence in the project's canonical incident system or
+`docs/troubleshooting/` when that lazy directory exists.
+
+| Failure mode | Detection | Recovery | Prevention | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |
+
 ## Linked Sources
 
 Existing project documentation that owns part of this subject. Keep the linked

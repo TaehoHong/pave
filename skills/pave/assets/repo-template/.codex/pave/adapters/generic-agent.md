@@ -18,3 +18,6 @@
 8. Add tests only when they protect a concrete behavior or risk and can catch a
    realistic defect; otherwise use proportionate verification.
 9. Verify before reporting success.
+10. Promote only evidence-backed durable project knowledge after verification.
+    For qualifying incidents, use an existing canonical incident root or lazily
+    create `docs/troubleshooting/`; report the Knowledge Delta or skip reason.

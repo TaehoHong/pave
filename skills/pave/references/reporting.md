@@ -18,7 +18,13 @@ Include:
 - For security, data-model, shared-abstraction, or architecture changes, report
   `verified; human review required before merge` instead of unqualified
   completion.
-- Memory capture or skip reason.
+- A `Knowledge Delta`: promoted or superseded knowledge with target paths and
+  evidence labels, an intentionally unpersisted candidate, or the reason no
+  durable promotion was warranted.
+- For a qualifying bug investigation, a `Troubleshooting Delta`: symptom,
+  root-cause confidence, fix, regression guard, verification, record path, and
+  canonical project docs updated. Never report an unproven hypothesis as the
+  root cause.
 - Codebase guide update, or why the verified change did not affect durable
   module, shared-owner, convention, or verification knowledge.
 
@@ -31,3 +37,5 @@ Include:
 - Evidence gathered.
 - Attempts made.
 - Required user input or external change.
+- Any durable unresolved troubleshooting record written, or why the incomplete
+  investigation was not useful enough to persist.

@@ -110,6 +110,24 @@ source files, or transcript contents. Token statistics are shown as
 `token_count` event; PAVE does not estimate missing values. Claude Code usage
 collection is deferred.
 
+## Durable Project Knowledge
+
+After fresh verification, PAVE evaluates whether a task produced reusable
+project knowledge. It promotes only user-confirmed, repo-evidenced, or
+authoritatively evidenced facts into the document that already owns the
+subject. Mechanical changes, raw task history, and unproven hypotheses stay out
+of canonical docs.
+
+For a non-obvious or recurring incident, an initialized project can lazily add
+`docs/troubleshooting/`. Each record preserves the symptom, diagnostic
+evidence, proven cause or explicit uncertainty, resolution, regression guard,
+and verification. Current operational, architecture, quality, and ownership
+rules are still distilled into their canonical project docs. PAVE never creates
+this directory during initialization or in plugin-only mode.
+
+Git remains the detailed change history. PAVE documentation records what future
+work needs to know and why.
+
 ## Plugin-Only vs Project Runtime
 
 | Mode | What changes in the repository | Best for |
@@ -148,7 +166,8 @@ repo/
     ├── 04-design-rules.md
     ├── 05-quality-rules.md
     ├── 06-architecture.md
-    └── 07-codebase-guide.md
+    ├── 07-codebase-guide.md
+    └── troubleshooting/       # created lazily after a qualifying incident
 ```
 
 Codex and Claude Code share the PAVE contract but use separate runtime

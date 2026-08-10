@@ -43,8 +43,12 @@ analysis, reviews, refactors, docs sync, and continuation:
    verification and report residual risk.
 10. Use bounded subagents only when useful.
 11. Run declared verification commands before success claims.
-12. Write final or blocked reports when durable handoff is useful.
-13. Update affected codebase-guide entries when verified work changes module
+12. After verification, evaluate durable project knowledge. Promote only
+    user-confirmed, repo-evidenced, or externally-evidenced facts; never raw
+    task history or unproven hypotheses. Use `docs/troubleshooting/` lazily for
+    qualifying incidents and report the Knowledge Delta or skip reason.
+13. Write final or blocked reports when durable handoff is useful.
+14. Update affected codebase-guide entries when verified work changes module
     boundaries, shared ownership, canonical examples, conventions, dependency
     rules, test locations, verification commands, or excluded paths.
 

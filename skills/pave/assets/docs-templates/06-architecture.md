@@ -30,9 +30,9 @@
 
 Record architecture decisions that affect future implementation direction.
 
-| Date | Decision | Reason | Alternatives |
-| --- | --- | --- | --- |
-|  |  |  |  |
+| Date | Status | Decision | Reason | Alternatives | Evidence | Supersedes |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |  |
 
 ## Linked Sources
 

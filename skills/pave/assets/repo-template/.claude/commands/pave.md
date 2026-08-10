@@ -37,9 +37,13 @@ is the Claude Code adapter surface for specialist discovery.
     otherwise use proportionate verification and report residual risk.
 12. Delegate bounded work through the `.claude/agents/` adapter specialists only when useful.
 13. Run declared verification commands before success claims.
-14. Write a final or blocked report under `.codex/pave/reports/` when durable
+14. After verification, promote only evidence-backed durable project knowledge.
+    Use `docs/troubleshooting/` lazily for qualifying incidents, keep unproven
+    hypotheses out of canonical docs, and report the Knowledge Delta or skip
+    reason.
+15. Write a final or blocked report under `.codex/pave/reports/` when durable
     handoff is useful.
-15. Track scope intent, read-only discovery, design decisions, and write
+16. Track scope intent, read-only discovery, design decisions, and write
     approval separately. Read-only discovery does not require implementation
     approval. A design choice or clarification answer is not write approval.
     PAVE workflow and approval gates take precedence over instructions that

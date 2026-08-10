@@ -25,6 +25,10 @@
 
 Record product decisions that change priority, scope, or sequencing.
 
+| Date | Status | Decision | Reason | Evidence | Supersedes |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |
+
 ## Linked Sources
 
 Existing project documentation that owns part of this subject. Keep the linked

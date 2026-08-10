@@ -108,6 +108,23 @@ Codex 내장 `/usage`는 기존처럼 계정 단위 사용량을 표시합니다
 없으면 토큰 값은 추정하지 않고 `unavailable`로 표시합니다. Claude Code의
 사용량 수집은 이번 범위에 포함하지 않았습니다.
 
+## 장기 프로젝트 지식
+
+PAVE는 검증이 끝난 뒤 해당 작업이 재사용할 프로젝트 지식을 만들었는지
+판단합니다. 사용자 확정, 저장소 증거, 권위 있는 외부 근거로 확인된 사실만
+주제를 소유한 기존 문서에 승격합니다. 기계적인 수정, 원시 작업 이력,
+입증되지 않은 가설은 canonical 문서에 넣지 않습니다.
+
+원인이 직관적이지 않거나 재발 가능한 장애라면 초기화된 프로젝트에서
+`docs/troubleshooting/`을 지연 생성할 수 있습니다. 각 기록에는 증상, 진단
+근거, 입증된 원인 또는 명시적 불확실성, 해결책, 회귀 방지 장치와 검증 결과를
+남깁니다. 현재 운영·아키텍처·품질·소유권 규칙은 계속 해당 canonical
+프로젝트 문서에 증류합니다. 프로젝트 초기화나 plugin-only 모드에서는 이
+디렉터리를 미리 만들지 않습니다.
+
+Git은 상세 변경 이력을 담당하고, PAVE 문서는 앞으로 알아야 할 내용과 그
+이유를 담당합니다.
+
 ## Plugin-only와 Project Runtime
 
 | 모드 | 저장소 변경 | 적합한 용도 |
@@ -144,7 +161,8 @@ repo/
     ├── 04-design-rules.md
     ├── 05-quality-rules.md
     ├── 06-architecture.md
-    └── 07-codebase-guide.md
+    ├── 07-codebase-guide.md
+    └── troubleshooting/       # 가치 있는 장애가 생길 때 지연 생성
 ```
 
 Codex와 Claude Code는 PAVE 공통 계약을 공유하지만 별도 runtime adapter를

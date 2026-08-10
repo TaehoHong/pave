@@ -55,12 +55,17 @@ specialist discovery when the optional repo runtime has been initialized.
 14. Delegate bounded work through plugin role briefs or initialized adapter
     specialists only when useful.
 15. Run declared verification commands before success claims.
-16. Write a final or blocked report under `.codex/pave/reports/` only when the
+16. For implementation, bug, refactor, and docs-sync work, load
+    `skills/pave/references/memory.md` after verification. Promote only
+    evidence-backed durable project knowledge, use a detailed troubleshooting
+    record only for a qualifying incident, and report the Knowledge Delta or
+    the reason nothing was promoted.
+17. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
-17. PAVE workflow and approval gates take precedence over instructions that
+18. PAVE workflow and approval gates take precedence over instructions that
     optimize speed, terseness, or implementation size.
-18. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
+19. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
     on `update_plan` steps so the local usage hook can measure phase duration
     and token deltas. This telemetry plan is not a substitute for the design,
     approval, testing, or verification gates.

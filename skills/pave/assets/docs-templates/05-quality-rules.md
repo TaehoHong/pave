@@ -23,6 +23,16 @@ report explains why it cannot pass.
 
 Record risky areas, known gaps, and checks that catch regressions.
 
+## Troubleshooting Knowledge
+
+Link only high-signal incident records whose root cause, mitigation, or next
+diagnostic step remains useful. Reverify historical conclusions against current
+code before relying on them.
+
+| Area | Failure mode | Current guard | Troubleshooting records | Evidence paths | Status |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |
+
 ## Linked Sources
 
 Existing project documentation that owns part of this subject. Keep the linked

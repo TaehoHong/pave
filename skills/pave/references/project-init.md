@@ -136,7 +136,8 @@ Search the repository for documentation that already owns a PAVE doc subject:
 
 - documentation roots outside `docs/`, such as `doc/`, `documentation/`,
   `guide/`, `handbook/`, `wiki/`, `.wiki/`, `rfcs/`, `adr/`, `decisions/`,
-  `design/`, and `.github/`;
+  `design/`, `incidents/`, `postmortems/`, `runbooks/`, `troubleshooting/`,
+  and `.github/`;
 - root and package-level `README`, `CONTRIBUTING`, `ARCHITECTURE`, `SECURITY`,
   `CHANGELOG`, and `CODEOWNERS` files;
 - design system artifacts: style guides, design token or theme files, CSS
@@ -254,6 +255,8 @@ all future feature decisions in advance.
 - Initial project docs under `docs/`, including overview, roadmap,
   development rules, deployment rules, design rules, quality rules, and
   architecture, plus the codebase guide.
+- No blank troubleshooting directory. Create one lazily only after a verified
+  high-signal incident passes the durable knowledge promotion gate.
 - Linked-source entries pointing at the project's existing documentation.
 - Doctor result.
 

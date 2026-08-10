@@ -14,8 +14,9 @@
   deferred providers, workflows, abstractions, or policies.
 - Workflow state: scope intent permits read-only discovery; only consolidated
   implementation approval permits code or test edits.
-- Durable artifacts: `plans/`, `reports/`, `docs/07-codebase-guide.md`, and
-  optional `.wiki/`.
+- Durable artifacts: `plans/`, `reports/`, `docs/07-codebase-guide.md`, linked
+  canonical project docs, and lazy `docs/troubleshooting/` records for
+  qualifying incidents.
 
 ## Context Retrieval
 
@@ -25,6 +26,8 @@
   owners, and canonical examples before expanding the search.
 - Current code overrides stale guide entries.
 - Update affected guide entries when shared structure or conventions change.
+- Use troubleshooting records as historical evidence, then reverify their
+  affected paths and regression guards against current code.
 
 ## Request Routing
 

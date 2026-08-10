@@ -56,6 +56,11 @@ session harness for software development work.
     completed immediately before the final response. Leave
     `[PAVE:approval]` in progress while waiting for implementation approval.
     Do not add these markers on non-Codex hosts.
+14. For implementation, bug, refactor, and documentation-sync work, evaluate
+    the verified result against `references/memory.md` before final reporting.
+    Promote only durable, evidence-backed project knowledge; never turn raw
+    task history, unproven hypotheses, or reversible agent assumptions into
+    canonical documentation.
 
 ## Dependency Policy
 
@@ -78,10 +83,10 @@ Classify the request:
   `references/testing.md`, `references/planning.md`,
   `references/execution-loop.md`, `references/review.md`, and
   `references/verification.md` as the work reaches each step.
-- Bug: read `references/request-routing.md`, `references/debugging.md`, and
-  `references/testing.md` before proposing a fix; after approval, use
-  `references/execution-loop.md`, `references/review.md`, and
-  `references/verification.md`.
+- Bug: read `references/request-routing.md`, `references/debugging.md`,
+  `references/testing.md`, and `references/memory.md` before proposing a fix;
+  after approval, use `references/execution-loop.md`, `references/review.md`,
+  and `references/verification.md`.
 - UI or UX work: additionally read `references/design-system.md` before editing
   a user-visible surface and before claiming that change complete. This applies
   to any request type, including a fast-path edit and the user-visible part of a
@@ -98,9 +103,11 @@ Classify the request:
 
 Before dispatching bounded helpers, read `references/subagent-dispatch.md` and
 use role briefs from `references/subagents/`. Before final reporting, read
-`references/reporting.md`; read `references/memory.md` or `references/git.md`
-only when the task requires memory capture or Git operations. Use assets from
-`assets/` when initializing or syncing a repo.
+`references/reporting.md`; for mutating work also read `references/memory.md`
+and report the resulting Knowledge Delta or the reason no promotion was
+warranted. Read `references/git.md` only when the task requires Git operations.
+Use assets from `assets/` when initializing, syncing, or creating a durable
+troubleshooting record.
 
 ## Scripts
 

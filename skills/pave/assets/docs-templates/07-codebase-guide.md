@@ -62,6 +62,15 @@ example. Do not promote a one-off pattern into a rule.
 
 Record only verified omissions, stale entries, or areas not yet mapped.
 
+## Troubleshooting References
+
+Use historical records to avoid repeating an investigation, but verify their
+affected paths and guards against current code before treating them as current.
+
+| Area or boundary | Records | Current rule or guard | Evidence paths |
+| --- | --- | --- | --- |
+|  |  |  |  |
+
 ## Linked Sources
 
 Existing project documentation that owns part of this subject. Keep the linked

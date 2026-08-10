@@ -22,10 +22,14 @@ const docRootNames = new Set([
   'guide',
   'guides',
   'handbook',
+  'incidents',
+  'postmortems',
   'rfc',
   'rfcs',
+  'runbooks',
   'style-guide',
   'styleguide',
+  'troubleshooting',
   'wiki',
 ]);
 

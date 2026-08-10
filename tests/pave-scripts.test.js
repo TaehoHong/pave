@@ -50,6 +50,7 @@ test('init installs canonical role agents and doctor accepts the result', () => 
   assert.match(init.stdout, /PAVE initialization complete/);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '06-architecture.md')), true);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '07-codebase-guide.md')), true);
+  assert.equal(fs.existsSync(path.join(tmp, 'docs', 'troubleshooting')), false);
 
   for (const role of roles) {
     assert.equal(
@@ -300,6 +301,51 @@ test('code work reuses a freshness-checked durable codebase guide', () => {
   assert.match(runtimeAgent, /Expand the search only when ownership is missing/);
 });
 
+test('verified troubleshooting is promoted as scoped durable project knowledge', () => {
+  const pave = read('skills/pave/SKILL.md');
+  const command = read('commands/pave.md');
+  const debugging = read('skills/pave/references/debugging.md');
+  const memory = read('skills/pave/references/memory.md');
+  const reporting = read('skills/pave/references/reporting.md');
+  const context = read('skills/pave/references/context-retrieval.md');
+  const syncDocs = read('commands/sync-docs.md');
+  const runtimeAgent = read('skills/pave/assets/repo-template/AGENTS.md');
+  const runtimeCommand = read(
+    'skills/pave/assets/repo-template/.claude/commands/pave.md',
+  );
+  const genericAdapter = read(
+    'skills/pave/assets/repo-template/.codex/pave/adapters/generic-agent.md',
+  );
+  const indexTemplate = read('skills/pave/assets/troubleshooting/index.md');
+  const recordTemplate = read('skills/pave/assets/troubleshooting/record.md');
+
+  assert.match(pave, /For implementation, bug, refactor, and documentation-sync work/);
+  assert.match(pave, /Bug:[\s\S]+references\/memory\.md/);
+  assert.match(command, /report the Knowledge Delta/);
+  assert.match(debugging, /## Investigation Ledger/);
+  assert.match(debugging, /`unknown`, `probable`, or `proven`/);
+  assert.match(debugging, /An unresolved investigation may be preserved only/);
+  assert.match(memory, /## Promotion Gate/);
+  assert.match(memory, /Never promote `agent-assumed` or `recommended-unconfirmed`/);
+  assert.match(memory, /In plugin-only mode, do not create `docs\/`, `\.wiki\/`/);
+  assert.match(memory, /root-cause-confidence: proven/);
+  assert.match(memory, /Update or supersede an existing record/);
+  assert.match(reporting, /A `Knowledge Delta`/);
+  assert.match(reporting, /a `Troubleshooting Delta`/);
+  assert.match(context, /docs\/troubleshooting\/_index\.md/);
+  assert.match(context, /historical evidence, not proof of current\s+behavior/);
+  assert.match(syncDocs, /at most 50 first-parent\s+commits/);
+  assert.match(syncDocs, /A commit\s+message alone is not enough evidence/);
+  assert.match(indexTemplate, /Follow `superseded-by` links/);
+  assert.match(recordTemplate, /root-cause-confidence: proven/);
+  assert.match(recordTemplate, /## Regression Guard and Verification/);
+
+  for (const entrypoint of [runtimeAgent, runtimeCommand, genericAdapter]) {
+    assert.match(entrypoint, /docs\/troubleshooting\//, entrypoint);
+    assert.match(entrypoint, /Knowledge Delta/, entrypoint);
+  }
+});
+
 test('every fast-path entrypoint preserves the hard size and approval gates', () => {
   const entrypoints = [
     'commands/pave.md',
@@ -347,6 +393,7 @@ test('project-init links existing documentation instead of duplicating it', () =
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-existing-docs-test-'));
   fs.mkdirSync(path.join(tmp, 'documentation'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'apps', 'web', 'design'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'postmortems'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'node_modules', 'pkg', 'doc'), { recursive: true });
   fs.writeFileSync(path.join(tmp, 'README.md'), '# existing\n');
   fs.writeFileSync(path.join(tmp, 'node_modules', 'pkg', 'README.md'), '# vendor\n');
@@ -357,6 +404,7 @@ test('project-init links existing documentation instead of duplicating it', () =
   assert.match(init.stdout, /existing documentation detected: documentation$/m);
   assert.match(init.stdout, /existing documentation detected: README\.md$/m);
   assert.match(init.stdout, /existing documentation detected: apps\/web\/design$/m);
+  assert.match(init.stdout, /existing documentation detected: postmortems$/m);
   assert.doesNotMatch(init.stdout, /node_modules/);
   assert.match(init.stdout, /link these from docs\/ instead of duplicating them\./);
 });
