@@ -1,6 +1,6 @@
 {
   "name": "pave",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "private": true,
   "type": "commonjs",
   "engines": {
