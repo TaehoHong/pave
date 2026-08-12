@@ -51,7 +51,33 @@ The guide should record:
    entry and use current evidence.
 
 For a small fast-path edit, the target and nearest safe context remain enough
-unless the guide points to a shared owner or canonical implementation elsewhere.
+unless a shared owner or canonical implementation exists elsewhere.
+
+## Existing Owner Check
+
+The durable guide names shared owners only in an initialized repository. In
+plugin-only mode no guide exists, so run this check directly before writing
+logic that implements a rule, validation, transformation, formatting, error
+mapping, or any other behavior a sibling module may already own.
+
+1. Name the behavior in the terms the codebase would use, not the terms of the
+   request.
+2. Search for a current owner with at least two distinct signals, such as a
+   symbol or identifier search, a call-site search for the surrounding
+   operation, and the test names covering that behavior.
+3. Record one of these outcomes before editing:
+   - `owner-found`: extend or call the existing owner instead of writing a
+     parallel implementation.
+   - `owner-absent`: no current owner exists; state the search signals used and
+     place the new behavior where the module boundary says it belongs.
+   - `owner-rejected`: an owner exists but is unsuitable; state the concrete
+     reason, since this creates a second implementation of one rule.
+4. Treat `owner-rejected` as a material decision. A parallel path, a duplicated
+   rule, or a copied block is a design change, not an implementation detail.
+
+This check is bounded. Two targeted searches are enough; it never authorizes a
+repository-wide read or an unrelated refactor. A purely local edit with no
+reusable behavior records `owner-absent` and proceeds.
 
 ## Maintenance Gate
 

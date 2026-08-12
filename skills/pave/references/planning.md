@@ -7,23 +7,29 @@ Produce an implementation-ready checklist plan before implementation.
 ## Steps
 
 1. Summarize current behavior and desired behavior.
-2. Choose the smallest coherent implementation path.
-3. Split work into vertical behavior slices small enough for one verified
+2. Run the Existing Owner Check for each rule, validation, transformation, or
+   shared behavior the work introduces. Search for a current owner with at
+   least two targeted signals and record `owner-found`, `owner-absent`, or
+   `owner-rejected` per behavior. Plan to extend a found owner rather than add
+   a parallel implementation, and treat every `owner-rejected` outcome as a
+   material decision with a stated reason.
+3. Choose the smallest coherent implementation path.
+4. Split work into vertical behavior slices small enough for one verified
    execution loop. Each slice should deliver one observable actor outcome
    through every layer it needs.
-4. Order slices by dependency and smallest useful behavior. Fold required
+5. Order slices by dependency and smallest useful behavior. Fold required
    scaffolding, core logic, integration, and surface work into the slice that
    uses them. Risk or review-depth labels are metadata, not execution order.
-5. Apply the Test Value Gate and attach only tests with material regression
+6. Apply the Test Value Gate and attach only tests with material regression
    value. Otherwise name the proportionate verification command and residual
    risk.
-6. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
+7. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
    Interview Progress gates. Resolve only material, user-owned decisions that
    block the current slice.
-7. Apply the Feature Readiness Gate.
-8. List out-of-scope work.
-9. Ask once for consolidated approval immediately before code or
-   test edits.
+8. Apply the Feature Readiness Gate.
+9. List out-of-scope work.
+10. Ask once for consolidated approval immediately before code or
+    test edits.
 
 Approval must be an explicit implementation instruction for the surfaced
 design, implementation boundary, and checklist. Selecting a design option,

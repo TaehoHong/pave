@@ -12,7 +12,11 @@ Check requirement compliance and code quality with evidence before completion.
    maintainability, and test quality.
 4. Check whether the patch fixes the shared cause at its existing owner,
    duplicates a rule, adds a parallel path, creates a shotgun change, or
-   introduces an abstraction without current use.
+   introduces an abstraction without current use. Confirm the Existing Owner
+   Check outcome recorded before implementation still holds against the actual
+   diff. When no outcome was recorded and the diff adds a rule, validation, or
+   transformation, run the search now and treat an unexplained duplicate as a
+   major finding.
 5. Apply the Test Value Gate to every new or modified test. Flag tests that
    duplicate existing coverage, assert implementation details, or cannot catch
    a realistic defect.

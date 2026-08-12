@@ -197,6 +197,85 @@ test('workflow references do not chain to sibling workflow references', () => {
   }
 });
 
+test('the pave command wires every workflow reference the skill routes to', () => {
+  const named = (text) => new Set(
+    [...text.matchAll(/references\/([a-z-]+)\.md/g)].map((match) => match[1]),
+  );
+  const skillReferences = named(read('skills/pave/SKILL.md'));
+  const commandReferences = named(read('commands/pave.md'));
+
+  // References the command deliberately does not name by path, because it
+  // either inlines their contract as a numbered step or another command owns
+  // them. Everything else the skill routes to must stay reachable from the
+  // command, which is the entrypoint `/pave` actually injects.
+  const inlinedByCommand = new Set([
+    'request-routing',
+    'fast-path',
+    'testing',
+    'verification',
+    'reporting',
+    'subagent-dispatch',
+    'git',
+    'project-init',
+  ]);
+
+  const unreachable = [...skillReferences]
+    .filter((name) => !inlinedByCommand.has(name) && !commandReferences.has(name))
+    .sort();
+
+  assert.deepEqual(
+    unreachable,
+    [],
+    `commands/pave.md should load these workflow references: ${unreachable.join(', ')}`,
+  );
+
+  for (const name of inlinedByCommand) {
+    assert.equal(
+      fs.existsSync(path.join(repoRoot, 'skills/pave/references', `${name}.md`)),
+      true,
+      `${name}.md is listed as inlined but does not exist`,
+    );
+  }
+});
+
+test('code-changing work searches for an existing owner before writing logic', () => {
+  const context = read('skills/pave/references/context-retrieval.md');
+  const skill = read('skills/pave/SKILL.md');
+  const command = read('commands/pave.md');
+  const planning = read('skills/pave/references/planning.md');
+  const fastPath = read('skills/pave/references/fast-path.md');
+  const review = read('skills/pave/references/review.md');
+
+  assert.match(context, /## Existing Owner Check/);
+  assert.match(context, /In\s+plugin-only mode no guide exists/);
+  assert.match(context, /at least two distinct\s+signals/);
+  assert.match(context, /never authorizes a\s+repository-wide read/);
+
+  for (const [label, content] of [
+    ['skill', skill],
+    ['command', command],
+    ['planning', planning],
+    ['fast-path', fastPath],
+    ['review', review],
+  ]) {
+    assert.match(content, /Existing Owner\s+Check/, label);
+  }
+
+  for (const [label, content] of [
+    ['context-retrieval', context],
+    ['skill', skill],
+    ['planning', planning],
+    ['fast-path', fastPath],
+  ]) {
+    for (const outcome of ['owner-found', 'owner-absent', 'owner-rejected']) {
+      assert.match(content, new RegExp(`\`${outcome}\``), `${label}: ${outcome}`);
+    }
+  }
+
+  assert.match(fastPath, /`owner-rejected`[\s\S]{0,80}ends fast-path\s+eligibility/);
+  assert.match(review, /unexplained duplicate as a\s+major finding/);
+});
+
 test('outcome-only feature requests triage material decisions and bound interviews', () => {
   const pave = read('skills/pave/SKILL.md');
   const command = read('commands/pave.md');

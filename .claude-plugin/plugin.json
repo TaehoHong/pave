@@ -14,5 +14,6 @@
     "planning",
     "verification",
     "project-init"
-  ]
+  ],
+  "skills": "./skills/"
 }

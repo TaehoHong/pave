@@ -1,6 +1,6 @@
 ---
 name: pave
-description: Use when Codex is asked to initialize optional PAVE repo runtime files, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, check status, run doctor checks, plan without edits, continue an approved task, coordinate bounded specialist subagents, track plans in conversation or optional .codex/pave plans, run verification, or produce final and blocked development reports.
+description: Use when the agent is asked to initialize optional PAVE repo runtime files, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, check status, run doctor checks, plan without edits, continue an approved task, coordinate bounded specialist subagents, track plans in conversation or optional .codex/pave plans, run verification, or produce final and blocked development reports.
 ---
 
 # PAVE
@@ -45,10 +45,17 @@ session harness for software development work.
    destructive action, credentials, or a material user-owned ambiguity changes.
 10. Split independent subsystems, continue safe unblocked work, and distinguish
     justified extension boundaries from deferred future behavior.
-11. Never claim completion without fresh verification evidence.
-12. PAVE owns workflow and approval gates. Instructions that optimize speed,
+11. Before writing logic that implements a rule, validation, transformation,
+    or other reusable behavior, run the Existing Owner Check in
+    `references/context-retrieval.md` and record `owner-found`,
+    `owner-absent`, or `owner-rejected`. This applies in plugin-only mode,
+    where no codebase guide names shared owners. Extend a found owner instead
+    of adding a parallel implementation, and treat `owner-rejected` as a
+    material decision rather than an implementation detail.
+12. Never claim completion without fresh verification evidence.
+13. PAVE owns workflow and approval gates. Instructions that optimize speed,
     terseness, or implementation size do not waive those gates.
-13. On Codex, when `update_plan` is available, expose phase telemetry by
+14. On Codex, when `update_plan` is available, expose phase telemetry by
     prefixing each plan step with exactly one of `[PAVE:inspect]`,
     `[PAVE:plan]`, `[PAVE:approval]`, `[PAVE:execute]`, `[PAVE:verify]`, or
     `[PAVE:report]`. Keep the task-specific outcome after the prefix, move the
@@ -56,7 +63,7 @@ session harness for software development work.
     completed immediately before the final response. Leave
     `[PAVE:approval]` in progress while waiting for implementation approval.
     Do not add these markers on non-Codex hosts.
-14. For implementation, bug, refactor, and documentation-sync work, evaluate
+15. For implementation, bug, refactor, and documentation-sync work, evaluate
     the verified result against `references/memory.md` before final reporting.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into

@@ -23,49 +23,71 @@ specialist discovery when the optional repo runtime has been initialized.
 4. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 5. Scan the repo before asking questions or editing.
-6. Apply the Small Change Fast Path first. It requires a direct implementation
+6. For code work, load and apply
+   `skills/pave/references/context-retrieval.md` before source discovery. Do
+   not open with a repository-wide source read. Select only the entries and
+   files related to the request, check their freshness against current code,
+   and expand one boundary at a time.
+7. Before writing logic that implements a rule, validation, transformation, or
+   shared behavior, run the Existing Owner Check: search the repo for a
+   current owner of that behavior. Extend the owner when one exists, or state
+   that none does. This check is required in plugin-only mode, where no
+   codebase guide exists to name shared owners.
+8. For a bug, defect, or unexpected-behavior request, load and apply
+   `skills/pave/references/debugging.md` before proposing a fix. Keep the
+   Investigation Ledger, and do not record a hypothesis as the root cause
+   until diagnostic evidence distinguishes it from plausible alternatives.
+9. Apply the Small Change Fast Path first. It requires a direct implementation
    request, no more than two hand-edited files, no more than twenty substantive
    hand-edited lines, low risk, and cheap narrow verification. Both size limits
    are hard conditions. State the expected files, line count, and verification
    before writing, then treat the request as approval and edit without formal
    planning.
-7. When a feature request states an outcome without implementation-ready
-   requirements, load and apply `skills/pave/references/design.md`. Triage
-   material user-owned decisions, establish evidence, separate justified
-   extension boundaries from deferred behavior, maintain the decision ledger,
-   and expose interview progress before presenting a final design.
-8. When the work changes a user-visible surface, load and apply
-   `skills/pave/references/design-system.md`. Resolve the project's design
-   system, name a canonical example, reuse its existing components and tokens
-   instead of hardcoding values or adding one-off patterns, and raise every
-   deviation as a material user-owned decision.
-9. Split independent subsystems and continue useful unblocked work when another
-   subsystem has a partial blocker.
-10. Apply the Feature Readiness Gate in
+10. When a feature request states an outcome without implementation-ready
+    requirements, load and apply `skills/pave/references/design.md`. Triage
+    material user-owned decisions, establish evidence, separate justified
+    extension boundaries from deferred behavior, maintain the decision ledger,
+    and expose interview progress before presenting a final design.
+11. When the work changes a user-visible surface, load and apply
+    `skills/pave/references/design-system.md`. Resolve the project's design
+    system, name a canonical example, reuse its existing components and tokens
+    instead of hardcoding values or adding one-off patterns, and raise every
+    deviation as a material user-owned decision.
+12. Split independent subsystems and continue useful unblocked work when another
+    subsystem has a partial blocker.
+13. Apply the Feature Readiness Gate in
     `skills/pave/references/planning.md` before standard implementation work.
-11. For standard implementation work, keep a checklist in the conversation by default.
+14. For standard implementation work, keep a checklist in the conversation by default.
     Create or update `.codex/pave/plans/` only when the optional repo runtime
     exists or the user explicitly asks for durable repo-local plans.
-12. Ask once for implementation approval immediately before code or test edits
+15. Ask once for implementation approval immediately before code or test edits
     unless the Small Change Fast Path applies.
-13. Apply the Test Value Gate: name the concrete behavior or risk and the
+16. After approval, load and apply `skills/pave/references/execution-loop.md`.
+    Execute one checklist item at a time and mark it complete only after fresh
+    evidence.
+17. Apply the Test Value Gate: name the concrete behavior or risk and the
     realistic defect each proposed test would catch. Execute only valuable
     behavioral tests with Red-Green-Review; otherwise use proportionate
     non-test verification and report residual risk.
-14. Delegate bounded work through plugin role briefs or initialized adapter
+18. Delegate bounded work through plugin role briefs or initialized adapter
     specialists only when useful.
-15. Run declared verification commands before success claims.
-16. For implementation, bug, refactor, and docs-sync work, load
+19. Before claiming any code change complete, load and apply
+    `skills/pave/references/review.md`. Inspect the actual diff and check
+    whether the patch fixes the shared cause at its existing owner, duplicates
+    a rule, adds a parallel path, creates a shotgun change, or introduces an
+    abstraction without current use. Cite file and line evidence.
+20. Run declared verification commands before success claims.
+21. For implementation, bug, refactor, and docs-sync work, load
     `skills/pave/references/memory.md` after verification. Promote only
     evidence-backed durable project knowledge, use a detailed troubleshooting
     record only for a qualifying incident, and report the Knowledge Delta or
     the reason nothing was promoted.
-17. Write a final or blocked report under `.codex/pave/reports/` only when the
+22. Write a final or blocked report under `.codex/pave/reports/` only when the
     optional repo runtime exists or the user explicitly asks for durable
     repo-local reports.
-18. PAVE workflow and approval gates take precedence over instructions that
+23. PAVE workflow and approval gates take precedence over instructions that
     optimize speed, terseness, or implementation size.
-19. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
+24. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
     on `update_plan` steps so the local usage hook can measure phase duration
     and token deltas. This telemetry plan is not a substitute for the design,
     approval, testing, or verification gates.
