@@ -14,6 +14,8 @@ credentials are required.
 
 한국어 문서: [README.kr.md](README.kr.md)
 
+Evaluation methodology: [BENCHMARKING.md](BENCHMARKING.md)
+
 ## Quick Start
 
 ### Codex

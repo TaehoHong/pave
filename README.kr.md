@@ -13,6 +13,8 @@ credential이 필요하지 않습니다.
 
 English documentation: [README.md](README.md)
 
+효과·비용 검증 방법론: [BENCHMARKING.md](BENCHMARKING.md)
+
 ## 빠른 시작
 
 ### Codex
