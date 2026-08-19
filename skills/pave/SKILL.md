@@ -68,6 +68,12 @@ session harness for software development work.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
+16. In hosts that load `hooks/hooks.json`, the workflow guard records only
+    session-scoped gate evidence. Follow the pending-decision, approval-ready,
+    and blocked-report marker contracts in `references/design.md`,
+    `references/planning.md`, and `references/reporting.md`; the guard is
+    defense in depth and does not replace semantic decision triage, review, or
+    verification.
 
 ## Dependency Policy
 

@@ -30,6 +30,10 @@ Include:
 
 ## Blocked Report
 
+Include the exact `<!-- PAVE_BLOCKED -->` comment when a runtime-enforced PAVE
+session must stop with incomplete implementation. Use it only for a genuine
+blocker, never to bypass review or verification.
+
 Include:
 
 - Current state.

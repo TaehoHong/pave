@@ -147,6 +147,13 @@ workflow states separately:
 Do not reinterpret a goal update as write approval, and do not stop safe
 read-only discovery merely because write approval has not been granted.
 
+When a read-only turn ends with a material user decision still pending, include
+the exact `<!-- PAVE_AWAITING_DECISION -->` comment in the response. The
+runtime guard retains the active workflow only when this marker, the approval
+markers, or the blocked-report marker makes continuation explicit; an ordinary
+read-only completion releases session state so it cannot constrain a later,
+unrelated request.
+
 ## Design Quality Gate
 
 - Each unit has one clear responsibility and boundary.

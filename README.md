@@ -90,6 +90,22 @@ canonical examples, and narrow verification without rereading unrelated code.
 | Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
 | Show phase timing and token usage | `$pave:usage` | Not supported yet |
 
+## Local Workflow Guard
+
+When the host loads `hooks/hooks.json`, a session-scoped guard activates for
+`$pave:pave` or `/pave:pave`. It denies code edits until the routed references
+and required approval are recorded, conservatively gates shell commands that
+may mutate files, denies `Write` on existing files and shell-overwrite
+shortcuts, and requires design-system evidence for UI files. Completion also
+requires post-edit review, status and diff or untracked-file inspection,
+verification, and memory evaluation. `doctor` executes the registered hook
+commands as a lifecycle and overwrite-denial canary.
+
+The guard stores only gate timestamps and touched file paths in the plugin data
+directory; it does not store prompts, responses, transcripts, or source
+contents. It is defense in depth: deciding whether a product choice is truly
+material and resolved still belongs to the PAVE decision workflow.
+
 ## Local Usage Statistics
 
 On Codex, PAVE can record elapsed time and token deltas for the `inspect`,

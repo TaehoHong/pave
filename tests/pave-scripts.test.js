@@ -562,13 +562,29 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
 
   assert.deepEqual(Object.keys(hooks.hooks).sort(), [
     'PostToolUse',
+    'PreToolUse',
     'SessionEnd',
     'Stop',
+    'UserPromptExpansion',
     'UserPromptSubmit',
   ]);
   assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
-  for (const event of Object.values(hooks.hooks)) {
-    const command = event[0].hooks[0].command;
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /apply_patch/);
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /exec_command/);
+  assert.match(hooks.hooks.PreToolUse[0].matcher, /apply_patch/);
+  assert.match(hooks.hooks.PreToolUse[0].matcher, /exec_command/);
+
+  const commands = new Set(Object.values(hooks.hooks).flatMap((event) => (
+    event.flatMap((entry) => entry.hooks.map((hook) => hook.command))
+  )));
+  assert.equal([...commands].some((command) => /scripts\/usage\.js/.test(command)), true);
+  assert.equal([...commands].some((command) => /scripts\/workflow-guard\.js/.test(command)), true);
+  for (const event of ['UserPromptSubmit', 'UserPromptExpansion', 'PreToolUse', 'Stop']) {
+    const eventCommands = hooks.hooks[event].flatMap((entry) => entry.hooks.map((hook) => hook.command));
+    assert.equal(eventCommands.some((command) => /scripts\/workflow-guard\.js/.test(command)), true, event);
+  }
+
+  for (const command of commands) {
     assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT:-\}/);
     assert.match(command, /\$\{PLUGIN_ROOT:-\}/);
 
@@ -584,7 +600,7 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
         input: '{}\n',
         env: {
           PATH: process.env.PATH,
-          PLUGIN_DATA: hookData,
+          CLAUDE_PLUGIN_DATA: hookData,
           ...hostRoot,
         },
       });

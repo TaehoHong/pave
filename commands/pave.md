@@ -106,6 +106,17 @@ write approval. Standard-work approval must explicitly authorize the surfaced
 implementation boundary. Lack of write approval does not block safe read-only
 discovery.
 
+Immediately before requesting that approval, include the exact
+`<!-- PAVE_DECISIONS_RESOLVED -->` and `<!-- PAVE_APPROVAL_READY -->` comments
+only after the Feature Readiness Gate passes and the remaining material
+blocking-decision count is zero. The runtime guard uses these markers to arm
+approval; the markers do not replace the user-visible boundary and ledger.
+
+When ending a read-only turn with a material decision still awaiting the user,
+include the exact `<!-- PAVE_AWAITING_DECISION -->` comment. An ordinary
+read-only completion releases the runtime guard state so an unrelated later
+request does not inherit stale workflow evidence.
+
 ## Repo-Local File Guard
 
 Do not create `AGENTS.md`, `CLAUDE.md`, `.codex/pave/`, or `docs/` unless the user invokes `/project-init` or explicitly asks to install PAVE runtime files in the repository.

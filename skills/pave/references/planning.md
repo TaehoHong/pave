@@ -38,6 +38,20 @@ only. An earlier request to implement records implementation intent but does
 not authorize a materially changed boundary that has not been surfaced.
 Read-only discovery never requires this approval.
 
+Immediately before asking for standard-work implementation approval, include
+both of these exact machine-readable comments only when the Feature Readiness
+Gate has passed, the surfaced boundary is complete, and no material in-scope
+decision remains unknown or `recommended-unconfirmed`:
+
+```html
+<!-- PAVE_DECISIONS_RESOLVED -->
+<!-- PAVE_APPROVAL_READY -->
+```
+
+These comments arm the runtime approval gate. They are evidence about the
+current response, not a substitute for showing the decision ledger, boundary,
+checklist, and remaining blocking count to the user.
+
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,
 configuration, and documentation into the feature item that needs them rather
