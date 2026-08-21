@@ -52,6 +52,20 @@ These comments arm the runtime approval gate. They are evidence about the
 current response, not a substitute for showing the decision ledger, boundary,
 checklist, and remaining blocking count to the user.
 
+When the implementation boundary includes writing, modifying, or executing DDL
+or a database schema migration, also show the exact target files, statements or
+migration operations, data and compatibility effects, and rollback approach.
+Include this third exact comment in the same approval request:
+
+```html
+<!-- PAVE_DDL_APPROVAL_READY -->
+```
+
+One explicit user response may grant both implementation and DDL approval when
+the request includes all three markers and the user-visible scope above. Without
+the DDL marker, general implementation approval does not authorize DDL. Newly
+discovered or changed DDL requires a newly surfaced approval request.
+
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,
 configuration, and documentation into the feature item that needs them rather

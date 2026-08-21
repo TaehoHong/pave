@@ -65,6 +65,34 @@ function prepareApprovedFeature(state) {
   readReference(state, 'execution-loop', 8);
 }
 
+function prepareDdlApprovedFeature(state) {
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
+    readReference(state, name, index + 2);
+  }
+  hook(state, {
+    hook_event_name: 'Stop',
+    last_assistant_message: [
+      'DDL target, statements, impact, and rollback are surfaced.',
+      '<!-- PAVE_DECISIONS_RESOLVED -->',
+      '<!-- PAVE_APPROVAL_READY -->',
+      '<!-- PAVE_DDL_APPROVAL_READY -->',
+    ].join('\n'),
+  }, 6);
+  hook(state, {
+    hook_event_name: 'UserPromptSubmit',
+    prompt: '진행해',
+  }, 7);
+  readReference(state, 'execution-loop', 8);
+}
+
+function prepareFastPath(state) {
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'fast-path', 'testing', 'verification'].entries()) {
+    readReference(state, name, index + 2);
+  }
+}
+
 function permission(output) {
   return output.hookSpecificOutput?.permissionDecision;
 }
@@ -441,6 +469,166 @@ test('blocks Codex apply_patch before references and approval', () => {
 
   assert.equal(permission(output), 'deny');
   assert.match(output.hookSpecificOutput.permissionDecisionReason, /reference|approval/i);
+});
+
+test('general implementation approval does not authorize DDL writes or edits', () => {
+  const cases = [
+    {
+      name: 'raw SQL Write',
+      tool_name: 'Write',
+      tool_input: {
+        file_path: 'setup.sql',
+        content: 'CREATE TABLE api_keys (id uuid PRIMARY KEY);\n',
+      },
+    },
+    {
+      name: 'migration path Edit',
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: 'db/migrations/20260821_add_api_keys.sql',
+        old_string: '-- pending',
+        new_string: '-- add the approved table',
+      },
+    },
+    {
+      name: 'ORM schema owner Edit',
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: 'src/db/schema.ts',
+        old_string: 'export const apiKeys = table();',
+        new_string: 'export const apiKeys = table().addColumn();',
+      },
+    },
+    {
+      name: 'raw SQL apply_patch',
+      tool_name: 'functions.apply_patch',
+      tool_input: {
+        patch: [
+          '*** Begin Patch',
+          '*** Add File: setup.sql',
+          '+ALTER TABLE workspaces ADD COLUMN api_enabled boolean;',
+          '*** End Patch',
+        ].join('\n'),
+      },
+    },
+  ];
+
+  for (const scenario of cases) {
+    const state = fixture();
+    prepareApprovedFeature(state);
+    const output = hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: scenario.tool_name,
+      tool_input: scenario.tool_input,
+    }, 9);
+    assert.equal(permission(output), 'deny', scenario.name);
+    assert.match(output.hookSpecificOutput.permissionDecisionReason, /DDL approval/i, scenario.name);
+  }
+});
+
+test('the fast path cannot bypass DDL approval', () => {
+  const state = fixture();
+  prepareFastPath(state);
+
+  const output = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: {
+      file_path: 'setup.sql',
+      content: 'CREATE TABLE api_keys (id uuid PRIMARY KEY);\n',
+    },
+  }, 7);
+
+  assert.equal(permission(output), 'deny');
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /DDL approval/i);
+});
+
+test('general implementation approval does not authorize DDL execution commands', () => {
+  for (const command of [
+    "psql -c 'ALTER TABLE workspaces ADD COLUMN api_enabled boolean'",
+    'npx prisma migrate deploy',
+    'pnpm drizzle-kit push',
+    'bundle exec rails db:migrate',
+    'alembic upgrade head',
+  ]) {
+    const state = fixture();
+    prepareApprovedFeature(state);
+    const output = hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command },
+    }, 9);
+    assert.equal(permission(output), 'deny', command);
+    assert.match(output.hookSpecificOutput.permissionDecisionReason, /DDL approval/i, command);
+  }
+});
+
+test('explicit DDL approval authorizes the surfaced DDL workflow', () => {
+  const state = fixture();
+  prepareDdlApprovedFeature(state);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: {
+      file_path: 'setup.sql',
+      content: 'CREATE TABLE api_keys (id uuid PRIMARY KEY);\n',
+    },
+  }, 9), {});
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'npx prisma migrate deploy' },
+  }, 10), {});
+});
+
+test('DDL approval is reset by a new PAVE invocation', () => {
+  const state = fixture();
+  prepareDdlApprovedFeature(state);
+  activate(state, 9);
+
+  const output = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: {
+      file_path: 'setup.sql',
+      content: 'CREATE TABLE api_keys (id uuid PRIMARY KEY);\n',
+    },
+  }, 10);
+
+  assert.equal(permission(output), 'deny');
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /DDL approval/i);
+});
+
+test('ordinary schema-named source files and DML do not require DDL approval', () => {
+  const state = fixture();
+  prepareApprovedFeature(state);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: {
+      file_path: 'src/schema.ts',
+      old_string: 'export const value = 1;',
+      new_string: 'export const value = 2;',
+    },
+  }, 9), {});
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: {
+      file_path: 'queries.sql',
+      content: 'UPDATE api_keys SET last_used_at = now() WHERE id = $1;\n',
+    },
+  }, 10), {});
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: {
+      file_path: 'database-notes.md',
+      content: 'Example only: `CREATE TABLE api_keys (id uuid);`\n',
+    },
+  }, 11), {});
 });
 
 test('requires design-system evidence before a user-visible edit', () => {

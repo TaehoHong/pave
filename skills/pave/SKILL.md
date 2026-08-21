@@ -43,6 +43,10 @@ session harness for software development work.
    writes; design answers settle behavior but are not write approval. After
    approval, do not ask routine per-item approval unless scope, safety,
    destructive action, credentials, or a material user-owned ambiguity changes.
+   Writing, modifying, or executing DDL or a database schema migration always
+   requires explicit DDL approval for the surfaced targets, statements, impact,
+   and rollback. General implementation approval and the fast path do not waive
+   this gate; one response may grant both approvals when both scopes are shown.
 10. Split independent subsystems, continue safe unblocked work, and distinguish
     justified extension boundaries from deferred future behavior.
 11. Before writing logic that implements a rule, validation, transformation,
@@ -70,7 +74,7 @@ session harness for software development work.
     canonical documentation.
 16. In hosts that load `hooks/hooks.json`, the workflow guard records only
     session-scoped gate evidence. Follow the pending-decision, approval-ready,
-    and blocked-report marker contracts in `references/design.md`,
+    DDL-approval-ready, and blocked-report marker contracts in `references/design.md`,
     `references/planning.md`, and `references/reporting.md`; the guard is
     defense in depth and does not replace semantic decision triage, review, or
     verification.

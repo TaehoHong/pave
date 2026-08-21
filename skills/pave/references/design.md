@@ -60,6 +60,12 @@ internal naming, and equivalent error representation are agent-owned unless
 they affect a public contract, user experience, security, data, or an explicit
 policy. Record consequential assumptions in the design and proceed.
 
+Writing, modifying, or executing DDL or a database schema migration is always
+a material user-owned decision. Before implementation, surface the exact target
+files, DDL statements or migration operations, data and compatibility effects,
+and rollback approach. Existing schema conventions are evidence for a proposal,
+not authority to make the change without explicit approval.
+
 A recommendation is a proposal, not a settled user decision. Do not call a
 design confirmed while an in-scope, material `recommended-unconfirmed`
 decision remains. Ask the user or explicitly defer the affected behavior.
@@ -143,6 +149,11 @@ workflow states separately:
 3. design decisions settle behavior but do not authorize writes;
 4. consolidated implementation approval authorizes code or test edits within
    the surfaced boundary.
+
+DDL approval is an additional gate within that boundary. A general
+implementation approval does not authorize DDL unless the approval request
+explicitly surfaced the DDL scope. If implementation discovers new or changed
+DDL, return to decision and planning before editing or executing it.
 
 Do not reinterpret a goal update as write approval, and do not stop safe
 read-only discovery merely because write approval has not been granted.

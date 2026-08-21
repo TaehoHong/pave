@@ -6,7 +6,9 @@ Execute approved plan items in small verified increments.
 
 ## Steps
 
-1. Identify the next unchecked item in the active approved scope.
+1. Identify the next unchecked item in the active approved scope. If it writes,
+   modifies, or executes DDL that was not explicitly surfaced for DDL approval,
+   stop and return to design and planning before making the change.
 2. Announce item, tier, expected files, and expected verification.
 3. Apply the Test Value Gate. State the concrete behavior or risk a proposed
    test protects and the realistic defect that would make it fail.
@@ -32,5 +34,6 @@ Execute approved plan items in small verified increments.
   implementation.
 - The item requires broad changes outside the approved plan.
 - A new product or policy ambiguity appears.
+- DDL or a database schema migration is outside the explicitly approved DDL scope.
 - Destructive action, credential, or new permission is required.
 - Verification repeats without new evidence or a plausible fix.

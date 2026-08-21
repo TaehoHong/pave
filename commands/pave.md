@@ -61,7 +61,11 @@ specialist discovery when the optional repo runtime has been initialized.
     Create or update `.codex/pave/plans/` only when the optional repo runtime
     exists or the user explicitly asks for durable repo-local plans.
 15. Ask once for implementation approval immediately before code or test edits
-    unless the Small Change Fast Path applies.
+    unless the Small Change Fast Path applies. Writing, modifying, or executing
+    DDL or a database schema migration always requires explicit DDL approval for
+    the surfaced targets, statements, impact, and rollback. The fast path and a
+    general implementation approval do not waive this gate; one response may
+    grant both approvals when both scopes are shown.
 16. After approval, load and apply `skills/pave/references/execution-loop.md`.
     Execute one checklist item at a time and mark it complete only after fresh
     evidence.
@@ -111,6 +115,12 @@ Immediately before requesting that approval, include the exact
 only after the Feature Readiness Gate passes and the remaining material
 blocking-decision count is zero. The runtime guard uses these markers to arm
 approval; the markers do not replace the user-visible boundary and ledger.
+
+When the boundary includes DDL or a database schema migration, surface its exact
+target files, statements or operations, data and compatibility effects, and
+rollback approach, then include `<!-- PAVE_DDL_APPROVAL_READY -->` in the same
+approval request. Without this marker, general implementation approval does not
+authorize DDL. Newly discovered or changed DDL requires a new approval request.
 
 When ending a read-only turn with a material decision still awaiting the user,
 include the exact `<!-- PAVE_AWAITING_DECISION -->` comment. An ordinary

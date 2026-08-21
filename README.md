@@ -96,7 +96,8 @@ When the host loads `hooks/hooks.json`, a session-scoped guard activates for
 `$pave:pave` or `/pave:pave`. It denies code edits until the routed references
 and required approval are recorded, conservatively gates shell commands that
 may mutate files, denies `Write` on existing files and shell-overwrite
-shortcuts, and requires design-system evidence for UI files. Completion also
+shortcuts, requires explicit DDL approval before schema or migration edits and
+execution, and requires design-system evidence for UI files. Completion also
 requires post-edit review, status and diff or untracked-file inspection,
 verification, and memory evaluation. `doctor` executes the registered hook
 commands as a lifecycle and overwrite-denial canary.

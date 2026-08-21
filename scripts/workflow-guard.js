@@ -7,9 +7,10 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
 const APPROVAL_READY = '<!-- PAVE_APPROVAL_READY -->';
 const DECISIONS_RESOLVED = '<!-- PAVE_DECISIONS_RESOLVED -->';
+const DDL_APPROVAL_READY = '<!-- PAVE_DDL_APPROVAL_READY -->';
 const AWAITING_DECISION = '<!-- PAVE_AWAITING_DECISION -->';
 const BLOCKED_REPORT = '<!-- PAVE_BLOCKED -->';
 const APPROVAL_PHRASES = new Set([
@@ -26,6 +27,7 @@ const STANDARD_REFERENCES = {
 const UI_EXTENSIONS = new Set([
   '.css', '.html', '.jsx', '.less', '.scss', '.svelte', '.tsx', '.vue',
 ]);
+const DDL_DOCUMENTATION_EXTENSIONS = new Set(['.md', '.mdx', '.rst', '.txt']);
 
 function defaultDataDir() {
   const base = process.env.CLAUDE_PLUGIN_DATA || process.env.PLUGIN_DATA
@@ -118,6 +120,8 @@ function initialState(input, timestamp) {
     references: {},
     awaitingApproval: false,
     approved: false,
+    awaitingDdlApproval: false,
+    ddlApproved: false,
     editedAt: null,
     changedFiles: [],
     substantiveLines: 0,
@@ -261,6 +265,46 @@ function shellOverwrite(command) {
     || /\bsed\b[^\n]*\s-i(?:\s|$)/m.test(text);
 }
 
+function containsDdl(value) {
+  return /\b(?:CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMP(?:ORARY)?\s+)?(?:UNIQUE\s+)?(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION)|ALTER\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY)|DROP\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION)|TRUNCATE(?:\s+TABLE)?|RENAME\s+TABLE)\b/i.test(String(value || ''));
+}
+
+function isDatabaseDefinitionPath(filePath) {
+  const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  const basename = path.posix.basename(normalized);
+  return /\/(?:migrations?|drizzle)\//.test(normalized)
+    || /\/prisma\/schema\.prisma$/.test(normalized)
+    || /\/(?:db|database|drizzle)\/schema\.(?:[cm]?[jt]s|prisma|py|rb|sql)$/.test(normalized)
+    || /\/db\/(?:schema\.rb|structure\.sql)$/.test(normalized)
+    || /\.migrations?\.(?:[cm]?[jt]s|py|rb|sql)$/.test(normalized)
+    || basename === 'schema.sql';
+}
+
+function ddlEditText(input) {
+  const details = toolInput(input);
+  if (toolName(input) === 'Write') return details.content;
+  if (toolName(input) === 'Edit') return `${details.old_string || ''}\n${details.new_string || ''}`;
+  if (toolName(input) === 'ApplyPatch') return patchText(details);
+  return '';
+}
+
+function isDdlEdit(state, input) {
+  const targets = editTargets(state, input);
+  if (targets.some(isDatabaseDefinitionPath)) return true;
+  return targets.some((filePath) => !DDL_DOCUMENTATION_EXTENSIONS.has(path.extname(filePath).toLowerCase()))
+    && containsDdl(ddlEditText(input));
+}
+
+function isDdlBash(command) {
+  const text = String(command || '');
+  if (isReadOnlyBash(text)) return false;
+  if (containsDdl(text)) return true;
+  if (/(?:^|[;&|]\s*|\n)\s*(?:(?:npx\s+|pnpm\s+(?:exec\s+)?|yarn\s+|bunx\s+|bundle\s+exec\s+)?(?:prisma\s+(?:migrate|db\s+push)|drizzle-kit\s+(?:generate|migrate|push)|knex\s+migrate|sequelize(?:-cli)?\s+db:migrate|typeorm\s+migration:(?:generate|run|revert)|rails\s+db:(?:migrate|schema:load)|rake\s+db:(?:migrate|schema:load)|alembic\s+(?:upgrade|downgrade|revision)|flyway\s+(?:migrate|clean)|liquibase\s+(?:update|rollback|drop-all)|dbmate\s+(?:up|down|migrate)|sqlx\s+migrate|diesel\s+migration|atlas\s+(?:schema\s+apply|migrate\s+apply)|supabase\s+(?:db\s+push|migration\s+up)|dotnet\s+ef\s+(?:database\s+update|migrations\s+add)|python\S*\s+\S*manage\.py\s+migrate|php\s+artisan\s+migrate|mix\s+ecto\.migrate))\b/i.test(text)) return true;
+  if (/(?:^|[;&|]\s*|\n)\s*(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?(?:[a-z0-9_-]+:)*(?:migrate|migration|schema(?::(?:push|apply|load))?|db:push)\b/i.test(text)) return true;
+  return /(?:^|[\s'"`])(?:[^\s'"`]*\/)?(?:migrations?|drizzle)\//i.test(text)
+    || /(?:^|[\s'"`])(?:[^\s'"`]*\/)?(?:schema\.sql|prisma\/schema\.prisma|db\/(?:schema\.rb|structure\.sql))\b/i.test(text);
+}
+
 function deny(reason) {
   return {
     hookSpecificOutput: {
@@ -297,6 +341,13 @@ function preToolUse(input, state) {
 
   if (name === 'Bash' && shellOverwrite(commandText(details))) {
     return deny('PAVE blocks shell redirection and in-place shell writes. Use Edit for an existing file or Write for a confirmed-new file.');
+  }
+
+  const ddlOperation = name === 'Bash'
+    ? isDdlBash(commandText(details))
+    : (name === 'Write' || name === 'Edit' || name === 'ApplyPatch') && isDdlEdit(state, input);
+  if (ddlOperation && !state.ddlApproved) {
+    return deny('PAVE DDL approval has not been recorded. Surface the exact DDL targets, statements, impact, and rollback, then obtain explicit user approval.');
   }
 
   if (name === 'Bash' && !isReadOnlyBash(commandText(details))) {
@@ -459,9 +510,15 @@ function handleStop(input, state, options) {
     return { output: {}, remove: true };
   }
 
+  const ddlReady = message.includes(DDL_APPROVAL_READY);
+  const malformedDdlRequest = ddlReady
+    && !(message.includes(APPROVAL_READY) && message.includes(DECISIONS_RESOLVED));
   if (message.includes(AWAITING_DECISION) || message.includes(BLOCKED_REPORT)
     || (message.includes(APPROVAL_READY) && !message.includes(DECISIONS_RESOLVED))) {
     return { output: {}, remove: false };
+  }
+  if (malformedDdlRequest) {
+    return { output: block('PAVE cannot request DDL approval without the resolved-decisions and implementation-approval markers.'), remove: false };
   }
 
   const ready = message.includes(DECISIONS_RESOLVED) && message.includes(APPROVAL_READY);
@@ -480,6 +537,11 @@ function handleStop(input, state, options) {
 
   state.awaitingApproval = true;
   state.approvalRequestedAt = timestamp;
+  if (ddlReady) {
+    state.ddlApproved = false;
+    state.awaitingDdlApproval = true;
+    state.ddlApprovalRequestedAt = timestamp;
+  }
   return { output: {}, remove: false };
 }
 
@@ -494,10 +556,18 @@ function handleHook(input, providedOptions = {}) {
 
   if (event === 'UserPromptSubmit') {
     if (isPaveInvocation(input.prompt)) state = initialState(input, now(options));
-    if (state && state.awaitingApproval && isApproval(input.prompt)) {
-      state.approved = true;
-      state.awaitingApproval = false;
-      state.approvedAt = now(options);
+    if (state && isApproval(input.prompt)) {
+      const timestamp = now(options);
+      if (state.awaitingApproval) {
+        state.approved = true;
+        state.awaitingApproval = false;
+        state.approvedAt = timestamp;
+      }
+      if (state.awaitingDdlApproval) {
+        state.ddlApproved = true;
+        state.awaitingDdlApproval = false;
+        state.ddlApprovedAt = timestamp;
+      }
     }
     if (state) writeState(input, options.dataDir, state);
     return {};
