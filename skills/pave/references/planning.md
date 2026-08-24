@@ -50,8 +50,8 @@ requiring another PAVE command:
   choices.
   When a structured choice is unavailable, ask for a direct response; only the
   response immediately following the pending approval state may approve.
-- Claude Code: prefer `ExitPlanMode` for ordinary plan approval. When a choice
-  question is needed, use `AskUserQuestion` with the `PAVE approve` header and
+- Claude Code: when already in plan mode, use `ExitPlanMode` for ordinary plan
+  approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
   `Implement` / `Revise plan` choices.
 
 The runtime guard validates routed reference evidence, records the structured

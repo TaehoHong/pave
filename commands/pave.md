@@ -13,6 +13,10 @@ $ARGUMENTS
 ```
 
 Use the plugin-local PAVE skill and references as the default source of truth.
+On Claude Code, plugin skills are namespaced and this command is already the
+PAVE entrypoint. Reference Markdown files are not skills: read them from
+`${CLAUDE_PLUGIN_ROOT}/skills/pave/references/` instead of calling `Skill` with
+`pave:execution-loop`, `pave`, or another derived name.
 Repo-local files are optional and exist only after `/project-init` or an
 explicit user request. `.claude/agents/` is the Claude Code adapter surface for
 specialist discovery when the optional repo runtime has been initialized.
@@ -70,13 +74,14 @@ specialist discovery when the optional repo runtime has been initialized.
     unless the Small Change Fast Path applies. After showing the complete
     boundary and a zero blocking-decision count, use the host's structured
     approval surface when available: Codex `request_user_input`, Claude Code
-    `ExitPlanMode` or `AskUserQuestion`. Otherwise ask for a direct approval
-    response in the conversation. Do not require a second PAVE command.
+    `AskUserQuestion` in default mode, or `ExitPlanMode` when already in plan
+    mode. Otherwise ask for a direct approval response in the conversation. Do
+    not require a second PAVE command.
     Writing, modifying, or executing DDL or a database schema migration always
     requires a distinct approval choice that names DDL after surfacing the exact
     targets, statements, impact, and rollback. The fast path and a general
     implementation approval do not waive this gate.
-16. After approval, load and apply `skills/pave/references/execution-loop.md`.
+16. After approval, read and apply `skills/pave/references/execution-loop.md`.
     Execute one checklist item at a time and mark it complete only after fresh
     evidence.
 17. Apply the Test Value Gate: name the concrete behavior or risk and the
@@ -124,8 +129,8 @@ Only request implementation approval after the Feature Readiness Gate passes
 and the remaining material blocking-decision count is zero. Prefer the host's
 native plan or choice UI. On Codex, use stable question IDs
 `pave_implementation_approval` and `pave_ddl_approval`; on Claude Code, use
-`ExitPlanMode` for ordinary plan approval or the `PAVE approve` / `PAVE DDL`
-question headers when a choice is needed. The runtime guard validates routed
+`ExitPlanMode` only when already in plan mode, or the `PAVE approve` / `PAVE DDL`
+question headers in default mode. The runtime guard validates routed
 reference evidence, records the structured result or a context-bound direct
 user response, and keeps `PreToolUse` write enforcement active. Assistant
 response text is never a workflow-control channel.

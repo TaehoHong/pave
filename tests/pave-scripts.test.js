@@ -464,7 +464,11 @@ test('standard approval uses host selections or pending user responses instead o
   assert.doesNotMatch(read('commands/pave.md'), /\$pave:pave approve|\/pave:pave approve/);
   assert.match(read('commands/pave.md'), /request_user_input/);
   assert.match(read('commands/pave.md'), /ExitPlanMode/);
-  assert.match(read('skills/pave/references/planning.md'), /pave_ddl_approval/);
+  const planning = read('skills/pave/references/planning.md');
+  assert.match(planning, /already in plan mode.+ExitPlanMode/s);
+  assert.match(planning, /Otherwise.+AskUserQuestion/s);
+  assert.doesNotMatch(planning, /prefer `ExitPlanMode`/);
+  assert.match(planning, /pave_ddl_approval/);
 });
 
 test('project-init links existing documentation instead of duplicating it', () => {

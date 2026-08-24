@@ -206,9 +206,13 @@ function structuredApproval(input) {
   if (toolName(input) === 'ExitPlanMode') return { ddl: false };
   const kind = approvalQuestionKind(input);
   if (!kind) return null;
-  const response = JSON.stringify(input.tool_response || input.toolResponse || '').toLowerCase();
-  if (/(revise|수정|declin|거절|cancel|취소)/.test(response)) return null;
-  if (!/(implement|approve|proceed|구현|승인|진행)/.test(response)) return null;
+  const response = input.tool_response || input.toolResponse || {};
+  const selections = response.answers && typeof response.answers === 'object'
+    ? Object.values(response.answers)
+    : [];
+  const selectedText = JSON.stringify(selections).toLowerCase();
+  if (/(revise|수정|declin|거절|cancel|취소)/.test(selectedText)) return null;
+  if (!/(implement|approve|proceed|구현|승인|진행)/.test(selectedText)) return null;
   return { ddl: kind === 'ddl' };
 }
 

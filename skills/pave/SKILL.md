@@ -12,6 +12,10 @@ session harness for software development work.
 
 1. PAVE runs from plugin-local instructions by default: this `SKILL.md`,
    `references/`, plugin commands, and role briefs.
+   Supporting files under `references/` are not separately registered skills.
+   Read them with the host's file-reading tool, resolved relative to this
+   `SKILL.md`; never derive a `Skill` call such as `pave:execution-loop` or
+   retry the already-loaded entrypoint as `pave`.
 2. Read repo instructions when present: root `AGENTS.md`, nested `AGENTS.md`
    files that apply to touched paths, `CLAUDE.md` for Claude Code, then
    `.codex/pave/config.md` when present.
@@ -75,7 +79,8 @@ session harness for software development work.
 16. In hosts that load `hooks/hooks.json`, the workflow guard records only
     session-scoped gate evidence. After the surfaced boundary has zero blocking
     decisions, prefer a host-native structured approval: Codex
-    `request_user_input`, Claude Code `ExitPlanMode` or `AskUserQuestion`.
+    `request_user_input`, Claude Code `AskUserQuestion` in default mode, or
+    `ExitPlanMode` when already in plan mode.
     A direct conversational approval is valid only while the structured PAVE
     approval plan step is pending. The guard validates routed reference
     evidence and enforces the resulting state in `PreToolUse`; assistant
@@ -87,7 +92,8 @@ session harness for software development work.
     boundary includes DDL, with `Implement (Recommended)` / `Implement with DDL
     (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use the equivalent `PAVE
     approve` or `PAVE DDL` header. A successful `ExitPlanMode` records standard
-    approval. DDL always requires the DDL-specific choice. After approval, load
+    approval only when Claude is already in plan mode. DDL always requires the
+    DDL-specific choice. After approval, read the file
     `references/execution-loop.md` and execute the approved scope.
 
 ## Dependency Policy

@@ -352,9 +352,23 @@ test('Claude structured choice records approval without resetting workflow evide
     hook_event_name: 'PostToolUse',
     tool_name: 'AskUserQuestion',
     tool_input: {
-      questions: [{ header: 'PAVE approve', question: 'Implement this boundary?' }],
+      questions: [{
+        header: 'PAVE approve',
+        question: 'Implement this boundary?',
+        options: [
+          { label: 'Implement', description: 'Implement the surfaced boundary.' },
+          { label: 'Revise plan', description: 'Revise the boundary before implementation.' },
+        ],
+      }],
     },
-    tool_response: { success: true, answers: { implementation: 'Implement' } },
+    tool_response: {
+      success: true,
+      questions: [{
+        header: 'PAVE approve',
+        options: [{ label: 'Implement' }, { label: 'Revise plan' }],
+      }],
+      answers: { implementation: 'Implement' },
+    },
   }, 7), {});
   readReference(state, 'execution-loop', 8);
 
@@ -363,6 +377,33 @@ test('Claude structured choice records approval without resetting workflow evide
     tool_name: 'Edit',
     tool_input: { file_path: path.join(state.cwd, 'approved.ts'), old_string: 'a', new_string: 'b' },
   }, 9), {});
+});
+
+test('Claude structured choice does not approve a revision selection', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning', 'execution-loop'].entries()) {
+    readReference(state, name, index + 2);
+  }
+
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'AskUserQuestion',
+    tool_input: {
+      questions: [{ header: 'PAVE approve', question: 'Implement this boundary?' }],
+    },
+    tool_response: {
+      success: true,
+      questions: [{ header: 'PAVE approve', question: 'Implement this boundary?' }],
+      answers: { implementation: 'Revise plan' },
+    },
+  }, 8);
+
+  assert.equal(permission(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: path.join(state.cwd, 'not-approved.ts'), old_string: 'a', new_string: 'b' },
+  }, 9)), 'deny');
 });
 
 test('Codex structured choice records explicit DDL approval', () => {
