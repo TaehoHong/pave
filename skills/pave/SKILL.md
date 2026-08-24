@@ -73,11 +73,22 @@ session harness for software development work.
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
 16. In hosts that load `hooks/hooks.json`, the workflow guard records only
-    session-scoped gate evidence. Follow the pending-decision, approval-ready,
-    DDL-approval-ready, and blocked-report marker contracts in `references/design.md`,
-    `references/planning.md`, and `references/reporting.md`; the guard is
-    defense in depth and does not replace semantic decision triage, review, or
+    session-scoped gate evidence. After the surfaced boundary has zero blocking
+    decisions, prefer a host-native structured approval: Codex
+    `request_user_input`, Claude Code `ExitPlanMode` or `AskUserQuestion`.
+    A direct conversational approval is valid only while the structured PAVE
+    approval plan step is pending. The guard validates routed reference
+    evidence and enforces the resulting state in `PreToolUse`; assistant
+    response text is not a workflow-control channel. The guard is defense in
+    depth and does not replace semantic decision triage, review, or
     verification.
+17. For Codex `request_user_input`, use question ID
+    `pave_implementation_approval`, or `pave_ddl_approval` when the surfaced
+    boundary includes DDL, with `Implement (Recommended)` / `Implement with DDL
+    (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use the equivalent `PAVE
+    approve` or `PAVE DDL` header. A successful `ExitPlanMode` records standard
+    approval. DDL always requires the DDL-specific choice. After approval, load
+    `references/execution-loop.md` and execute the approved scope.
 
 ## Dependency Policy
 

@@ -66,6 +66,11 @@ policy, and shows the remaining decision count. It keeps justified extension
 boundaries when they avoid breaking future contracts, while deferring unused
 providers, workflows, and policies. Scope intent permits read-only discovery;
 design choices and clarification answers do not count as write approval.
+After the complete boundary is ready, PAVE uses the host's normal plan or choice
+UI when available; otherwise your direct reply to the pending approval request
+is enough. No second PAVE command is required. DDL uses a distinct choice only
+after PAVE has surfaced the exact DDL scope, impact, and rollback. PAVE never
+embeds approval-control markers in assistant text.
 PAVE also investigates root causes for bugs, adds tests only when they protect
 meaningful behavior, and requires fresh evidence for completion.
 When work touches a user-visible surface, PAVE resolves the project's design
@@ -94,8 +99,9 @@ canonical examples, and narrow verification without rereading unrelated code.
 
 When the host loads `hooks/hooks.json`, a session-scoped guard activates for
 `$pave:pave` or `/pave:pave`. It denies code edits until the routed references
-and required approval are recorded, conservatively gates shell commands that
-may mutate files, denies `Write` on existing files and shell-overwrite
+and a host-native selection or context-bound user approval are recorded,
+conservatively gates shell commands that may mutate files, denies `Write` on
+existing files and shell-overwrite
 shortcuts, requires explicit DDL approval before schema or migration edits and
 execution, and requires design-system evidence for UI files. Completion also
 requires post-edit review, status and diff or untracked-file inspection,

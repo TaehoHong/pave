@@ -449,6 +449,24 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
   );
 });
 
+test('standard approval uses host selections or pending user responses instead of commands or response markers', () => {
+  const surfaces = [
+    'commands/pave.md',
+    'skills/pave/SKILL.md',
+    'skills/pave/references/design.md',
+    'skills/pave/references/planning.md',
+  ];
+  const retiredMarkers = /PAVE_(?:DECISIONS_RESOLVED|APPROVAL_READY|DDL_APPROVAL_READY|AWAITING_DECISION)/;
+
+  for (const surface of surfaces) {
+    assert.doesNotMatch(read(surface), retiredMarkers, surface);
+  }
+  assert.doesNotMatch(read('commands/pave.md'), /\$pave:pave approve|\/pave:pave approve/);
+  assert.match(read('commands/pave.md'), /request_user_input/);
+  assert.match(read('commands/pave.md'), /ExitPlanMode/);
+  assert.match(read('skills/pave/references/planning.md'), /pave_ddl_approval/);
+});
+
 test('project-init links existing documentation instead of duplicating it', () => {
   const reference = read('skills/pave/references/project-init.md');
   const command = read('commands/project-init.md');
@@ -571,6 +589,10 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
   assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
   assert.match(hooks.hooks.PostToolUse[1].matcher, /apply_patch/);
   assert.match(hooks.hooks.PostToolUse[1].matcher, /exec_command/);
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /AskUserQuestion/);
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /ExitPlanMode/);
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /request_user_input/);
+  assert.match(hooks.hooks.PostToolUse[1].matcher, /update_plan/);
   assert.match(hooks.hooks.PreToolUse[0].matcher, /apply_patch/);
   assert.match(hooks.hooks.PreToolUse[0].matcher, /exec_command/);
 

@@ -38,33 +38,37 @@ only. An earlier request to implement records implementation intent but does
 not authorize a materially changed boundary that has not been surfaced.
 Read-only discovery never requires this approval.
 
-Immediately before asking for standard-work implementation approval, include
-both of these exact machine-readable comments only when the Feature Readiness
-Gate has passed, the surfaced boundary is complete, and no material in-scope
-decision remains unknown or `recommended-unconfirmed`:
+Immediately before asking for standard-work implementation approval, confirm
+that the Feature Readiness Gate has passed, the surfaced boundary is complete,
+and no material in-scope decision remains unknown or
+`recommended-unconfirmed`. Then use the host's normal approval UX instead of
+requiring another PAVE command:
 
-```html
-<!-- PAVE_DECISIONS_RESOLVED -->
-<!-- PAVE_APPROVAL_READY -->
-```
+- Codex: move `[PAVE:approval]` to `in_progress`, then use
+  `request_user_input` when available with question ID
+  `pave_implementation_approval` and `Implement (Recommended)` / `Revise plan`
+  choices.
+  When a structured choice is unavailable, ask for a direct response; only the
+  response immediately following the pending approval state may approve.
+- Claude Code: prefer `ExitPlanMode` for ordinary plan approval. When a choice
+  question is needed, use `AskUserQuestion` with the `PAVE approve` header and
+  `Implement` / `Revise plan` choices.
 
-These comments arm the runtime approval gate. They are evidence about the
-current response, not a substitute for showing the decision ledger, boundary,
-checklist, and remaining blocking count to the user.
+The runtime guard validates routed reference evidence, records the structured
+selection or context-bound user response as approval state, and continues to
+enforce writes in `PreToolUse`. Do not place machine-readable approval markers
+in assistant response text.
 
 When the implementation boundary includes writing, modifying, or executing DDL
 or a database schema migration, also show the exact target files, statements or
 migration operations, data and compatibility effects, and rollback approach.
-Include this third exact comment in the same approval request:
-
-```html
-<!-- PAVE_DDL_APPROVAL_READY -->
-```
-
-One explicit user response may grant both implementation and DDL approval when
-the request includes all three markers and the user-visible scope above. Without
-the DDL marker, general implementation approval does not authorize DDL. Newly
-discovered or changed DDL requires a newly surfaced approval request.
+Then use a distinct structured choice: Codex question ID
+`pave_ddl_approval`, or Claude Code `PAVE DDL`, with `Implement with DDL` and
+`Revise plan` options (`Implement with DDL (Recommended)` on Codex). If a
+structured choice is unavailable, require a direct
+response that explicitly names DDL. General approval does not authorize DDL.
+Newly discovered or changed DDL requires a newly surfaced approval request and
+another DDL-specific choice.
 
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,

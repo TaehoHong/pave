@@ -6,6 +6,12 @@ description: Run the PAVE workflow for software development work.
 
 Use PAVE: Plan, Approve, Verify, Execute.
 
+Request:
+
+```text
+$ARGUMENTS
+```
+
 Use the plugin-local PAVE skill and references as the default source of truth.
 Repo-local files are optional and exist only after `/project-init` or an
 explicit user request. `.claude/agents/` is the Claude Code adapter surface for
@@ -61,11 +67,15 @@ specialist discovery when the optional repo runtime has been initialized.
     Create or update `.codex/pave/plans/` only when the optional repo runtime
     exists or the user explicitly asks for durable repo-local plans.
 15. Ask once for implementation approval immediately before code or test edits
-    unless the Small Change Fast Path applies. Writing, modifying, or executing
-    DDL or a database schema migration always requires explicit DDL approval for
-    the surfaced targets, statements, impact, and rollback. The fast path and a
-    general implementation approval do not waive this gate; one response may
-    grant both approvals when both scopes are shown.
+    unless the Small Change Fast Path applies. After showing the complete
+    boundary and a zero blocking-decision count, use the host's structured
+    approval surface when available: Codex `request_user_input`, Claude Code
+    `ExitPlanMode` or `AskUserQuestion`. Otherwise ask for a direct approval
+    response in the conversation. Do not require a second PAVE command.
+    Writing, modifying, or executing DDL or a database schema migration always
+    requires a distinct approval choice that names DDL after surfacing the exact
+    targets, statements, impact, and rollback. The fast path and a general
+    implementation approval do not waive this gate.
 16. After approval, load and apply `skills/pave/references/execution-loop.md`.
     Execute one checklist item at a time and mark it complete only after fresh
     evidence.
@@ -110,22 +120,21 @@ write approval. Standard-work approval must explicitly authorize the surfaced
 implementation boundary. Lack of write approval does not block safe read-only
 discovery.
 
-Immediately before requesting that approval, include the exact
-`<!-- PAVE_DECISIONS_RESOLVED -->` and `<!-- PAVE_APPROVAL_READY -->` comments
-only after the Feature Readiness Gate passes and the remaining material
-blocking-decision count is zero. The runtime guard uses these markers to arm
-approval; the markers do not replace the user-visible boundary and ledger.
+Only request implementation approval after the Feature Readiness Gate passes
+and the remaining material blocking-decision count is zero. Prefer the host's
+native plan or choice UI. On Codex, use stable question IDs
+`pave_implementation_approval` and `pave_ddl_approval`; on Claude Code, use
+`ExitPlanMode` for ordinary plan approval or the `PAVE approve` / `PAVE DDL`
+question headers when a choice is needed. The runtime guard validates routed
+reference evidence, records the structured result or a context-bound direct
+user response, and keeps `PreToolUse` write enforcement active. Assistant
+response text is never a workflow-control channel.
 
 When the boundary includes DDL or a database schema migration, surface its exact
 target files, statements or operations, data and compatibility effects, and
-rollback approach, then include `<!-- PAVE_DDL_APPROVAL_READY -->` in the same
-approval request. Without this marker, general implementation approval does not
-authorize DDL. Newly discovered or changed DDL requires a new approval request.
-
-When ending a read-only turn with a material decision still awaiting the user,
-include the exact `<!-- PAVE_AWAITING_DECISION -->` comment. An ordinary
-read-only completion releases the runtime guard state so an unrelated later
-request does not inherit stale workflow evidence.
+rollback approach, then offer a distinct `Implement with DDL` choice. General
+approval does not authorize DDL. Newly discovered or changed DDL requires a
+newly surfaced approval request and another DDL-specific choice.
 
 ## Repo-Local File Guard
 

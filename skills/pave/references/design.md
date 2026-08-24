@@ -158,12 +158,11 @@ DDL, return to decision and planning before editing or executing it.
 Do not reinterpret a goal update as write approval, and do not stop safe
 read-only discovery merely because write approval has not been granted.
 
-When a read-only turn ends with a material user decision still pending, include
-the exact `<!-- PAVE_AWAITING_DECISION -->` comment in the response. The
-runtime guard retains the active workflow only when this marker, the approval
-markers, or the blocked-report marker makes continuation explicit; an ordinary
-read-only completion releases session state so it cannot constrain a later,
-unrelated request.
+When a read-only turn ends with a material user decision still pending, ask the
+question normally and stop. Do not emit hidden comments or machine-readable
+sentinels in the response. The runtime guard retains routed feature or bug
+workflow state within the current session; a new explicit PAVE invocation
+starts a fresh state.
 
 ## Design Quality Gate
 

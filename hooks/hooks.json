@@ -52,7 +52,7 @@
         ]
       },
       {
-        "matcher": "^(Bash|Edit|Read|Write|apply_patch|exec_command|functions\\.apply_patch|functions\\.exec_command)$",
+        "matcher": "^(AskUserQuestion|Bash|Edit|ExitPlanMode|Read|Write|apply_patch|exec_command|request_user_input|update_plan|functions\\.apply_patch|functions\\.exec_command|functions\\.request_user_input|functions\\.update_plan)$",
         "hooks": [
           {
             "type": "command",

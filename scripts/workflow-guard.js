@@ -7,15 +7,16 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const STATE_VERSION = 2;
-const APPROVAL_READY = '<!-- PAVE_APPROVAL_READY -->';
-const DECISIONS_RESOLVED = '<!-- PAVE_DECISIONS_RESOLVED -->';
-const DDL_APPROVAL_READY = '<!-- PAVE_DDL_APPROVAL_READY -->';
-const AWAITING_DECISION = '<!-- PAVE_AWAITING_DECISION -->';
+const STATE_VERSION = 4;
 const BLOCKED_REPORT = '<!-- PAVE_BLOCKED -->';
 const APPROVAL_PHRASES = new Set([
-  '진행해', '진행해줘', '시작해', '시작해줘', '구현해', '구현해줘', '승인', '승인해', '승인합니다',
-  'approve', 'approved', 'proceed', 'go ahead', 'start', 'implement',
+  '추천대로', '추천대로 진행해', '이대로', '이대로 진행해', '진행해', '진행해줘',
+  '구현해', '구현해줘', '시작해', '시작해줘', '승인', '승인해', '승인합니다',
+  'approve', 'approved', 'proceed', 'go ahead', 'implement', 'implement it', 'start',
+]);
+const DDL_APPROVAL_PHRASES = new Set([
+  'ddl 승인', 'ddl까지 승인', 'ddl 포함 진행해', 'ddl 포함해서 진행해',
+  'approve ddl', 'approve with ddl', 'proceed with ddl',
 ]);
 
 const STANDARD_REFERENCES = {
@@ -83,9 +84,16 @@ function isPaveSkillInvocation(input) {
   return /^(?:pave:)?pave$/i.test(String(details.skill || details.name || ''));
 }
 
-function isApproval(prompt) {
-  const normalized = String(prompt || '').trim().toLowerCase().replace(/[.!]+$/, '').trim();
-  return APPROVAL_PHRASES.has(normalized);
+function approvalIntent(prompt) {
+  const normalized = String(prompt || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[.!?]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (DDL_APPROVAL_PHRASES.has(normalized)) return { ddl: true };
+  if (APPROVAL_PHRASES.has(normalized)) return { ddl: false };
+  return null;
 }
 
 function toolName(input) {
@@ -120,7 +128,6 @@ function initialState(input, timestamp) {
     references: {},
     awaitingApproval: false,
     approved: false,
-    awaitingDdlApproval: false,
     ddlApproved: false,
     editedAt: null,
     changedFiles: [],
@@ -132,6 +139,77 @@ function initialState(input, timestamp) {
     verifiedAt: null,
     activatedAt: timestamp,
   };
+}
+
+function recordApproval(state, ddl, timestamp) {
+  const selectedRoute = route(state);
+  if (selectedRoute !== 'feature' && selectedRoute !== 'bug') {
+    return 'PAVE cannot approve implementation until the request route is established.';
+  }
+  const preApproval = STANDARD_REFERENCES[selectedRoute].filter((name) => name !== 'execution-loop');
+  const missing = missingReferences(state, preApproval);
+  if (missing.length > 0) {
+    return `PAVE cannot approve implementation yet. Missing reference evidence: ${missing.join(', ')}.`;
+  }
+  state.awaitingApproval = false;
+  state.approved = true;
+  state.approvedAt = timestamp;
+  if (ddl) {
+    state.ddlApproved = true;
+    state.ddlApprovedAt = timestamp;
+  }
+  return null;
+}
+
+function recordApprovalRequest(state, timestamp) {
+  const selectedRoute = route(state);
+  if (selectedRoute !== 'feature' && selectedRoute !== 'bug') {
+    return 'PAVE cannot request implementation approval until the request route is established.';
+  }
+  const preApproval = STANDARD_REFERENCES[selectedRoute].filter((name) => name !== 'execution-loop');
+  const missing = missingReferences(state, preApproval);
+  if (missing.length > 0) {
+    return `PAVE cannot request implementation approval yet. Missing reference evidence: ${missing.join(', ')}.`;
+  }
+  state.awaitingApproval = true;
+  state.approved = false;
+  state.ddlApproved = false;
+  state.approvalRequestedAt = timestamp;
+  return null;
+}
+
+function isApprovalPlanUpdate(input) {
+  if (toolName(input) !== 'update_plan') return false;
+  const plan = toolInput(input).plan;
+  return Array.isArray(plan) && plan.some((item) => (
+    item?.status === 'in_progress' && /^\[PAVE:approval\]/.test(String(item?.step || ''))
+  ));
+}
+
+function approvalQuestionKind(input) {
+  const name = toolName(input);
+  const questions = toolInput(input).questions;
+  if (!Array.isArray(questions)) return null;
+  if (name === 'request_user_input') {
+    if (questions.some((question) => question?.id === 'pave_ddl_approval')) return 'ddl';
+    if (questions.some((question) => question?.id === 'pave_implementation_approval')) return 'standard';
+  }
+  if (name === 'AskUserQuestion') {
+    if (questions.some((question) => question?.header === 'PAVE DDL')) return 'ddl';
+    if (questions.some((question) => question?.header === 'PAVE approve')) return 'standard';
+  }
+  return null;
+}
+
+function structuredApproval(input) {
+  if (!isSuccessful(input)) return null;
+  if (toolName(input) === 'ExitPlanMode') return { ddl: false };
+  const kind = approvalQuestionKind(input);
+  if (!kind) return null;
+  const response = JSON.stringify(input.tool_response || input.toolResponse || '').toLowerCase();
+  if (/(revise|수정|declin|거절|cancel|취소)/.test(response)) return null;
+  if (!/(implement|approve|proceed|구현|승인|진행)/.test(response)) return null;
+  return { ddl: kind === 'ddl' };
 }
 
 function route(state) {
@@ -485,7 +563,6 @@ function isVerificationCommand(command) {
 
 function handleStop(input, state, options) {
   const message = String(input.last_assistant_message || input.lastAssistantMessage || '');
-  const timestamp = now(options);
 
   if (state.editedAt) {
     if (message.includes(BLOCKED_REPORT)) return { output: {}, remove: false };
@@ -510,39 +587,8 @@ function handleStop(input, state, options) {
     return { output: {}, remove: true };
   }
 
-  const ddlReady = message.includes(DDL_APPROVAL_READY);
-  const malformedDdlRequest = ddlReady
-    && !(message.includes(APPROVAL_READY) && message.includes(DECISIONS_RESOLVED));
-  if (message.includes(AWAITING_DECISION) || message.includes(BLOCKED_REPORT)
-    || (message.includes(APPROVAL_READY) && !message.includes(DECISIONS_RESOLVED))) {
-    return { output: {}, remove: false };
-  }
-  if (malformedDdlRequest) {
-    return { output: block('PAVE cannot request DDL approval without the resolved-decisions and implementation-approval markers.'), remove: false };
-  }
-
-  const ready = message.includes(DECISIONS_RESOLVED) && message.includes(APPROVAL_READY);
-  if (!ready) return { output: {}, remove: true };
-
   const selectedRoute = route(state);
-  if (selectedRoute !== 'feature' && selectedRoute !== 'bug') {
-    return { output: block('PAVE cannot request standard implementation approval until the request route and required references are established.'), remove: false };
-  }
-
-  const preApproval = STANDARD_REFERENCES[selectedRoute].filter((name) => name !== 'execution-loop');
-  const missing = missingReferences(state, preApproval);
-  if (missing.length > 0) {
-    return { output: block(`PAVE cannot request approval yet. Missing reference evidence: ${missing.join(', ')}.`), remove: false };
-  }
-
-  state.awaitingApproval = true;
-  state.approvalRequestedAt = timestamp;
-  if (ddlReady) {
-    state.ddlApproved = false;
-    state.awaitingDdlApproval = true;
-    state.ddlApprovalRequestedAt = timestamp;
-  }
-  return { output: {}, remove: false };
+  return { output: {}, remove: selectedRoute !== 'feature' && selectedRoute !== 'bug' };
 }
 
 function handleHook(input, providedOptions = {}) {
@@ -555,18 +601,16 @@ function handleHook(input, providedOptions = {}) {
   let state = readState(input, options.dataDir);
 
   if (event === 'UserPromptSubmit') {
-    if (isPaveInvocation(input.prompt)) state = initialState(input, now(options));
-    if (state && isApproval(input.prompt)) {
-      const timestamp = now(options);
-      if (state.awaitingApproval) {
-        state.approved = true;
+    if (isPaveInvocation(input.prompt)) {
+      state = initialState(input, now(options));
+    } else if (state?.awaitingApproval) {
+      const intent = approvalIntent(input.prompt);
+      const error = intent ? recordApproval(state, intent.ddl, now(options)) : null;
+      if (error) return block(error);
+      if (!intent) {
         state.awaitingApproval = false;
-        state.approvedAt = timestamp;
-      }
-      if (state.awaitingDdlApproval) {
-        state.ddlApproved = true;
-        state.awaitingDdlApproval = false;
-        state.ddlApprovedAt = timestamp;
+        state.approved = false;
+        state.ddlApproved = false;
       }
     }
     if (state) writeState(input, options.dataDir, state);
@@ -590,6 +634,15 @@ function handleHook(input, providedOptions = {}) {
   if (event === 'PreToolUse') return preToolUse(input, state);
 
   if (event === 'PostToolUse') {
+    if (isApprovalPlanUpdate(input)) {
+      const error = recordApprovalRequest(state, now(options));
+      if (error) return block(error);
+    }
+    const approval = structuredApproval(input);
+    if (approval) {
+      const error = recordApproval(state, approval.ddl, now(options));
+      if (error) return block(error);
+    }
     recordPostToolUse(input, state, options);
     writeState(input, options.dataDir, state);
     return {};

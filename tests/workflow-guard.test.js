@@ -51,16 +51,14 @@ function prepareApprovedFeature(state) {
     readReference(state, name, index + 2);
   }
   hook(state, {
-    hook_event_name: 'Stop',
-    last_assistant_message: [
-      'Implementation boundary and decision ledger are ready.',
-      '<!-- PAVE_DECISIONS_RESOLVED -->',
-      '<!-- PAVE_APPROVAL_READY -->',
-    ].join('\n'),
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
   }, 6);
   hook(state, {
     hook_event_name: 'UserPromptSubmit',
-    prompt: '진행해',
+    prompt: '추천대로',
   }, 7);
   readReference(state, 'execution-loop', 8);
 }
@@ -71,17 +69,12 @@ function prepareDdlApprovedFeature(state) {
     readReference(state, name, index + 2);
   }
   hook(state, {
-    hook_event_name: 'Stop',
-    last_assistant_message: [
-      'DDL target, statements, impact, and rollback are surfaced.',
-      '<!-- PAVE_DECISIONS_RESOLVED -->',
-      '<!-- PAVE_APPROVAL_READY -->',
-      '<!-- PAVE_DDL_APPROVAL_READY -->',
-    ].join('\n'),
-  }, 6);
-  hook(state, {
-    hook_event_name: 'UserPromptSubmit',
-    prompt: '진행해',
+    hook_event_name: 'PostToolUse',
+    tool_name: 'request_user_input',
+    tool_input: {
+      questions: [{ id: 'pave_ddl_approval', question: 'Implement this boundary including DDL?' }],
+    },
+    tool_response: { success: true, answers: { pave_ddl_approval: 'Implement with DDL (Recommended)' } },
   }, 7);
   readReference(state, 'execution-loop', 8);
 }
@@ -201,16 +194,42 @@ test('activates when Claude expands the PAVE slash command directly', () => {
   assert.equal(permission(output), 'deny');
 });
 
-test('does not accept approval while a material decision remains unresolved', () => {
+test('rejects an approval-state transition before required planning evidence is complete', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing'].entries()) {
+    readReference(state, name, index + 2);
+  }
+  const approval = hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
+  }, 6);
+  assert.equal(approval.decision, 'block');
+  assert.match(approval.reason, /planning/i);
+  readReference(state, 'execution-loop', 8);
+
+  const output = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: {
+      file_path: path.join(state.cwd, 'middleware.ts'),
+      old_string: 'old',
+      new_string: 'new',
+    },
+  }, 9);
+
+  assert.equal(permission(output), 'deny');
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /planning|approval/i);
+});
+
+test('does not treat conversational approval as write approval before an approval request is pending', () => {
   const state = fixture();
   activate(state, 1);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
-  hook(state, {
-    hook_event_name: 'Stop',
-    last_assistant_message: 'A decision is still open.\n<!-- PAVE_APPROVAL_READY -->',
-  }, 6);
   hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '진행해' }, 7);
   readReference(state, 'execution-loop', 8);
 
@@ -228,28 +247,27 @@ test('does not accept approval while a material decision remains unresolved', ()
   assert.match(output.hookSpecificOutput.permissionDecisionReason, /approval/i);
 });
 
-test('does not treat an explicit approval negation as approval', () => {
+test('a revision response clears the pending approval so later unrelated text cannot approve stale scope', () => {
   const state = fixture();
   activate(state, 1);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
   hook(state, {
-    hook_event_name: 'Stop',
-    last_assistant_message: '<!-- PAVE_DECISIONS_RESOLVED -->\n<!-- PAVE_APPROVAL_READY -->',
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
   }, 6);
-  hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '진행해 말고 계획만 수정해' }, 7);
-  readReference(state, 'execution-loop', 8);
+  hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '계획을 먼저 수정해' }, 7);
+  hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '진행해' }, 8);
+  readReference(state, 'execution-loop', 9);
 
   const output = hook(state, {
     hook_event_name: 'PreToolUse',
     tool_name: 'Edit',
-    tool_input: {
-      file_path: path.join(state.cwd, 'middleware.ts'),
-      old_string: 'old',
-      new_string: 'new',
-    },
-  }, 9);
+    tool_input: { file_path: path.join(state.cwd, 'stale.ts'), old_string: 'a', new_string: 'b' },
+  }, 10);
 
   assert.equal(permission(output), 'deny');
   assert.match(output.hookSpecificOutput.permissionDecisionReason, /approval/i);
@@ -299,7 +317,7 @@ test('a new PAVE invocation resets the guarded repository cwd', () => {
   assert.equal(permission(output), 'deny');
 });
 
-test('a completed read-only turn releases the guard unless a decision is pending', () => {
+test('a completed unrouted turn releases the guard while routed planning state persists', () => {
   const completed = fixture();
   activate(completed, 1);
   hook(completed, { hook_event_name: 'Stop', last_assistant_message: 'Analysis complete.' }, 2);
@@ -311,15 +329,85 @@ test('a completed read-only turn releases the guard unless a decision is pending
 
   const pending = fixture();
   activate(pending, 1);
+  readReference(pending, 'design', 2);
   hook(pending, {
     hook_event_name: 'Stop',
-    last_assistant_message: 'Choose one option.\n<!-- PAVE_AWAITING_DECISION -->',
-  }, 2);
+    last_assistant_message: 'Choose one option.',
+  }, 3);
   assert.equal(permission(hook(pending, {
     hook_event_name: 'PreToolUse',
     tool_name: 'Edit',
     tool_input: { file_path: path.join(pending.cwd, 'later.ts'), old_string: 'a', new_string: 'b' },
-  }, 3)), 'deny');
+  }, 4)), 'deny');
+});
+
+test('Claude structured choice records approval without resetting workflow evidence', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
+    readReference(state, name, index + 2);
+  }
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'AskUserQuestion',
+    tool_input: {
+      questions: [{ header: 'PAVE approve', question: 'Implement this boundary?' }],
+    },
+    tool_response: { success: true, answers: { implementation: 'Implement' } },
+  }, 7), {});
+  readReference(state, 'execution-loop', 8);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: path.join(state.cwd, 'approved.ts'), old_string: 'a', new_string: 'b' },
+  }, 9), {});
+});
+
+test('Codex structured choice records explicit DDL approval', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
+    readReference(state, name, index + 2);
+  }
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'request_user_input',
+    tool_input: {
+      questions: [{ id: 'pave_ddl_approval', question: 'Implement this boundary including DDL?' }],
+    },
+    tool_response: { success: true, answers: { pave_ddl_approval: 'Implement with DDL (Recommended)' } },
+  }, 7), {});
+  readReference(state, 'execution-loop', 8);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Write',
+    tool_input: { file_path: 'setup.sql', content: 'CREATE TABLE approved (id int);\n' },
+  }, 9), {});
+});
+
+test('Claude native plan approval records standard implementation approval', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
+    readReference(state, name, index + 2);
+  }
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'ExitPlanMode',
+    tool_input: { plan: 'Implement the surfaced boundary.' },
+    tool_response: { success: true },
+  }, 7), {});
+  readReference(state, 'execution-loop', 8);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: path.join(state.cwd, 'approved.ts'), old_string: 'a', new_string: 'b' },
+  }, 9), {});
 });
 
 test('blocks Write from replacing an existing source file after approval', () => {
