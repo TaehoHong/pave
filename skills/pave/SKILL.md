@@ -51,6 +51,15 @@ session harness for software development work.
    requires explicit DDL approval for the surfaced targets, statements, impact,
    and rollback. General implementation approval and the fast path do not waive
    this gate; one response may grant both approvals when both scopes are shown.
+   When the workflow guard is active, explicitly declare the selected route
+   after classification. Resolve the plugin root from this loaded `SKILL.md`
+   (two directories up), then run
+   `node "<pave-plugin-root>/scripts/workflow-guard.js" route
+   <fast|bug|feature>` with the absolute path. Agent shells must not assume
+   plugin-root environment variables are exported. Reading a reference records
+   evidence only and never selects a route. Change routes with the same command;
+   use `route reset` to clear only the route and approval state while preserving
+   investigation and reference evidence.
 10. Split independent subsystems, continue safe unblocked work, and distinguish
     justified extension boundaries from deferred future behavior.
 11. Before writing logic that implements a rule, validation, transformation,
@@ -82,11 +91,13 @@ session harness for software development work.
     `request_user_input`, Claude Code `AskUserQuestion` in default mode, or
     `ExitPlanMode` when already in plan mode.
     A direct conversational approval is valid only while the structured PAVE
-    approval plan step is pending. The guard validates routed reference
-    evidence and enforces the resulting state in `PreToolUse`; assistant
-    response text is not a workflow-control channel. The guard is defense in
-    depth and does not replace semantic decision triage, review, or
-    verification.
+    approval plan step is pending. The guard validates the explicitly declared
+    route plus its reference evidence and enforces the resulting state in
+    `PreToolUse`; assistant response text and reference reads are not
+    workflow-control channels. The guard is defense in depth and does not
+    replace semantic decision triage, review, or verification. It blocks
+    unambiguous workflow bypasses; it is not a general shell or SQL sandbox and
+    must not replace host permissions with exhaustive command parsing.
 17. For Codex `request_user_input`, use question ID
     `pave_implementation_approval`, or `pave_ddl_approval` when the surfaced
     boundary includes DDL, with `Implement (Recommended)` / `Implement with DDL
@@ -105,6 +116,11 @@ session harness for software development work.
 ## Request Routing
 
 Classify the request:
+
+When hooks are active, reference reads may happen during inspection, but they
+do not choose the route. After the classification and fast-path eligibility
+check are settled, declare `fast`, `bug`, or `feature` with the route command
+from Core Rule 9 before requesting approval or editing.
 
 - Obvious low-risk local edit: read `references/fast-path.md`,
   `references/testing.md`, and `references/verification.md`.
@@ -155,6 +171,8 @@ troubleshooting record.
 - Initialize a repo with JavaScript: `../../scripts/init_repo.js <repo-path>`
 - Check a repo: `../../scripts/doctor.js <repo-path>`
 - Re-sync templates: `../../scripts/sync_template.js <repo-path>`
+- Declare or reset guarded routing: resolve this file's plugin root, then run
+  `node "<pave-plugin-root>/scripts/workflow-guard.js" route <fast|bug|feature|reset>`
 
 ## Commands
 

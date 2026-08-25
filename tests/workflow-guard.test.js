@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -45,10 +46,22 @@ function readReference(state, name, now) {
   }, now);
 }
 
+function declareRoute(state, route, now) {
+  const command = `node "${path.join(pluginRoot, 'scripts', 'workflow-guard.js')}" route ${route}`;
+  const input = {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command },
+    tool_response: { exit_code: 0, output: `${JSON.stringify({ route })}\n` },
+  };
+  return hook(state, input, now);
+}
+
 function prepareApprovedFeature(state) {
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
-    readReference(state, name, index + 2);
+    readReference(state, name, index + 3);
   }
   hook(state, {
     hook_event_name: 'PostToolUse',
@@ -65,8 +78,9 @@ function prepareApprovedFeature(state) {
 
 function prepareDdlApprovedFeature(state) {
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
-    readReference(state, name, index + 2);
+    readReference(state, name, index + 3);
   }
   hook(state, {
     hook_event_name: 'PostToolUse',
@@ -81,14 +95,216 @@ function prepareDdlApprovedFeature(state) {
 
 function prepareFastPath(state) {
   activate(state, 1);
+  declareRoute(state, 'fast', 2);
   for (const [index, name] of ['context-retrieval', 'fast-path', 'testing', 'verification'].entries()) {
-    readReference(state, name, index + 2);
+    readReference(state, name, index + 3);
   }
 }
 
 function permission(output) {
   return output.hookSpecificOutput?.permissionDecision;
 }
+
+test('reference reads are evidence only and an explicit command owns route selection', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['fast-path', 'debugging', 'design'].entries()) {
+    readReference(state, name, index + 2);
+  }
+
+  const unknown = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'route.ts', old_string: 'a', new_string: 'b' },
+  }, 5);
+  assert.equal(permission(unknown), 'deny');
+  assert.match(unknown.hookSpecificOutput.permissionDecisionReason, /current route: unknown/i);
+
+  declareRoute(state, 'fast', 6);
+  for (const [index, name] of ['context-retrieval', 'testing', 'verification'].entries()) {
+    readReference(state, name, index + 7);
+  }
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'route.ts', old_string: 'a', new_string: 'b' },
+  }, 11), {});
+});
+
+test('route promotion and reset preserve reference evidence but revoke approval', () => {
+  const state = fixture();
+  activate(state, 1);
+  for (const [index, name] of ['context-retrieval', 'request-routing', 'debugging', 'testing', 'memory'].entries()) {
+    readReference(state, name, index + 2);
+  }
+
+  declareRoute(state, 'fast', 7);
+  declareRoute(state, 'bug', 8);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
+  }, 9);
+  hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '진행해' }, 10);
+  readReference(state, 'execution-loop', 11);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'approved.ts', old_string: 'a', new_string: 'b' },
+  }, 12), {});
+
+  declareRoute(state, 'reset', 13);
+  const reset = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'reset.ts', old_string: 'a', new_string: 'b' },
+  }, 14);
+  assert.equal(permission(reset), 'deny');
+  assert.match(reset.hookSpecificOutput.permissionDecisionReason, /current route: unknown/i);
+
+  declareRoute(state, 'bug', 15);
+  const unapproved = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'unapproved.ts', old_string: 'a', new_string: 'b' },
+  }, 16);
+  assert.equal(permission(unapproved), 'deny');
+  assert.match(unapproved.hookSpecificOutput.permissionDecisionReason, /approval/i);
+  assert.doesNotMatch(unapproved.hookSpecificOutput.permissionDecisionReason, /missing reference/i);
+});
+
+test('standard approval from fast reports the explicit promotion transition', () => {
+  const state = fixture();
+  prepareFastPath(state);
+
+  const output = hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
+  }, 7);
+
+  assert.equal(output.decision, 'block');
+  assert.match(output.reason, /current route: fast/i);
+  assert.match(output.reason, /route <fast\|bug\|feature\|reset>/);
+});
+
+test('route declaration is allowed while the current route is unknown', () => {
+  const state = fixture();
+  activate(state, 1);
+  const command = `node "${path.join(pluginRoot, 'scripts', 'workflow-guard.js')}" route bug`;
+  const portableCommand = 'node "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/scripts/workflow-guard.js" route bug';
+
+  for (const routeCommand of [command, portableCommand]) {
+    assert.deepEqual(hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command: routeCommand },
+    }, 2), {}, routeCommand);
+  }
+
+  const spoofed = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'node "/tmp/scripts/workflow-guard.js" route bug' },
+  }, 3);
+  assert.equal(permission(spoofed), 'deny');
+});
+
+test('route command validates its public CLI contract', () => {
+  const script = path.join(pluginRoot, 'scripts', 'workflow-guard.js');
+  const declared = childProcess.spawnSync(process.execPath, [script, 'route', 'bug'], { encoding: 'utf8' });
+  assert.equal(declared.status, 0, declared.stderr);
+  assert.deepEqual(JSON.parse(declared.stdout), { route: 'bug' });
+
+  const invalid = childProcess.spawnSync(process.execPath, [script, 'route', 'other'], { encoding: 'utf8' });
+  assert.equal(invalid.status, 2);
+  assert.match(invalid.stderr, /route <fast\|bug\|feature\|reset>/);
+});
+
+test('quoted pipes and safe stderr redirection remain read-only', () => {
+  for (const command of [
+    'grep -n "^export function\\|^export async function" file.js',
+    "rg -n 'route|approval' scripts/workflow-guard.js",
+    "rg -n 'value > threshold' scripts/workflow-guard.js",
+    "rg -n 'sed -i' scripts/workflow-guard.js",
+    'rg -n route scripts/workflow-guard.js 2>/dev/null',
+    'rg -n route scripts/workflow-guard.js 2>&1',
+    'cat missing.txt 2> /dev/null',
+  ]) {
+    const state = fixture();
+    activate(state, 1);
+    assert.deepEqual(hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command },
+    }, 2), {}, command);
+  }
+});
+
+test('real pipelines and output files are still classified segment by segment', () => {
+  for (const command of [
+    'rg route file.js | cp /dev/stdin copy.txt',
+    'rg route file.js > results.txt',
+    'rg route file.js 2> errors.txt',
+  ]) {
+    const state = fixture();
+    activate(state, 1);
+    const output = hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command },
+    }, 2);
+    assert.equal(permission(output), 'deny', command);
+  }
+});
+
+test('read-only allowlist rejects mutating git and sed forms', () => {
+  for (const command of [
+    'git branch -D release',
+    'git remote remove origin',
+    "sed -n 'w overwritten.txt' source.txt",
+    'git diff --output=leak.patch',
+  ]) {
+    const state = fixture();
+    activate(state, 1);
+    const output = hook(state, {
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command },
+    }, 2);
+    assert.equal(permission(output), 'deny', command);
+  }
+});
+
+test('Bash reference evidence must name the canonical plugin reference path', () => {
+  const state = fixture();
+  activate(state, 1);
+  declareRoute(state, 'bug', 2);
+  for (const [index, name] of ['context-retrieval', 'request-routing', 'testing', 'memory'].entries()) {
+    readReference(state, name, index + 3);
+  }
+  const fakeReference = path.join(path.dirname(state.cwd), 'fake', 'references', 'debugging.md');
+  fs.mkdirSync(path.dirname(fakeReference), { recursive: true });
+  fs.writeFileSync(fakeReference, '# Fake debugging reference\n');
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: `sed -n '1p' "${fakeReference}"` },
+    tool_response: { exit_code: 0, output: '# Fake debugging reference\n' },
+  }, 7);
+
+  const approval = hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: true },
+  }, 8);
+  assert.equal(approval.decision, 'block');
+  assert.match(approval.reason, /debugging/i);
+});
 
 function readFile(state, filePath, now) {
   return hook(state, {
@@ -129,6 +345,20 @@ test('does not affect a session that did not invoke PAVE', () => {
       new_string: 'new',
     },
   }, 1), {});
+});
+
+test('mentioning a PAVE command inside a report does not activate the guard', () => {
+  const state = fixture();
+  hook(state, {
+    hook_event_name: 'UserPromptSubmit',
+    prompt: 'The report says /pave:pave selected the fast path.',
+  }, 1);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'report.ts', old_string: 'a', new_string: 'b' },
+  }, 2), {});
 });
 
 test('activates when the host invokes the PAVE skill directly', () => {
@@ -197,6 +427,7 @@ test('activates when Claude expands the PAVE slash command directly', () => {
 test('rejects an approval-state transition before required planning evidence is complete', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -224,9 +455,35 @@ test('rejects an approval-state transition before required planning evidence is 
   assert.match(output.hookSpecificOutput.permissionDecisionReason, /planning|approval/i);
 });
 
+test('a failed plan update cannot create a pending approval', () => {
+  const state = fixture();
+  activate(state, 1);
+  declareRoute(state, 'feature', 2);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
+    readReference(state, name, index + 3);
+  }
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'update_plan',
+    tool_input: { plan: [{ step: '[PAVE:approval] Confirm implementation boundary', status: 'in_progress' }] },
+    tool_response: { success: false, error: 'plan update failed' },
+  }, 7);
+  hook(state, { hook_event_name: 'UserPromptSubmit', prompt: '진행해' }, 8);
+  readReference(state, 'execution-loop', 9);
+
+  const output = hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'not-approved.ts', old_string: 'a', new_string: 'b' },
+  }, 10);
+  assert.equal(permission(output), 'deny');
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /approval/i);
+});
+
 test('does not treat conversational approval as write approval before an approval request is pending', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -250,6 +507,7 @@ test('does not treat conversational approval as write approval before an approva
 test('a revision response clears the pending approval so later unrelated text cannot approve stale scope', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -329,6 +587,7 @@ test('a completed unrouted turn releases the guard while routed planning state p
 
   const pending = fixture();
   activate(pending, 1);
+  declareRoute(pending, 'feature', 2);
   readReference(pending, 'design', 2);
   hook(pending, {
     hook_event_name: 'Stop',
@@ -341,9 +600,22 @@ test('a completed unrouted turn releases the guard while routed planning state p
   }, 4)), 'deny');
 });
 
+test('a selected fast route survives a read-only Stop for the next user turn', () => {
+  const state = fixture();
+  prepareFastPath(state);
+  hook(state, { hook_event_name: 'Stop', last_assistant_message: 'Ready to edit.' }, 7);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'small.ts', old_string: 'a', new_string: 'b' },
+  }, 8), {});
+});
+
 test('Claude structured choice records approval without resetting workflow evidence', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -382,6 +654,7 @@ test('Claude structured choice records approval without resetting workflow evide
 test('Claude structured choice does not approve a revision selection', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning', 'execution-loop'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -406,9 +679,36 @@ test('Claude structured choice does not approve a revision selection', () => {
   }, 9)), 'deny');
 });
 
+test('Codex approval reads only the answer bound to the PAVE question id', () => {
+  const state = fixture();
+  activate(state, 1);
+  declareRoute(state, 'feature', 2);
+  for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning', 'execution-loop'].entries()) {
+    readReference(state, name, index + 3);
+  }
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'request_user_input',
+    tool_input: {
+      questions: [
+        { id: 'pave_implementation_approval', question: 'Implement this boundary?' },
+        { id: 'theme', question: 'Choose a theme.' },
+      ],
+    },
+    tool_response: { success: true, answers: { theme: 'Implement theme' } },
+  }, 9);
+
+  assert.equal(permission(hook(state, {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'not-approved.ts', old_string: 'a', new_string: 'b' },
+  }, 10)), 'deny');
+});
+
 test('Codex structured choice records explicit DDL approval', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -432,6 +732,7 @@ test('Codex structured choice records explicit DDL approval', () => {
 test('Claude native plan approval records standard implementation approval', () => {
   const state = fixture();
   activate(state, 1);
+  declareRoute(state, 'feature', 2);
   for (const [index, name] of ['context-retrieval', 'design', 'testing', 'planning'].entries()) {
     readReference(state, name, index + 2);
   }
@@ -675,6 +976,9 @@ test('the fast path cannot bypass DDL approval', () => {
 test('general implementation approval does not authorize DDL execution commands', () => {
   for (const command of [
     "psql -c 'ALTER TABLE workspaces ADD COLUMN api_enabled boolean'",
+    "psql -c 'CREATE ROLE app_reader'",
+    "psql -c 'GRANT ALL ON api_keys TO app_reader'",
+    "sqlite3 app.db 'CREATE VIRTUAL TABLE search USING fts5(content)'",
     'npx prisma migrate deploy',
     'pnpm drizzle-kit push',
     'bundle exec rails db:migrate',
@@ -847,6 +1151,115 @@ test('blocks completion until post-edit review, diff inspection, verification, a
   }, 20), {});
 });
 
+test('a compound command cannot mask verification evidence', () => {
+  const state = fixture();
+  prepareApprovedFeature(state);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'changed.ts', old_string: 'a', new_string: 'b' },
+    tool_response: { success: true },
+  }, 9);
+  readReference(state, 'review', 10);
+  readReference(state, 'verification', 11);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git diff -- changed.ts' },
+    tool_response: { exit_code: 0, output: 'diff --git a/changed.ts b/changed.ts\n-a\n+b\n' },
+  }, 12);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git status --short' },
+    tool_response: { exit_code: 0, output: ' M changed.ts\n' },
+  }, 13);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'npm test; pwd' },
+    tool_response: { exit_code: 0, output: 'tests failed earlier\n/repo\n' },
+  }, 14);
+  readReference(state, 'memory', 15);
+  readReference(state, 'reporting', 16);
+
+  const output = hook(state, { hook_event_name: 'Stop', last_assistant_message: 'Complete.' }, 17);
+  assert.equal(output.decision, 'block');
+  assert.match(output.reason, /verification command/i);
+});
+
+test('a successful clean git status counts as status inspection', () => {
+  const state = fixture();
+  prepareApprovedFeature(state);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'changed.ts', old_string: 'a', new_string: 'b' },
+    tool_response: { success: true },
+  }, 9);
+  readReference(state, 'review', 10);
+  readReference(state, 'verification', 11);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git diff -- changed.ts' },
+    tool_response: { exit_code: 0, output: 'diff --git a/changed.ts b/changed.ts\n-a\n+b\n' },
+  }, 12);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git status --short' },
+    tool_response: { exit_code: 0, output: '' },
+  }, 13);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'npm test' },
+    tool_response: { exit_code: 0, output: 'tests passed\n' },
+  }, 14);
+  readReference(state, 'memory', 15);
+  readReference(state, 'reporting', 16);
+
+  assert.deepEqual(hook(state, { hook_event_name: 'Stop', last_assistant_message: 'Complete.' }, 17), {});
+});
+
+test('diff evidence must include a file changed by the guarded task', () => {
+  const state = fixture();
+  prepareApprovedFeature(state);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Edit',
+    tool_input: { file_path: 'changed.ts', old_string: 'a', new_string: 'b' },
+    tool_response: { success: true },
+  }, 9);
+  readReference(state, 'review', 10);
+  readReference(state, 'verification', 11);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git diff -- unrelated.ts' },
+    tool_response: { exit_code: 0, output: 'diff --git a/unrelated.ts b/unrelated.ts\n-a\n+b\n' },
+  }, 12);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git status --short' },
+    tool_response: { exit_code: 0, output: ' M changed.ts\n' },
+  }, 13);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'npm test' },
+    tool_response: { exit_code: 0 },
+  }, 14);
+  readReference(state, 'memory', 15);
+  readReference(state, 'reporting', 16);
+
+  const output = hook(state, { hook_event_name: 'Stop', last_assistant_message: 'Complete.' }, 17);
+  assert.equal(output.decision, 'block');
+  assert.match(output.reason, /diff inspection/i);
+});
+
 test('does not accept echoed reference, diff, or verification names as evidence', () => {
   const state = fixture();
   prepareApprovedFeature(state);
@@ -987,6 +1400,48 @@ test('allows an explicit blocked report without pretending verification complete
     hook_event_name: 'Stop',
     last_assistant_message: 'Need user input.\n<!-- PAVE_BLOCKED -->',
   }, 9), {});
+});
+
+test('parallel PostToolUse events preserve every recorded reference', async () => {
+  const state = fixture();
+  state.dataDir = path.join(state.dataDir, 'workflow-guard');
+  activate(state, 1);
+  const references = [
+    'context-retrieval', 'request-routing', 'debugging', 'design', 'fast-path',
+    'testing', 'planning', 'execution-loop', 'review', 'verification',
+  ];
+  const script = path.join(pluginRoot, 'scripts', 'workflow-guard.js');
+  const environment = {
+    ...process.env,
+    PLUGIN_DATA: path.dirname(state.dataDir),
+  };
+
+  await Promise.all(references.map((name) => new Promise((resolve, reject) => {
+    const child = childProcess.spawn(process.execPath, [script, 'hook'], {
+      env: environment,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(stderr || `hook exited ${code}`));
+    });
+    child.stdin.end(`${JSON.stringify({
+      session_id: state.sessionId,
+      cwd: state.cwd,
+      hook_event_name: 'PostToolUse',
+      tool_name: 'Read',
+      tool_input: { file_path: path.join(pluginRoot, 'skills', 'pave', 'references', `${name}.md`) },
+      tool_response: { success: true },
+    })}\n`);
+  })));
+
+  const activeDir = path.join(state.dataDir, 'active');
+  const stateFile = fs.readdirSync(activeDir).find((name) => name.endsWith('.json'));
+  const recorded = JSON.parse(fs.readFileSync(path.join(activeDir, stateFile), 'utf8'));
+  assert.deepEqual(Object.keys(recorded.references).sort(), references.sort());
 });
 
 test('doctor canary proves the overwrite guard executes', () => {

@@ -7,8 +7,9 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const STATE_VERSION = 4;
+const STATE_VERSION = 5;
 const BLOCKED_REPORT = '<!-- PAVE_BLOCKED -->';
+const ROUTE_COMMAND_HINT = 'resolve the loaded PAVE SKILL.md path, then run node "<pave-plugin-root>/scripts/workflow-guard.js" route <fast|bug|feature|reset>';
 const APPROVAL_PHRASES = new Set([
   '추천대로', '추천대로 진행해', '이대로', '이대로 진행해', '진행해', '진행해줘',
   '구현해', '구현해줘', '시작해', '시작해줘', '승인', '승인해', '승인합니다',
@@ -45,6 +46,38 @@ function statePath(input, dataDir) {
   return path.join(dataDir, 'active', `${sessionKey(input)}.json`);
 }
 
+function withStateLock(input, dataDir, callback) {
+  const lock = `${statePath(input, dataDir)}.lock`;
+  fs.mkdirSync(path.dirname(lock), { recursive: true });
+  const sleeper = new Int32Array(new SharedArrayBuffer(4));
+  let descriptor;
+
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    try {
+      descriptor = fs.openSync(lock, 'wx', 0o600);
+      break;
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      try {
+        if (Date.now() - fs.statSync(lock).mtimeMs > 10_000) fs.unlinkSync(lock);
+      } catch (lockError) {
+        if (lockError.code !== 'ENOENT') throw lockError;
+      }
+      Atomics.wait(sleeper, 0, 0, 5);
+    }
+  }
+
+  if (descriptor === undefined) throw new Error('timed out waiting for the session state lock');
+  try {
+    return callback();
+  } finally {
+    fs.closeSync(descriptor);
+    try { fs.unlinkSync(lock); } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+}
+
 function readState(input, dataDir) {
   try {
     return JSON.parse(fs.readFileSync(statePath(input, dataDir), 'utf8'));
@@ -71,7 +104,7 @@ function removeState(input, dataDir) {
 }
 
 function isPaveInvocation(prompt) {
-  return /(?:^|\s)(?:\$pave:pave|\/pave(?::pave)?)(?=\s|$)/i.test(String(prompt || ''));
+  return /^\s*(?:\$pave:pave|\/pave(?::pave)?)(?=\s|$)/i.test(String(prompt || ''));
 }
 
 function isPaveExpansion(input) {
@@ -125,6 +158,7 @@ function initialState(input, timestamp) {
     schemaVersion: STATE_VERSION,
     active: true,
     cwd: path.resolve(input.cwd || process.cwd()),
+    selectedRoute: null,
     references: {},
     awaitingApproval: false,
     approved: false,
@@ -144,12 +178,12 @@ function initialState(input, timestamp) {
 function recordApproval(state, ddl, timestamp) {
   const selectedRoute = route(state);
   if (selectedRoute !== 'feature' && selectedRoute !== 'bug') {
-    return 'PAVE cannot approve implementation until the request route is established.';
+    return `PAVE cannot approve standard implementation. Current route: ${selectedRoute}. ${routeGuidance(selectedRoute)}`;
   }
   const preApproval = STANDARD_REFERENCES[selectedRoute].filter((name) => name !== 'execution-loop');
   const missing = missingReferences(state, preApproval);
   if (missing.length > 0) {
-    return `PAVE cannot approve implementation yet. Missing reference evidence: ${missing.join(', ')}.`;
+    return `PAVE cannot approve implementation yet. Current route: ${selectedRoute}. Missing reference evidence: ${missing.join(', ')}.`;
   }
   state.awaitingApproval = false;
   state.approved = true;
@@ -164,12 +198,12 @@ function recordApproval(state, ddl, timestamp) {
 function recordApprovalRequest(state, timestamp) {
   const selectedRoute = route(state);
   if (selectedRoute !== 'feature' && selectedRoute !== 'bug') {
-    return 'PAVE cannot request implementation approval until the request route is established.';
+    return `PAVE cannot request standard implementation approval. Current route: ${selectedRoute}. ${routeGuidance(selectedRoute)}`;
   }
   const preApproval = STANDARD_REFERENCES[selectedRoute].filter((name) => name !== 'execution-loop');
   const missing = missingReferences(state, preApproval);
   if (missing.length > 0) {
-    return `PAVE cannot request implementation approval yet. Missing reference evidence: ${missing.join(', ')}.`;
+    return `PAVE cannot request implementation approval yet. Current route: ${selectedRoute}. Missing reference evidence: ${missing.join(', ')}.`;
   }
   state.awaitingApproval = true;
   state.approved = false;
@@ -186,17 +220,22 @@ function isApprovalPlanUpdate(input) {
   ));
 }
 
-function approvalQuestionKind(input) {
+function approvalQuestion(input) {
   const name = toolName(input);
   const questions = toolInput(input).questions;
   if (!Array.isArray(questions)) return null;
   if (name === 'request_user_input') {
-    if (questions.some((question) => question?.id === 'pave_ddl_approval')) return 'ddl';
-    if (questions.some((question) => question?.id === 'pave_implementation_approval')) return 'standard';
+    if (questions.some((question) => question?.id === 'pave_ddl_approval')) {
+      return { kind: 'ddl', answerKey: 'pave_ddl_approval' };
+    }
+    if (questions.some((question) => question?.id === 'pave_implementation_approval')) {
+      return { kind: 'standard', answerKey: 'pave_implementation_approval' };
+    }
   }
   if (name === 'AskUserQuestion') {
-    if (questions.some((question) => question?.header === 'PAVE DDL')) return 'ddl';
-    if (questions.some((question) => question?.header === 'PAVE approve')) return 'standard';
+    const paveQuestions = questions.filter((question) => question?.header === 'PAVE DDL' || question?.header === 'PAVE approve');
+    if (questions.length !== 1 || paveQuestions.length !== 1) return null;
+    return { kind: paveQuestions[0].header === 'PAVE DDL' ? 'ddl' : 'standard' };
   }
   return null;
 }
@@ -204,23 +243,60 @@ function approvalQuestionKind(input) {
 function structuredApproval(input) {
   if (!isSuccessful(input)) return null;
   if (toolName(input) === 'ExitPlanMode') return { ddl: false };
-  const kind = approvalQuestionKind(input);
-  if (!kind) return null;
+  const question = approvalQuestion(input);
+  if (!question) return null;
   const response = input.tool_response || input.toolResponse || {};
-  const selections = response.answers && typeof response.answers === 'object'
-    ? Object.values(response.answers)
-    : [];
-  const selectedText = JSON.stringify(selections).toLowerCase();
+  const answers = response.answers && typeof response.answers === 'object' ? response.answers : {};
+  const selection = question.answerKey
+    ? answers[question.answerKey]
+    : Object.values(answers).length === 1 ? Object.values(answers)[0] : null;
+  const selectedText = String(selection || '').toLowerCase();
   if (/(revise|수정|declin|거절|cancel|취소)/.test(selectedText)) return null;
   if (!/(implement|approve|proceed|구현|승인|진행)/.test(selectedText)) return null;
-  return { ddl: kind === 'ddl' };
+  if (question.kind === 'ddl' && !/(ddl|스키마)/.test(selectedText)) return null;
+  return { ddl: question.kind === 'ddl' };
 }
 
 function route(state) {
-  if (state.references.debugging) return 'bug';
-  if (state.references.design) return 'feature';
-  if (state.references['fast-path']) return 'fast';
-  return 'unknown';
+  return state.selectedRoute || 'unknown';
+}
+
+function routeGuidance(selectedRoute) {
+  if (selectedRoute === 'fast') {
+    return `Leave the fast path by explicitly declaring bug or feature, or clear only the route with: ${ROUTE_COMMAND_HINT}.`;
+  }
+  return `Declare the route explicitly with: ${ROUTE_COMMAND_HINT}. Reference reads provide evidence and never select a route.`;
+}
+
+function routeDeclaration(command, pluginRoot) {
+  const segments = commandSegments(command);
+  if (segments.length !== 1) return null;
+  const match = segments[0].match(/^node\s+("[^"]+"|'[^']+'|\S+)\s+route\s+(fast|bug|feature|reset)\s*$/);
+  if (!match) return null;
+  const script = match[1].replace(/^(?:"|')|(?:"|')$/g, '');
+  const expected = path.join(pluginRoot, 'scripts', 'workflow-guard.js');
+  const pluginExpressions = new Set([
+    '${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/scripts/workflow-guard.js',
+    '${CLAUDE_PLUGIN_ROOT}/scripts/workflow-guard.js',
+    '$CLAUDE_PLUGIN_ROOT/scripts/workflow-guard.js',
+    '${PLUGIN_ROOT}/scripts/workflow-guard.js',
+    '$PLUGIN_ROOT/scripts/workflow-guard.js',
+  ]);
+  if (path.resolve(script) !== expected && !pluginExpressions.has(script)) return null;
+  return match[2];
+}
+
+function recordRouteDeclaration(state, declaration, timestamp) {
+  const selectedRoute = declaration === 'reset' ? null : declaration;
+  if (state.selectedRoute === selectedRoute && declaration !== 'reset') return;
+  state.selectedRoute = selectedRoute;
+  state.routeDeclaredAt = timestamp;
+  state.awaitingApproval = false;
+  state.approved = false;
+  state.ddlApproved = false;
+  delete state.approvalRequestedAt;
+  delete state.approvedAt;
+  delete state.ddlApprovedAt;
 }
 
 function missingReferences(state, names) {
@@ -236,18 +312,133 @@ function referenceName(filePath, pluginRoot) {
   return match ? match[1] : null;
 }
 
-function referencesInCommand(command) {
+function referencesInCommand(command, pluginRoot, cwd) {
   const names = [];
+  const referencesRoot = path.join(pluginRoot, 'skills', 'pave', 'references');
   for (const segment of commandSegments(command)) {
     if (!/^\s*(?:cat|head|tail|less|sed\s+-n)\b/.test(segment)) continue;
-    const matcher = /references\/([a-z0-9-]+)\.md\b/g;
-    for (const match of segment.matchAll(matcher)) names.push(match[1]);
+    const words = segment.matchAll(/"([^"]+)"|'([^']+)'|([^\s;&|]+)/g);
+    for (const match of words) {
+      const word = match[1] || match[2] || match[3];
+      const reference = word.match(/(?:^|\/)references\/([a-z0-9-]+)\.md$/);
+      if (!reference || word.includes('$')) continue;
+      const absolute = path.resolve(cwd, word);
+      if (path.dirname(absolute) === referencesRoot) names.push(reference[1]);
+    }
   }
   return names;
 }
 
+function readShellWord(text, start) {
+  let word = '';
+  let quote = null;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const character = text[index];
+    if (escaped) {
+      word += character;
+      escaped = false;
+      continue;
+    }
+    if (character === '\\' && quote !== "'") {
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      if (character === quote) quote = null;
+      else word += character;
+      continue;
+    }
+    if (character === "'" || character === '"') {
+      quote = character;
+      continue;
+    }
+    if (/\s/.test(character) || /[;&|]/.test(character)) break;
+    word += character;
+  }
+  return word;
+}
+
+function scanShell(command) {
+  const text = String(command || '');
+  const segments = [];
+  const outputTargets = [];
+  let current = '';
+  let quote = null;
+  let escaped = false;
+  let commandSubstitution = false;
+  let processSubstitution = false;
+  let orFallback = false;
+
+  const pushSegment = () => {
+    const segment = current.trim();
+    if (segment) segments.push(segment);
+    current = '';
+  };
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const next = text[index + 1];
+    if (escaped) {
+      current += character;
+      escaped = false;
+      continue;
+    }
+    if (character === '\\' && quote !== "'") {
+      current += character;
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      current += character;
+      if (character === quote) quote = null;
+      else if (quote === '"' && (character === '`' || (character === '$' && next === '('))) {
+        commandSubstitution = true;
+      }
+      continue;
+    }
+    if (character === "'" || character === '"') {
+      quote = character;
+      current += character;
+      continue;
+    }
+    if (character === '`' || (character === '$' && next === '(')) commandSubstitution = true;
+    if (character === '<' && next === '(') processSubstitution = true;
+    if (character === '>' && text[index - 1] !== '<' && text[index - 1] !== '>') {
+      let targetStart = index + (next === '>' ? 2 : 1);
+      if (text[targetStart] === '|') targetStart += 1;
+      while (/\s/.test(text[targetStart] || '')) targetStart += 1;
+      if (text[targetStart] === '&' && /\d/.test(text[targetStart + 1] || '')) {
+        outputTargets.push(`&${text[targetStart + 1]}`);
+      } else {
+        outputTargets.push(readShellWord(text, targetStart));
+      }
+    }
+    if (character === '&' && next === '&') {
+      pushSegment();
+      index += 1;
+      continue;
+    }
+    if (character === '|' || character === ';' || character === '\n') {
+      if (character === '|' && next === '|') {
+        orFallback = true;
+        index += 1;
+      }
+      pushSegment();
+      continue;
+    }
+    current += character;
+  }
+  pushSegment();
+  return { segments, outputTargets, commandSubstitution, processSubstitution, orFallback };
+}
+
 function commandSegments(command) {
-  return String(command || '').split(/&&|;|\||\n/).map((part) => part.trim()).filter(Boolean);
+  return scanShell(command).segments;
+}
+
+function hasUnsafeOutputRedirection(command) {
+  return scanShell(command).outputTargets.some((target) => !['/dev/null', '&1', '&2'].includes(target));
 }
 
 function responseText(input) {
@@ -274,16 +465,51 @@ function recordStatusPaths(state, output) {
   }
 }
 
+function isReadOnlyGit(segment) {
+  const match = segment.match(/^git\s+([a-z-]+)\b(.*)$/);
+  if (!match) return false;
+  const [, subcommand, rawArguments] = match;
+  const argumentsText = rawArguments.trim();
+  if (/(?:^|\s)--output(?:=|\s|$)/.test(argumentsText)) return false;
+
+  if (subcommand === 'branch') {
+    if (!argumentsText) return true;
+    if (/^--list(?:\s|$)/.test(argumentsText)) return true;
+    return /^(?:(?:-a|-r|-v|-vv|--show-current|--merged(?:=\S+)?|--no-merged(?:=\S+)?|--contains(?:=\S+)?|--no-contains(?:=\S+)?)(?:\s+|$))*$/.test(argumentsText);
+  }
+  if (subcommand === 'remote') {
+    return !argumentsText || argumentsText === '-v' || /^(?:show|get-url)(?:\s|$)/.test(argumentsText);
+  }
+  return /^(?:status|diff|log|show|rev-parse|ls-files|grep|check-ignore)$/.test(subcommand);
+}
+
+function hasSedWriteCommand(segment) {
+  if (!/^sed\s+-n\b/.test(segment)) return false;
+  const scripts = [...segment.matchAll(/"([^"]*)"|'([^']*)'/g)].map((match) => match[1] || match[2] || '');
+  return scripts.some((script) => /(?:^|[;\s])(?:\d+(?:,\d+)?\s*)?w(?:\s|$)/.test(script));
+}
+
 function isReadOnlyBash(command) {
   const text = String(command || '');
   if (!text.trim()) return true;
-  if (/(?:^|[^<])>{1,2}|<\(|`|\$\(|\|\||\bfind\b[^\n]*(?:-delete|-exec|-execdir)\b|\brg\b[^\n]*--pre\b|\bsed\b[^\n]*\s-i(?:\s|$)/m.test(text)) return false;
+  const shell = scanShell(text);
+  const unsafeToolOptions = shell.segments.some((part) => (
+    (/^find\b/.test(part) && /(?:-delete|-exec|-execdir)\b/.test(part))
+    || (/^rg\b/.test(part) && /\s--pre\b/.test(part))
+    || (/^sed\b/.test(part) && /\s-i(?:\s|$)/.test(part))
+    || hasSedWriteCommand(part)
+  ));
+  if (hasUnsafeOutputRedirection(text)
+    || shell.commandSubstitution
+    || shell.processSubstitution
+    || shell.orFallback
+    || unsafeToolOptions) return false;
 
-  return commandSegments(text).every((part) => (
+  return shell.segments.every((part) => (
     /^(?:pwd|ls|rg|grep|cat|head|tail|less|wc|stat|file|readlink|realpath|test)\b/.test(part)
     || /^sed\s+-n\b/.test(part)
     || (/^find\b/.test(part) && !/(?:-delete|-exec|-execdir)\b/.test(part))
-    || /^git\s+(?:status|diff|log|show|branch|rev-parse|ls-files|grep|check-ignore|remote)\b/.test(part)
+    || isReadOnlyGit(part)
     || /^node\s+--check\b/.test(part)
     || /^bash\s+-n\b/.test(part)
     || /^claude\s+plugin\s+validate\b/.test(part)
@@ -341,14 +567,15 @@ function isUiPath(filePath) {
 }
 
 function shellOverwrite(command) {
-  const text = String(command || '');
-  return /\b(?:cat|printf|echo)\b[^\n]*(?:^|[^<])>{1,2}\s*[^&|\s]/m.test(text)
-    || /(?:^|[;&|]\s*|\n)\s*tee(?:\s+-a)?\s+[^|\s]/m.test(text)
-    || /\bsed\b[^\n]*\s-i(?:\s|$)/m.test(text);
+  return commandSegments(command).some((segment) => (
+    (/^(?:cat|printf|echo)\b/.test(segment) && hasUnsafeOutputRedirection(segment))
+    || /^tee(?:\s+-a)?\s+[^|\s]/.test(segment)
+    || /^sed\b[^\n]*\s-i(?:\s|$)/.test(segment)
+  ));
 }
 
 function containsDdl(value) {
-  return /\b(?:CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMP(?:ORARY)?\s+)?(?:UNIQUE\s+)?(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION)|ALTER\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY)|DROP\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION)|TRUNCATE(?:\s+TABLE)?|RENAME\s+TABLE)\b/i.test(String(value || ''));
+  return /\b(?:CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMP(?:ORARY)?\s+)?(?:UNIQUE\s+)?(?:VIRTUAL\s+TABLE|TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION|ROLE|USER)|ALTER\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|ROLE|USER)|DROP\s+(?:TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|TYPE|SCHEMA|DATABASE|SEQUENCE|FUNCTION|PROCEDURE|TRIGGER|POLICY|EXTENSION|ROLE|USER)|TRUNCATE(?:\s+TABLE)?|RENAME\s+TABLE|GRANT\b|REVOKE\b)\b/i.test(String(value || ''));
 }
 
 function isDatabaseDefinitionPath(filePath) {
@@ -417,9 +644,12 @@ function predictedFastChange(state, input, filePath) {
   return { files: files.size, lines: state.substantiveLines + added };
 }
 
-function preToolUse(input, state) {
+function preToolUse(input, state, options) {
   const name = toolName(input);
   const details = toolInput(input);
+  const declaration = name === 'Bash' ? routeDeclaration(commandText(details), options.pluginRoot) : null;
+
+  if (declaration) return {};
 
   if (name === 'Bash' && shellOverwrite(commandText(details))) {
     return deny('PAVE blocks shell redirection and in-place shell writes. Use Edit for an existing file or Write for a confirmed-new file.');
@@ -435,14 +665,14 @@ function preToolUse(input, state) {
   if (name === 'Bash' && !isReadOnlyBash(commandText(details))) {
     const selectedRoute = route(state);
     if (selectedRoute === 'fast') {
-      return deny('PAVE fast path blocks shell commands that may mutate files because its file and line limits cannot be verified. Use Edit or Write.');
+      return deny(`PAVE fast path blocks shell commands that may mutate files because its file and line limits cannot be verified. Current route: fast. Use Edit or Write, or leave the fast path with: ${ROUTE_COMMAND_HINT}.`);
     }
     if (selectedRoute === 'unknown') {
-      return deny('PAVE reference routing is incomplete. Load and apply the required route references before running a mutating shell command.');
+      return deny(`PAVE cannot run a mutating shell command. Current route: unknown. ${routeGuidance(selectedRoute)}`);
     }
     const missing = missingReferences(state, STANDARD_REFERENCES[selectedRoute]);
     if (missing.length > 0) {
-      return deny(`PAVE required reference evidence is missing: ${missing.join(', ')}.`);
+      return deny(`PAVE required reference evidence is missing. Current route: ${selectedRoute}. Read and apply: ${missing.join(', ')}.`);
     }
     if (!state.approved) {
       return deny('PAVE implementation approval has not been recorded for this mutating shell command.');
@@ -460,12 +690,12 @@ function preToolUse(input, state) {
 
   const selectedRoute = route(state);
   if (selectedRoute === 'unknown') {
-    return deny('PAVE reference routing is incomplete. Load and apply the required route references before editing.');
+    return deny(`PAVE cannot edit yet. Current route: unknown. ${routeGuidance(selectedRoute)}`);
   }
 
   const missing = missingReferences(state, STANDARD_REFERENCES[selectedRoute]);
   if (missing.length > 0) {
-    return deny(`PAVE required reference evidence is missing: ${missing.join(', ')}.`);
+    return deny(`PAVE required reference evidence is missing. Current route: ${selectedRoute}. Read and apply: ${missing.join(', ')}.`);
   }
 
   if (selectedRoute !== 'fast' && !state.approved) {
@@ -478,12 +708,12 @@ function preToolUse(input, state) {
 
   if (selectedRoute === 'fast') {
     if (filePaths.some((filePath) => /(?:^|\/)(?:middleware|migrations?|schema|auth|security|permissions?)(?:[./_-]|$)/i.test(filePath))) {
-      return deny('PAVE fast path does not allow middleware, schema, auth, security, or permission changes. Use the standard workflow.');
+      return deny(`PAVE fast path does not allow middleware, schema, auth, security, or permission changes. Current route: fast. ${routeGuidance(selectedRoute)}`);
     }
     const predicted = predictedFastChange(state, input, filePaths[0]);
     predicted.files = new Set([...state.changedFiles, ...filePaths]).size;
     if (predicted.files > 2 || predicted.lines > 20) {
-      return deny('PAVE fast path is limited to two hand-edited files and twenty substantive hand-edited lines. Use the standard workflow.');
+      return deny(`PAVE fast path is limited to two hand-edited files and twenty substantive hand-edited lines. Current route: fast. ${routeGuidance(selectedRoute)}`);
     }
   }
 
@@ -509,20 +739,25 @@ function recordPostToolUse(input, state, options) {
 
   if (name === 'Bash') {
     const command = commandText(details);
+    const declaration = routeDeclaration(command, options.pluginRoot);
+    if (declaration) {
+      recordRouteDeclaration(state, declaration, timestamp);
+      return;
+    }
     const output = responseText(input);
     if (output.trim()) {
-      for (const reference of referencesInCommand(command)) {
+      for (const reference of referencesInCommand(command, options.pluginRoot, state.cwd)) {
         state.references[reference] = timestamp;
       }
     }
     const inspectedDiff = isActualGitCommand(command, 'diff')
       && !commandSegments(command).some((part) => /^git\s+diff\b.*--check\b/.test(part));
-    if (inspectedDiff && output.trim()) state.diffInspectedAt = timestamp;
-    if (isActualGitCommand(command, 'status') && output.trim()) {
+    if (inspectedDiff && diffCoversChangedFile(state, output)) state.diffInspectedAt = timestamp;
+    if (isActualGitCommand(command, 'status')) {
       state.statusInspectedAt = timestamp;
       recordStatusPaths(state, output);
     }
-    if (isVerificationCommand(command)) state.verifiedAt = timestamp;
+    if (isVerificationEvidenceCommand(command)) state.verifiedAt = timestamp;
     if (!isReadOnlyBash(command)) {
       state.editedAt = timestamp;
       state.shellMutation = true;
@@ -555,14 +790,34 @@ function recordPostToolUse(input, state, options) {
   }
 }
 
-function isVerificationCommand(command) {
-  const text = String(command || '');
-  if (/\|\|\s*(?:true|:)/.test(text)) return false;
-  return commandSegments(text).some((part) => (
+function isVerificationSegment(part) {
+  return (
     /^(?:npm|pnpm|yarn|bun)\s+(?:(?:run|exec)\s+)?(?:test|check|lint|build|typecheck)\b/i.test(part)
     || /^npx\s+(?:vitest|jest|tsc|eslint)\b/i.test(part)
     || /^(?:pytest|cargo\s+test|go\s+test|mvn\s+test|gradle\s+test)\b/i.test(part)
-  ));
+  );
+}
+
+function isVerificationCommand(command) {
+  return commandSegments(command).some(isVerificationSegment);
+}
+
+function isVerificationEvidenceCommand(command) {
+  const shell = scanShell(command);
+  return shell.segments.length === 1 && !shell.orFallback && isVerificationSegment(shell.segments[0]);
+}
+
+function diffCoversChangedFile(state, output) {
+  if (!String(output || '').trim()) return false;
+  if (state.shellMutation && state.changedFiles.length === 0) return true;
+  const changed = new Set(state.changedFiles.map((filePath) => path.resolve(filePath)));
+  for (const line of String(output).split('\n')) {
+    const match = line.match(/^diff --git a\/(.+) b\/(.+)$/);
+    if (match && (changed.has(path.resolve(state.cwd, match[1])) || changed.has(path.resolve(state.cwd, match[2])))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function handleStop(input, state, options) {
@@ -591,18 +846,31 @@ function handleStop(input, state, options) {
     return { output: {}, remove: true };
   }
 
-  const selectedRoute = route(state);
-  return { output: {}, remove: selectedRoute !== 'feature' && selectedRoute !== 'bug' };
+  return { output: {}, remove: route(state) === 'unknown' };
 }
 
 function handleHook(input, providedOptions = {}) {
+  const dataDir = providedOptions.dataDir || defaultDataDir();
+  const event = input.hook_event_name || input.hookEventName;
+  const activatesState = (event === 'UserPromptSubmit' && isPaveInvocation(input.prompt))
+    || (event === 'UserPromptExpansion' && isPaveExpansion(input))
+    || (event === 'PreToolUse' && isPaveSkillInvocation(input));
+  const mutatesState = event !== 'PreToolUse' || isPaveSkillInvocation(input);
+  const observedState = activatesState ? null : readState(input, dataDir);
+  const hasState = activatesState || Boolean(observedState);
+  if (!providedOptions.lockHeld && mutatesState && hasState) {
+    return withStateLock(input, dataDir, () => handleHook(input, {
+      ...providedOptions,
+      dataDir,
+      lockHeld: true,
+    }));
+  }
   const options = {
-    dataDir: providedOptions.dataDir || defaultDataDir(),
+    dataDir,
     pluginRoot: path.resolve(providedOptions.pluginRoot || __dirname, providedOptions.pluginRoot ? '.' : '..'),
     now: providedOptions.now,
   };
-  const event = input.hook_event_name || input.hookEventName;
-  let state = readState(input, options.dataDir);
+  let state = activatesState ? readState(input, options.dataDir) : observedState;
 
   if (event === 'UserPromptSubmit') {
     if (isPaveInvocation(input.prompt)) {
@@ -635,10 +903,10 @@ function handleHook(input, providedOptions = {}) {
 
   if (!state) return {};
 
-  if (event === 'PreToolUse') return preToolUse(input, state);
+  if (event === 'PreToolUse') return preToolUse(input, state, options);
 
   if (event === 'PostToolUse') {
-    if (isApprovalPlanUpdate(input)) {
+    if (isSuccessful(input) && isApprovalPlanUpdate(input)) {
       const error = recordApprovalRequest(state, now(options));
       if (error) return block(error);
     }
@@ -675,7 +943,7 @@ function runSelfCheck() {
     fs.mkdirSync(cwd);
     fs.writeFileSync(target, 'preserve me\n');
     const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'hooks', 'hooks.json'), 'utf8'));
-    const requiredEvents = ['UserPromptSubmit', 'UserPromptExpansion', 'PreToolUse', 'Stop'];
+    const requiredEvents = ['UserPromptSubmit', 'UserPromptExpansion', 'PreToolUse', 'PostToolUse', 'Stop'];
     const commands = Object.fromEntries(requiredEvents.map((event) => {
       const handlers = (manifest.hooks?.[event] || []).flatMap((entry) => entry.hooks || []);
       const handler = handlers.find((entry) => /scripts\/workflow-guard\.js/.test(entry.command || ''));
@@ -698,10 +966,17 @@ function runSelfCheck() {
 
     const guarded = { session_id: 'doctor-guard', cwd };
     runHook('UserPromptExpansion', { ...guarded, command_name: 'pave:pave' });
+    const routeCommand = `node "${path.join(__dirname, 'workflow-guard.js')}" route fast`;
+    runHook('PostToolUse', {
+      ...guarded,
+      tool_name: 'Bash',
+      tool_input: { command: routeCommand },
+      tool_response: { exit_code: 0, output: '{"route":"fast"}\n' },
+    });
     const denied = runHook('PreToolUse', {
       ...guarded,
-      tool_name: 'Write',
-      tool_input: { file_path: target, content: 'replacement\n' },
+      tool_name: 'Edit',
+      tool_input: { file_path: path.join(cwd, 'ordinary.ts'), old_string: 'a', new_string: 'b' },
     });
 
     const lifecycle = { session_id: 'doctor-lifecycle', cwd };
@@ -714,6 +989,7 @@ function runSelfCheck() {
     });
 
     return denied.hookSpecificOutput?.permissionDecision === 'deny'
+      && /current route: fast/i.test(denied.hookSpecificOutput?.permissionDecisionReason || '')
       && !released.hookSpecificOutput
       && fs.readFileSync(target, 'utf8') === 'preserve me\n';
   } finally {
@@ -746,7 +1022,20 @@ function main() {
   });
 }
 
-if (require.main === module) main();
+function runRouteCommand() {
+  const declaration = String(process.argv[3] || '');
+  if (!/^(?:fast|bug|feature|reset)$/.test(declaration)) {
+    process.stderr.write('Usage: workflow-guard.js route <fast|bug|feature|reset>\n');
+    process.exitCode = 2;
+    return;
+  }
+  process.stdout.write(`${JSON.stringify({ route: declaration })}\n`);
+}
+
+if (require.main === module) {
+  if (process.argv[2] === 'route') runRouteCommand();
+  else main();
+}
 
 module.exports = {
   handleHook,

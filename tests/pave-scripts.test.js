@@ -471,6 +471,31 @@ test('standard approval uses host selections or pending user responses instead o
   assert.match(planning, /pave_ddl_approval/);
 });
 
+test('guarded route selection is explicit and preserves investigation evidence', () => {
+  const skill = read('skills/pave/SKILL.md');
+  const command = read('commands/pave.md');
+  const routing = read('skills/pave/references/request-routing.md');
+  const fastPath = read('skills/pave/references/fast-path.md');
+  const planning = read('skills/pave/references/planning.md');
+
+  for (const [label, content] of [
+    ['skill', skill],
+    ['command', command],
+    ['routing', routing],
+  ]) {
+    assert.match(content, /workflow-guard\.js[^\n]*route/s, label);
+    assert.match(content, /(?:reading a (?:workflow )?reference records|reference reads are)\s+evidence/i, label);
+  }
+  assert.match(routing, /route reset/);
+  assert.match(routing, /without losing investigation or\s+reference evidence/);
+  assert.match(routing, /absolute path/);
+  assert.match(routing, /Do not assume `CLAUDE_PLUGIN_ROOT` or `PLUGIN_ROOT`/);
+  assert.match(skill, /not a general shell or SQL sandbox/);
+  assert.match(fastPath, /Reading this reference does not select a\s+route/);
+  assert.match(fastPath, /Do not restart the session/);
+  assert.match(planning, /declare the `bug` or `feature` route/);
+});
+
 test('project-init links existing documentation instead of duplicating it', () => {
   const reference = read('skills/pave/references/project-init.md');
   const command = read('commands/project-init.md');

@@ -41,8 +41,10 @@ Read-only discovery never requires this approval.
 Immediately before asking for standard-work implementation approval, confirm
 that the Feature Readiness Gate has passed, the surfaced boundary is complete,
 and no material in-scope decision remains unknown or
-`recommended-unconfirmed`. Then use the host's normal approval UX instead of
-requiring another PAVE command:
+`recommended-unconfirmed`. When the workflow guard is active, explicitly
+declare the `bug` or `feature` route before moving the approval step to
+`in_progress`; reference reads do not select it. Then use the host's normal
+approval UX instead of requiring another PAVE command:
 
 - Codex: move `[PAVE:approval]` to `in_progress`, then use
   `request_user_input` when available with question ID
@@ -54,10 +56,10 @@ requiring another PAVE command:
   approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
   `Implement` / `Revise plan` choices.
 
-The runtime guard validates routed reference evidence, records the structured
-selection or context-bound user response as approval state, and continues to
-enforce writes in `PreToolUse`. Do not place machine-readable approval markers
-in assistant response text.
+The runtime guard validates the explicitly declared route and its reference
+evidence, records the structured selection or context-bound user response as
+approval state, and continues to enforce writes in `PreToolUse`. Do not place
+machine-readable approval markers in assistant response text.
 
 When the implementation boundary includes writing, modifying, or executing DDL
 or a database schema migration, also show the exact target files, statements or

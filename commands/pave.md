@@ -33,6 +33,13 @@ specialist discovery when the optional repo runtime has been initialized.
 4. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 5. Scan the repo before asking questions or editing.
+   Reading a workflow reference records evidence only; it never selects the
+   guarded route. After inspection settles the classification and fast-path
+   eligibility, resolve the plugin root from this loaded command's plugin and
+   run `node "<pave-plugin-root>/scripts/workflow-guard.js" route
+   <fast|bug|feature>` with that absolute path. Use `route reset` to clear only
+   route and approval state without discarding investigation or reference
+   evidence. Do not rely on plugin-root environment variables in an agent shell.
 6. For code work, load and apply
    `skills/pave/references/context-retrieval.md` before source discovery. Do
    not open with a repository-wide source read. Select only the entries and
@@ -51,8 +58,9 @@ specialist discovery when the optional repo runtime has been initialized.
    request, no more than two hand-edited files, no more than twenty substantive
    hand-edited lines, low risk, and cheap narrow verification. Both size limits
    are hard conditions. State the expected files, line count, and verification
-   before writing, then treat the request as approval and edit without formal
-   planning.
+   before writing, declare the `fast` route, then treat the request as approval
+   and edit without formal planning. If eligibility ends, explicitly declare
+   `bug` or `feature` before standard approval; do not restart the session.
 10. When a feature request states an outcome without implementation-ready
     requirements, load and apply `skills/pave/references/design.md`. Triage
     material user-owned decisions, establish evidence, separate justified
@@ -130,10 +138,11 @@ and the remaining material blocking-decision count is zero. Prefer the host's
 native plan or choice UI. On Codex, use stable question IDs
 `pave_implementation_approval` and `pave_ddl_approval`; on Claude Code, use
 `ExitPlanMode` only when already in plan mode, or the `PAVE approve` / `PAVE DDL`
-question headers in default mode. The runtime guard validates routed
-reference evidence, records the structured result or a context-bound direct
-user response, and keeps `PreToolUse` write enforcement active. Assistant
-response text is never a workflow-control channel.
+question headers in default mode. The runtime guard validates the explicitly
+declared route and its reference evidence, records the structured result or a
+context-bound direct user response, and keeps `PreToolUse` write enforcement
+active. Assistant response text and reference reads are never workflow-control
+channels.
 
 When the boundary includes DDL or a database schema migration, surface its exact
 target files, statements or operations, data and compatibility effects, and
