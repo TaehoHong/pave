@@ -835,13 +835,17 @@ function handleStop(input, state, options) {
       || (state.shellMutation && state.changedFiles.length === 0);
     if (trackedChanges && !(state.diffInspectedAt >= state.editedAt)) missing.push('successful non-empty git diff inspection');
     const uninspected = [...untracked].filter((filePath) => !((state.inspectedFiles || {})[filePath] >= state.editedAt));
-    if (uninspected.length > 0) missing.push('post-edit inspection of untracked files');
-    if (!(state.verifiedAt >= state.editedAt)) missing.push('successful verification command');
+    if (uninspected.length > 0) {
+      missing.push(`post-edit inspection of untracked files (${uninspected.map((filePath) => path.relative(state.cwd, filePath)).join(', ')})`);
+    }
+    if (!(state.verifiedAt >= state.editedAt)) {
+      missing.push('successful standalone verification command (run directly, without pipes, fallbacks, or trailing commands)');
+    }
     if (!(state.references.memory >= state.verifiedAt)) missing.push('post-verification memory.md evaluation');
     if (!(state.references.reporting >= state.editedAt)) missing.push('reporting.md');
 
     if (missing.length > 0) {
-      return { output: block(`PAVE cannot claim completion yet. Missing: ${missing.join(', ')}.`), remove: false };
+      return { output: block(`PAVE cannot claim completion yet. Missing: ${missing.join(', ')}. Complete these checks before stopping. If genuinely waiting for required user input, return a blocked report containing ${BLOCKED_REPORT}.`), remove: false };
     }
     return { output: {}, remove: true };
   }

@@ -1177,15 +1177,16 @@ test('a compound command cannot mask verification evidence', () => {
   hook(state, {
     hook_event_name: 'PostToolUse',
     tool_name: 'Bash',
-    tool_input: { command: 'npm test; pwd' },
-    tool_response: { exit_code: 0, output: 'tests failed earlier\n/repo\n' },
+    tool_input: { command: 'npm test 2>&1 | tail -10' },
+    tool_response: { exit_code: 0, output: 'tests failed earlier\n' },
   }, 14);
   readReference(state, 'memory', 15);
   readReference(state, 'reporting', 16);
 
   const output = hook(state, { hook_event_name: 'Stop', last_assistant_message: 'Complete.' }, 17);
   assert.equal(output.decision, 'block');
-  assert.match(output.reason, /verification command/i);
+  assert.match(output.reason, /standalone verification command.*without pipes/i);
+  assert.match(output.reason, /PAVE_BLOCKED/);
 });
 
 test('a successful clean git status counts as status inspection', () => {
@@ -1376,6 +1377,7 @@ test('treats an apply_patch Add File as untracked review evidence', () => {
   }, 16);
   assert.equal(blocked.decision, 'block');
   assert.match(blocked.reason, /untracked files/);
+  assert.match(blocked.reason, /added-by-patch\.ts/);
 
   readFile(state, target, 17);
   assert.deepEqual(hook(state, {
