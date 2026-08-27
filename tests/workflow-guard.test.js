@@ -836,10 +836,10 @@ test('tracks an approved mutating Bash command as an edit', () => {
     last_assistant_message: 'Complete.',
   }, 11);
   assert.equal(output.decision, 'block');
-  assert.match(output.reason, /review|verification/i);
+  assert.match(output.reason, /status|diff|verification/i);
 });
 
-test('allows review of an untracked file created by an approved Bash command', () => {
+test('does not claim status-only untracked files for an approved Bash command', () => {
   const state = fixture();
   prepareApprovedFeature(state);
   const target = path.join(state.cwd, 'copied.ts');
@@ -850,32 +850,23 @@ test('allows review of an untracked file created by an approved Bash command', (
     tool_input: { command: 'cp source.ts copied.ts' },
     tool_response: { exit_code: 0 },
   }, 9);
-  readReference(state, 'review', 10);
-  readReference(state, 'verification', 11);
   hook(state, {
     hook_event_name: 'PostToolUse',
     tool_name: 'Bash',
     tool_input: { command: 'npm test' },
     tool_response: { exit_code: 0 },
-  }, 12);
-  readReference(state, 'memory', 13);
-  readReference(state, 'reporting', 14);
+  }, 10);
   hook(state, {
     hook_event_name: 'PostToolUse',
     tool_name: 'Bash',
     tool_input: { command: 'git status --short' },
     tool_response: { exit_code: 0, output: '?? copied.ts\n' },
-  }, 15);
+  }, 11);
 
-  assert.equal(hook(state, {
-    hook_event_name: 'Stop',
-    last_assistant_message: 'Complete.',
-  }, 16).decision, 'block');
-  readFile(state, target, 17);
   assert.deepEqual(hook(state, {
     hook_event_name: 'Stop',
     last_assistant_message: 'Complete.',
-  }, 18), {});
+  }, 12), {});
 });
 
 test('blocks Codex apply_patch before references and approval', () => {
@@ -1081,7 +1072,7 @@ test('requires design-system evidence before a user-visible edit', () => {
   assert.match(output.hookSpecificOutput.permissionDecisionReason, /design-system/);
 });
 
-test('blocks completion until post-edit review, diff inspection, verification, and memory evaluation', () => {
+test('blocks completion only until status, diff inspection, and verification', () => {
   const state = fixture();
   prepareApprovedFeature(state);
   const target = path.join(state.cwd, 'new-module.ts');
@@ -1106,29 +1097,20 @@ test('blocks completion until post-edit review, diff inspection, verification, a
   }, 10);
 
   assert.equal(blocked.decision, 'block');
-  assert.match(blocked.reason, /review|verification/i);
+  assert.match(blocked.reason, /status|diff|verification/i);
+  assert.doesNotMatch(blocked.reason, /review\.md|memory\.md|reporting\.md/i);
 
-  readReference(state, 'review', 11);
-  readReference(state, 'verification', 12);
-  hook(state, {
-    hook_event_name: 'PostToolUse',
-    tool_name: 'Bash',
-    tool_input: { command: 'git diff --check' },
-    tool_response: { exit_code: 0 },
-  }, 13);
   hook(state, {
     hook_event_name: 'PostToolUse',
     tool_name: 'Bash',
     tool_input: { command: 'npm test' },
     tool_response: { exit_code: 0 },
-  }, 14);
-  readReference(state, 'memory', 15);
-  readReference(state, 'reporting', 16);
+  }, 11);
 
   const unchecked = hook(state, {
     hook_event_name: 'Stop',
     last_assistant_message: 'Verified result and Knowledge Delta.',
-  }, 17);
+  }, 12);
   assert.equal(unchecked.decision, 'block');
   assert.match(unchecked.reason, /diff inspection/i);
 
@@ -1137,18 +1119,18 @@ test('blocks completion until post-edit review, diff inspection, verification, a
     tool_name: 'Bash',
     tool_input: { command: 'git diff -- new-module.ts' },
     tool_response: { exit_code: 0, output: 'diff --git a/new-module.ts b/new-module.ts\n-0\n+1\n' },
-  }, 18);
+  }, 13);
   hook(state, {
     hook_event_name: 'PostToolUse',
     tool_name: 'Bash',
     tool_input: { command: 'git status --short' },
-    tool_response: { exit_code: 0, output: ' M new-module.ts\n' },
-  }, 19);
+    tool_response: { exit_code: 0, output: ' M new-module.ts\n?? other-session.tmp\n' },
+  }, 14);
 
   assert.deepEqual(hook(state, {
     hook_event_name: 'Stop',
     last_assistant_message: 'Verified result and Knowledge Delta.',
-  }, 20), {});
+  }, 15), {});
 });
 
 test('a compound command cannot mask verification evidence', () => {
@@ -1335,6 +1317,37 @@ test('requires an untracked file to be inspected after an empty git diff', () =>
     hook_event_name: 'Stop',
     last_assistant_message: 'Complete.',
   }, 19), {});
+});
+
+test('does not block completion for a session-created file that no longer exists', () => {
+  const state = fixture();
+  prepareApprovedFeature(state);
+  const target = path.join(state.cwd, 'temporary.ts');
+  fs.writeFileSync(target, 'temporary\n');
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Write',
+    tool_input: { file_path: target, content: 'temporary\n' },
+    tool_response: { success: true },
+  }, 9);
+  fs.unlinkSync(target);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'npm test' },
+    tool_response: { exit_code: 0 },
+  }, 10);
+  hook(state, {
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'git status --short' },
+    tool_response: { exit_code: 0, output: '' },
+  }, 11);
+
+  assert.deepEqual(hook(state, {
+    hook_event_name: 'Stop',
+    last_assistant_message: 'Complete.',
+  }, 12), {});
 });
 
 test('treats an apply_patch Add File as untracked review evidence', () => {

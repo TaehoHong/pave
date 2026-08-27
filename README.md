@@ -104,9 +104,9 @@ conservatively gates shell commands that may mutate files, denies `Write` on
 existing files and shell-overwrite
 shortcuts, requires explicit DDL approval before schema or migration edits and
 execution, and requires design-system evidence for UI files. Completion also
-requires post-edit review, status and diff or untracked-file inspection,
-verification, and memory evaluation. `doctor` executes the registered hook
-commands as a lifecycle and overwrite-denial canary.
+requires a current status, a diff for tracked changes, direct inspection of
+files created by the active session, and fresh verification. `doctor` executes
+the registered hook commands as a lifecycle and overwrite-denial canary.
 
 The guard stores only gate timestamps and touched file paths in the plugin data
 directory; it does not store prompts, responses, transcripts, or source

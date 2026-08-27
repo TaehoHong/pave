@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const STATE_VERSION = 5;
+const STATE_VERSION = 6;
 const BLOCKED_REPORT = '<!-- PAVE_BLOCKED -->';
 const ROUTE_COMMAND_HINT = 'resolve the loaded PAVE SKILL.md path, then run node "<pave-plugin-root>/scripts/workflow-guard.js" route <fast|bug|feature|reset>';
 const APPROVAL_PHRASES = new Set([
@@ -169,7 +169,8 @@ function initialState(input, timestamp) {
     diffInspectedAt: null,
     statusInspectedAt: null,
     inspectedFiles: {},
-    untrackedFiles: [],
+    createdFiles: [],
+    statusHasTrackedChanges: false,
     verifiedAt: null,
     activatedAt: timestamp,
   };
@@ -453,16 +454,10 @@ function isActualGitCommand(command, subcommand) {
   return commandSegments(command).some((part) => new RegExp(`^git\\s+${subcommand}\\b`).test(part));
 }
 
-function recordStatusPaths(state, output) {
-  for (const line of String(output || '').split('\n')) {
-    const match = line.match(/^\?\?\s+(.+)$/);
-    if (!match || match[1].startsWith('"')) continue;
-    const filePath = path.resolve(state.cwd, match[1]);
-    if (!isWithin(state.cwd, filePath)) continue;
-    if (!state.changedFiles.includes(filePath)) state.changedFiles.push(filePath);
-    state.untrackedFiles ||= [];
-    if (!state.untrackedFiles.includes(filePath)) state.untrackedFiles.push(filePath);
-  }
+function recordStatusSummary(state, output) {
+  const entries = String(output || '').split('\n')
+    .filter((line) => /^(?:\?\?|[ MADRCU?!]{2})\s/.test(line));
+  state.statusHasTrackedChanges = entries.some((line) => !line.startsWith('?? '));
 }
 
 function isReadOnlyGit(segment) {
@@ -755,7 +750,7 @@ function recordPostToolUse(input, state, options) {
     if (inspectedDiff && diffCoversChangedFile(state, output)) state.diffInspectedAt = timestamp;
     if (isActualGitCommand(command, 'status')) {
       state.statusInspectedAt = timestamp;
-      recordStatusPaths(state, output);
+      recordStatusSummary(state, output);
     }
     if (isVerificationEvidenceCommand(command)) state.verifiedAt = timestamp;
     if (!isReadOnlyBash(command)) {
@@ -773,9 +768,9 @@ function recordPostToolUse(input, state, options) {
     }
     const addedFiles = addedTargets(state, input).filter((filePath) => isWithin(state.cwd, filePath));
     if (addedFiles.length > 0) {
-      state.untrackedFiles ||= [];
+      state.createdFiles ||= [];
       for (const filePath of addedFiles) {
-        if (!state.untrackedFiles.includes(filePath)) state.untrackedFiles.push(filePath);
+        if (!state.createdFiles.includes(filePath)) state.createdFiles.push(filePath);
       }
     }
     if (name === 'Write') {
@@ -827,23 +822,19 @@ function handleStop(input, state, options) {
     if (message.includes(BLOCKED_REPORT)) return { output: {}, remove: false };
 
     const missing = [];
-    if (!(state.references.review >= state.editedAt)) missing.push('post-edit review.md');
-    if (!(state.references.verification >= state.editedAt)) missing.push('post-edit verification.md');
     if (!(state.statusInspectedAt >= state.editedAt)) missing.push('successful git status inspection');
-    const untracked = new Set(state.untrackedFiles || []);
-    const trackedChanges = state.changedFiles.some((filePath) => !untracked.has(filePath))
-      || (state.shellMutation && state.changedFiles.length === 0);
+    const created = new Set(state.createdFiles || []);
+    const trackedChanges = state.changedFiles.some((filePath) => !created.has(filePath))
+      || (state.shellMutation && state.changedFiles.length === 0 && state.statusHasTrackedChanges);
     if (trackedChanges && !(state.diffInspectedAt >= state.editedAt)) missing.push('successful non-empty git diff inspection');
-    const uninspected = [...untracked].filter((filePath) => !((state.inspectedFiles || {})[filePath] >= state.editedAt));
+    const uninspected = [...created].filter((filePath) => fs.existsSync(filePath)
+      && !((state.inspectedFiles || {})[filePath] >= state.editedAt));
     if (uninspected.length > 0) {
       missing.push(`post-edit inspection of untracked files (${uninspected.map((filePath) => path.relative(state.cwd, filePath)).join(', ')})`);
     }
     if (!(state.verifiedAt >= state.editedAt)) {
       missing.push('successful standalone verification command (run directly, without pipes, fallbacks, or trailing commands)');
     }
-    if (!(state.references.memory >= state.verifiedAt)) missing.push('post-verification memory.md evaluation');
-    if (!(state.references.reporting >= state.editedAt)) missing.push('reporting.md');
-
     if (missing.length > 0) {
       return { output: block(`PAVE cannot claim completion yet. Missing: ${missing.join(', ')}. Complete these checks before stopping. If genuinely waiting for required user input, return a blocked report containing ${BLOCKED_REPORT}.`), remove: false };
     }
