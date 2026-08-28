@@ -25,5 +25,8 @@ confidence for verification of the claim being made.
 
 ## Completion Rule
 
-Success requires passing declared commands or explicitly reporting
-which commands are unavailable, skipped, or blocked.
+Success requires comparing the actual changed-file list and diff with the
+approved Implementation Contract, fresh evidence for every acceptance
+criterion, and passing declared commands. Explicitly report commands that were
+unavailable, skipped, or blocked; never convert those results into a successful
+completion claim.

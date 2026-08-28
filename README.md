@@ -66,13 +66,16 @@ policy, and shows the remaining decision count. It keeps justified extension
 boundaries when they avoid breaking future contracts, while deferring unused
 providers, workflows, and policies. Scope intent permits read-only discovery;
 design choices and clarification answers do not count as write approval.
-After the complete boundary is ready, PAVE uses the host's normal plan or choice
-UI when available; otherwise your direct reply to the pending approval request
-is enough. No second PAVE command is required. DDL uses a distinct choice only
-after PAVE has surfaced the exact DDL scope, impact, and rollback. PAVE never
-embeds approval-control markers in assistant text.
+After the complete Implementation Contract is ready, PAVE uses the host's
+normal plan or choice UI when available; otherwise a direct reply that clearly
+authorizes that contract is enough. No second PAVE command is required. DDL
+uses a distinct choice only after PAVE has surfaced the exact DDL scope, impact,
+and rollback. Material changes to files, operations, risk, verification, or
+observable behavior require renewed approval. PAVE never embeds
+approval-control markers in assistant text.
 PAVE also investigates root causes for bugs, adds tests only when they protect
-meaningful behavior, and requires fresh evidence for completion.
+meaningful behavior, compares the actual diff with the approved contract, and
+requires fresh evidence for completion.
 When work touches a user-visible surface, PAVE resolves the project's design
 system from durable design policy, design token or component files, or the
 nearest canonical component, reuses its existing components and tokens instead
@@ -95,30 +98,26 @@ canonical examples, and narrow verification without rereading unrelated code.
 | Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
 | Show phase timing and token usage | `$pave:usage` | Not supported yet |
 
-## Local Workflow Guard
+## Workflow and Execution Responsibilities
 
-When the host loads `hooks/hooks.json`, a session-scoped guard activates for
-`$pave:pave` or `/pave:pave`. It denies code edits until the routed references
-and a host-native selection or context-bound user approval are recorded,
-conservatively gates shell commands that may mutate files, denies `Write` on
-existing files and shell-overwrite
-shortcuts, requires explicit DDL approval before schema or migration edits and
-execution, and requires design-system evidence for UI files. Completion also
-requires a current status, a diff for tracked changes, direct inspection of
-files created by the active session, and fresh verification. `doctor` executes
-the registered hook commands as a lifecycle and overwrite-denial canary.
+PAVE is a cooperative workflow: its skill defines investigation, an explicit
+Implementation Contract, user approval, scope-change reapproval, diff review,
+fresh verification, and reporting. It does not parse arbitrary commands or
+tool payloads to infer whether they are safe or mutating, and it does not claim
+that a plan marker or successful approval UI call proves technical authority.
 
-The guard stores only gate timestamps and touched file paths in the plugin data
-directory; it does not store prompts, responses, transcripts, or source
-contents. It is defense in depth: deciding whether a product choice is truly
-material and resolved still belongs to the PAVE decision workflow.
+The host owns tool permissions, sandboxing, and file, network, or external
+system access. Repository and operational controls own CI, credentials,
+migrations, and deployment policy. If stronger enforcement is required, it
+belongs in those layers rather than in a language- or command-specific PAVE
+parser.
 
 ## Local Usage Statistics
 
-On Codex, PAVE can record elapsed time and token deltas for the `inspect`,
-`plan`, `approval`, `execute`, `verify`, and `report` phases. After installing
-or updating the plugin, review and trust its local lifecycle hook with
-`/hooks`, then use:
+On Codex, PAVE can passively record elapsed time and token deltas for the
+`inspect`, `plan`, `approval`, `execute`, `verify`, and `report` phases. After
+installing or updating the plugin, review and trust its local lifecycle hook
+with `/hooks`, then use:
 
 ```text
 $pave:usage latest
@@ -221,7 +220,8 @@ Restart Claude Code after updating.
 
 Plugin updates refresh plugin-local workflows. Existing repo-local runtime
 files remain unchanged until you explicitly run project initialization or
-synchronize them again.
+synchronize them again. State written by older enforcement hooks is ignored and
+is not deleted automatically.
 
 ## Verify or Remove
 
@@ -240,7 +240,9 @@ Claude Code before relying on the repo-local runtime.
 
 ## Manual Project Runtime Installation
 
-Node.js 18 or newer is required only for the optional repository scripts:
+Node.js 18 or newer is required for passive usage hooks and the optional
+repository scripts. Hook commands run through the shell provided by the
+supported Codex or Claude Code host.
 
 ```bash
 git clone https://github.com/TaehoHong/pave.git

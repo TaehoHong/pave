@@ -43,19 +43,16 @@ said it would implement after the reply.
    eligibility because a second implementation of one rule is a design change.
 3. Before any write, state the fast-path classification, expected files,
    expected substantive line count, and verification in one concise update.
-4. When the workflow guard is active, explicitly declare the `fast` route with
-   `workflow-guard.js route fast`. Reading this reference does not select a
-   route.
-5. Treat the user's concrete edit request as implementation approval. Do not
+4. Treat the user's concrete edit request as implementation approval. Do not
    ask for a second approval or create a formal design, feature inventory,
    vertical-slice plan, plan file, or subagent task.
    On Codex, a compact `update_plan` containing only `[PAVE:inspect]`,
    `[PAVE:execute]`, `[PAVE:verify]`, and `[PAVE:report]` telemetry steps is
    allowed and does not turn the request into the standard planning workflow.
-6. Make the smallest maintainable edit.
-7. Apply the Test Value Gate; do not add a low-value test for a tiny change
+5. Make the smallest maintainable edit.
+6. Apply the Test Value Gate; do not add a low-value test for a tiny change
    merely to satisfy process.
-8. Run the narrow verification, inspect the diff, and report the outcome.
+7. Run the narrow verification, inspect the diff, and report the outcome.
 
 ## Fallback
 
@@ -73,9 +70,7 @@ Switch to the standard PAVE workflow before expanding the change when:
 
 Before touching a third hand-edited file or exceeding twenty substantive
 hand-edited lines, stop, explain why the fast path no longer applies, surface
-the standard plan, explicitly declare the `bug` or `feature` route, and request
-consolidated approval. Do not restart the session: route promotion preserves
-investigation and reference evidence while revoking approval tied to the old
-route. The original fast-path request does not approve expanded scope. Only an
-explicit implementation instruction given in response to the surfaced plan
-counts as approval.
+the standard Implementation Contract, and request consolidated approval. Keep
+the investigation evidence, but do not treat the original fast-path request as
+approval for expanded scope. Only an explicit implementation instruction given
+in response to the surfaced contract counts as approval.

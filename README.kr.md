@@ -64,14 +64,14 @@ PAVE는 질문이나 수정 전에 저장소를 조사합니다. 사용자가 �
 계약 변경을 막는 확장 지점은 현재 설계에 남기되, 사용하지 않는 provider,
 workflow, 정책은 미리 구현하지 않습니다. 범위 의도는 읽기 전용 조사를
 허용하지만 설계 선택이나 질문에 대한 답변은 쓰기 승인이 아닙니다.
-완전한 구현 경계가 준비되면 호스트의 기본 plan·선택 UI를 사용하고, 그런 UI가
-없으면 승인 대기 상태에 대한 사용자의 직접 응답으로 승인합니다. PAVE 명령을
-한 번 더 입력할 필요가 없습니다. DDL은 정확한 범위, 영향, rollback을 먼저
-제시한 뒤 별도의 DDL 포함 선택으로 승인합니다. PAVE는 assistant 응답에 승인
-제어용 marker를 넣지 않습니다.
-버그는
-근본 원인을 찾고, 의미 있는 동작을 보호할 때만 테스트를 추가하며, fresh
-evidence 없이는 완료를 주장하지 않습니다.
+완전한 Implementation Contract가 준비되면 호스트의 기본 plan·선택 UI를
+사용하고, 그런 UI가 없으면 현재 계약을 명확히 승인하는 사용자의 직접 응답으로
+승인합니다. PAVE 명령을 한 번 더 입력할 필요가 없습니다. DDL은 정확한 범위,
+영향, rollback을 먼저 제시한 뒤 별도의 DDL 포함 선택으로 승인합니다. 파일,
+외부 작업, 위험, 검증, 관찰 가능한 동작이 실질적으로 달라지면 다시 승인받습니다.
+PAVE는 assistant 응답에 승인 제어용 marker를 넣지 않습니다. 버그는 근본 원인을
+찾고, 의미 있는 동작을 보호할 때만 테스트를 추가하며, 실제 diff를 승인된
+계약과 비교하고 fresh evidence 없이는 완료를 주장하지 않습니다.
 사용자에게 보이는 화면을 바꾸는 작업에서는 durable 디자인 정책, design
 token·component 파일, 가장 가까운 canonical component 순서로 프로젝트
 디자인 시스템을 확정하고, 일회성 스타일을 추가하는 대신 기존 component와
@@ -95,22 +95,18 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 | 일회성 저비용 워크플로 | `$pave:token-save` | `/pave:token-save` |
 | 단계별 시간과 토큰 통계 확인 | `$pave:usage` | 아직 지원하지 않음 |
 
-## 로컬 워크플로 가드
+## 워크플로와 실행 권한의 책임
 
-호스트가 `hooks/hooks.json`을 로드하면 `$pave:pave` 또는 `/pave:pave`
-세션에 한정된 가드가 활성화됩니다. 경로별 필수 참조 문서와 호스트 기본 선택
-또는 승인 대기 상태에 대한 사용자 응답이 기록되기 전의
-코드 수정과 파일을 바꿀 수 있는 셸 명령, 기존 파일에 대한 `Write`, 셸 덮어쓰기
-우회, 명시적 DDL 승인 없는 schema·migration 수정 및 실행, 디자인 시스템 근거
-없는 UI 파일 수정을 차단합니다. 수정 후 검토, status와
-diff 또는 미추적 파일 확인, 검증, 메모리 평가가 기록되기 전에는 완료 보고도
-차단합니다. `doctor`는 등록된 훅 명령을 직접 실행해 lifecycle과 기존 파일
-덮어쓰기 차단을 카나리로 점검합니다.
+PAVE는 협조적인 개발 워크플로입니다. skill은 조사, 명시적인 Implementation
+Contract, 사용자 승인, 범위 변경 재승인, diff 검토, fresh verification, 보고를
+정의합니다. 임의의 명령이나 도구 payload를 해석해 안전성과 변경 여부를 추론하지
+않으며, plan marker나 승인 UI 호출 성공을 기술적 실행 권한의 증거라고 주장하지
+않습니다.
 
-가드는 플러그인 데이터 디렉터리에 게이트 시각과 수정 대상 파일 경로만 저장하며,
-prompt, 응답, transcript, source 내용은 저장하지 않습니다. 이는 방어 계층이며,
-제품 결정이 실제로 중요한지와 해결됐는지를 판단하는 책임은 PAVE 결정 워크플로에
-남습니다.
+도구 권한, sandbox, 파일·네트워크·외부 시스템 접근은 호스트가 담당합니다. CI,
+credential, migration, deployment 정책은 저장소와 운영 환경이 담당합니다. 더
+강한 기술적 강제가 필요하면 특정 언어나 명령어를 추론하는 PAVE parser가 아니라
+해당 계층에 구현해야 합니다.
 
 ## 로컬 사용량 통계
 
@@ -216,7 +212,8 @@ claude plugin update pave@pave
 
 플러그인 업데이트는 plugin-local 워크플로만 갱신합니다. 기존 repo-local
 runtime 파일은 프로젝트 초기화나 명시적 동기화를 다시 실행하기 전까지
-변경되지 않습니다.
+변경되지 않습니다. 이전 실행 강제 hook이 기록한 상태는 무시하며 자동으로
+삭제하지 않습니다.
 
 ## 설치 확인과 제거
 
@@ -235,7 +232,7 @@ claude plugin uninstall pave@pave
 
 ## Project Runtime 수동 설치
 
-선택적 저장소 스크립트에만 Node.js 18 이상이 필요합니다.
+passive 사용량 hook과 선택적 저장소 스크립트에 Node.js 18 이상이 필요합니다.
 
 ```bash
 git clone https://github.com/TaehoHong/pave.git

@@ -32,34 +32,38 @@ Produce an implementation-ready checklist plan before implementation.
     test edits.
 
 Approval must be an explicit implementation instruction for the surfaced
-design, implementation boundary, and checklist. Selecting a design option,
+Implementation Contract and checklist. The contract contains the goal and
+acceptance criteria, expected changed files and external operations,
+out-of-scope behavior, material capabilities and risks, fresh verification,
+remaining blocking decisions, and approval method. Selecting a design option,
 answering a clarification, or adding requirements settles scope or behavior
 only. An earlier request to implement records implementation intent but does
-not authorize a materially changed boundary that has not been surfaced.
-Read-only discovery never requires this approval.
+not authorize a materially changed contract. Read-only discovery never
+requires this approval.
 
 Immediately before asking for standard-work implementation approval, confirm
 that the Feature Readiness Gate has passed, the surfaced boundary is complete,
 and no material in-scope decision remains unknown or
-`recommended-unconfirmed`. When the workflow guard is active, explicitly
-declare the `bug` or `feature` route before moving the approval step to
-`in_progress`; reference reads do not select it. Then use the host's normal
-approval UX instead of requiring another PAVE command:
+`recommended-unconfirmed`. Then use the host's normal approval UX instead of
+requiring another PAVE command:
 
 - Codex: move `[PAVE:approval]` to `in_progress`, then use
   `request_user_input` when available with question ID
   `pave_implementation_approval` and `Implement (Recommended)` / `Revise plan`
   choices.
-  When a structured choice is unavailable, ask for a direct response; only the
-  response immediately following the pending approval state may approve.
+  When a structured choice is unavailable, a direct response must clearly
+  authorize the currently surfaced contract.
 - Claude Code: when already in plan mode, use `ExitPlanMode` for ordinary plan
   approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
   `Implement` / `Revise plan` choices.
 
-The runtime guard validates the explicitly declared route and its reference
-evidence, records the structured selection or context-bound user response as
-approval state, and continues to enforce writes in `PreToolUse`. Do not place
-machine-readable approval markers in assistant response text.
+The user approves the surfaced contract, not a route, tool name, plan marker,
+or hidden runtime state. Changing expected files, external operations, material
+capabilities or risks, verification strategy, or observable behavior
+materially requires renewed approval before acting. Host permissions and
+sandboxing govern tool execution; repository and operational policy govern CI,
+credentials, migrations, and deployment. Do not place machine-readable
+approval markers in assistant response text.
 
 When the implementation boundary includes writing, modifying, or executing DDL
 or a database schema migration, also show the exact target files, statements or

@@ -9,6 +9,9 @@ Execute approved plan items in small verified increments.
 1. Identify the next unchecked item in the active approved scope. If it writes,
    modifies, or executes DDL that was not explicitly surfaced for DDL approval,
    stop and return to design and planning before making the change.
+   If an expected file, external operation, material capability or risk,
+   verification strategy, or observable behavior changes materially, surface
+   the revised Implementation Contract and obtain approval before continuing.
 2. Announce item, tier, expected files, and expected verification.
 3. Apply the Test Value Gate. State the concrete behavior or risk a proposed
    test protects and the realistic defect that would make it fail.
@@ -16,8 +19,8 @@ Execute approved plan items in small verified increments.
    behavior. Run it and confirm it fails for the expected missing
    behavior, not a syntax, fixture, or environment error.
 5. Green: implement only the code needed for that test.
-6. Run the narrow command and confirm success, then refactor only while tests
-   remain green.
+6. Run the narrow verification declared in the Implementation Contract and
+   confirm success, then refactor only while tests remain green.
 7. If a new test fails the value gate, do not create it. Record why, define the
    strongest proportionate verification check, and state residual risk before
    editing.

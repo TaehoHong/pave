@@ -159,10 +159,9 @@ Do not reinterpret a goal update as write approval, and do not stop safe
 read-only discovery merely because write approval has not been granted.
 
 When a read-only turn ends with a material user decision still pending, ask the
-question normally and stop. Do not emit hidden comments or machine-readable
-sentinels in the response. The runtime guard retains routed feature or bug
-workflow state within the current session; a new explicit PAVE invocation
-starts a fresh state.
+question normally and stop. Carry workflow state in the conversation or an
+explicit repo-local plan when one exists. Do not emit hidden comments or
+machine-readable sentinels in the response.
 
 ## Design Quality Gate
 

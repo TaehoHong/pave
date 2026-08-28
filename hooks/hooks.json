@@ -1,40 +1,12 @@
 {
-  "description": "Enforce active PAVE workflow gates and collect local phase timing and token totals without storing prompts or transcript contents.",
+  "description": "Collect local PAVE phase timing and token totals without storing prompts or transcript contents or controlling tool execution.",
   "hooks": {
-    "UserPromptExpansion": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
-            "timeout": 5
-          },
-          {
-            "type": "command",
             "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "^(Bash|Edit|Skill|Write|apply_patch|exec_command|functions\\.apply_patch|functions\\.exec_command)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
             "timeout": 5
           }
         ]
@@ -50,26 +22,11 @@
             "timeout": 5
           }
         ]
-      },
-      {
-        "matcher": "^(AskUserQuestion|Bash|Edit|ExitPlanMode|Read|Write|apply_patch|exec_command|request_user_input|update_plan|functions\\.apply_patch|functions\\.exec_command|functions\\.request_user_input|functions\\.update_plan)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
-            "timeout": 5
-          }
-        ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
-            "timeout": 5
-          },
           {
             "type": "command",
             "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",
@@ -81,11 +38,6 @@
     "SessionEnd": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/workflow-guard.js\" ]; then exec node \"$pave_root/scripts/workflow-guard.js\" hook; fi; done; exit 0",
-            "timeout": 3
-          },
           {
             "type": "command",
             "command": "for pave_root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"${PLUGIN_ROOT:-}\"; do if [ -n \"$pave_root\" ] && [ -f \"$pave_root/scripts/usage.js\" ]; then exec node \"$pave_root/scripts/usage.js\" hook; fi; done; exit 0",

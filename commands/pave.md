@@ -32,14 +32,8 @@ specialist discovery when the optional repo runtime has been initialized.
    architecture, product, security, data-integrity, or API-design judgment.
 4. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
-5. Scan the repo before asking questions or editing.
-   Reading a workflow reference records evidence only; it never selects the
-   guarded route. After inspection settles the classification and fast-path
-   eligibility, resolve the plugin root from this loaded command's plugin and
-   run `node "<pave-plugin-root>/scripts/workflow-guard.js" route
-   <fast|bug|feature>` with that absolute path. Use `route reset` to clear only
-   route and approval state without discarding investigation or reference
-   evidence. Do not rely on plugin-root environment variables in an agent shell.
+5. Scan the repo before asking questions or editing. Read workflow references
+   as instructions and evidence, not as workflow-control commands.
 6. For code work, load and apply
    `skills/pave/references/context-retrieval.md` before source discovery. Do
    not open with a repository-wide source read. Select only the entries and
@@ -58,9 +52,9 @@ specialist discovery when the optional repo runtime has been initialized.
    request, no more than two hand-edited files, no more than twenty substantive
    hand-edited lines, low risk, and cheap narrow verification. Both size limits
    are hard conditions. State the expected files, line count, and verification
-   before writing, declare the `fast` route, then treat the request as approval
-   and edit without formal planning. If eligibility ends, explicitly declare
-   `bug` or `feature` before standard approval; do not restart the session.
+   before writing, then treat the request as approval and edit without formal
+   planning. If eligibility ends, surface the full Implementation Contract and
+   request standard approval before expanding the change.
 10. When a feature request states an outcome without implementation-ready
     requirements, load and apply `skills/pave/references/design.md`. Triage
     material user-owned decisions, establish evidence, separate justified
@@ -75,16 +69,17 @@ specialist discovery when the optional repo runtime has been initialized.
     subsystem has a partial blocker.
 13. Apply the Feature Readiness Gate in
     `skills/pave/references/planning.md` before standard implementation work.
-14. For standard implementation work, keep a checklist in the conversation by default.
+14. For standard implementation work, keep a checklist in the conversation by
+    default.
     Create or update `.codex/pave/plans/` only when the optional repo runtime
     exists or the user explicitly asks for durable repo-local plans.
 15. Ask once for implementation approval immediately before code or test edits
     unless the Small Change Fast Path applies. After showing the complete
-    boundary and a zero blocking-decision count, use the host's structured
-    approval surface when available: Codex `request_user_input`, Claude Code
-    `AskUserQuestion` in default mode, or `ExitPlanMode` when already in plan
-    mode. Otherwise ask for a direct approval response in the conversation. Do
-    not require a second PAVE command.
+    Implementation Contract and a zero blocking-decision count, use the host's
+    structured approval surface when available: Codex `request_user_input`,
+    Claude Code `AskUserQuestion` in default mode, or `ExitPlanMode` when already
+    in plan mode. Otherwise ask for a direct approval response in the
+    conversation. Do not require a second PAVE command.
     Writing, modifying, or executing DDL or a database schema migration always
     requires a distinct approval choice that names DDL after surfacing the exact
     targets, statements, impact, and rollback. The fast path and a general
@@ -116,8 +111,8 @@ specialist discovery when the optional repo runtime has been initialized.
     optimize speed, terseness, or implementation size.
 24. On Codex, use the PAVE phase prefixes defined in `skills/pave/SKILL.md`
     on `update_plan` steps so the local usage hook can measure phase duration
-    and token deltas. This telemetry plan is not a substitute for the design,
-    approval, testing, or verification gates.
+    and token deltas. These markers are passive telemetry, not approval
+    evidence or execution authority.
 
 ## Decision and Approval Contract
 
@@ -129,8 +124,11 @@ not ask users to confirm technical facts.
 
 Track scope intent, read-only discovery, design decisions, and write approval
 separately. A design choice, clarification answer, or requirement update is not
-write approval. Standard-work approval must explicitly authorize the surfaced
-implementation boundary. Lack of write approval does not block safe read-only
+write approval. Standard-work approval must explicitly authorize one surfaced
+Implementation Contract containing the goal and acceptance criteria, expected
+changed files and external operations, out-of-scope behavior, material
+capabilities and risks, fresh verification, remaining blocking decisions, and
+the approval method. Lack of write approval does not block safe read-only
 discovery.
 
 Only request implementation approval after the Feature Readiness Gate passes
@@ -138,11 +136,16 @@ and the remaining material blocking-decision count is zero. Prefer the host's
 native plan or choice UI. On Codex, use stable question IDs
 `pave_implementation_approval` and `pave_ddl_approval`; on Claude Code, use
 `ExitPlanMode` only when already in plan mode, or the `PAVE approve` / `PAVE DDL`
-question headers in default mode. The runtime guard validates the explicitly
-declared route and its reference evidence, records the structured result or a
-context-bound direct user response, and keeps `PreToolUse` write enforcement
-active. Assistant response text and reference reads are never workflow-control
-channels.
+question headers in default mode. The user approves the surfaced contract, not
+a tool name, plan marker, or hidden runtime state. Host permissions and
+sandboxing govern tool execution; repository and operational policy govern CI,
+credentials, migrations, and deployment.
+
+Obtain renewed approval before acting when the expected files, external
+operations, material capabilities or risks, verification strategy, or
+observable behavior changes materially. Before completion, compare the actual
+changed-file list and diff with the approved contract, and require fresh
+evidence for every acceptance criterion and declared verification command.
 
 When the boundary includes DDL or a database schema migration, surface its exact
 target files, statements or operations, data and compatibility effects, and
@@ -150,7 +153,7 @@ rollback approach, then offer a distinct `Implement with DDL` choice. General
 approval does not authorize DDL. Newly discovered or changed DDL requires a
 newly surfaced approval request and another DDL-specific choice.
 
-## Repo-Local File Guard
+## Repo-Local Runtime Policy
 
 Do not create `AGENTS.md`, `CLAUDE.md`, `.codex/pave/`, or `docs/` unless the user invokes `/project-init` or explicitly asks to install PAVE runtime files in the repository.
 

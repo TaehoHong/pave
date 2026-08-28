@@ -28,6 +28,20 @@ Check requirement compliance and code quality with evidence before completion.
 8. Fix critical and major issues, rerun the covering tests, and review the
    resulting diff again.
 
+## Completion Review
+
+Before completion:
+
+- compare the actual changed-file list and diff with the approved
+  Implementation Contract;
+- confirm that contract-external changes are absent or were reapproved;
+- require fresh evidence for every acceptance criterion and declared
+  verification command;
+- report failed, skipped, or unavailable verification without converting it
+  into a success claim; and
+- require a human-review notice before merge for security, data-model,
+  shared-abstraction, or architecture changes.
+
 ## Receiving Feedback
 
 1. Read all feedback before editing so related items stay coherent.

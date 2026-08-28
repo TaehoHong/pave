@@ -13,9 +13,11 @@ session harness for software development work.
 1. PAVE runs from plugin-local instructions by default: this `SKILL.md`,
    `references/`, plugin commands, and role briefs.
    Supporting files under `references/` are not separately registered skills.
-   Read them with the host's file-reading tool, resolved relative to this
-   `SKILL.md`; never derive a `Skill` call such as `pave:execution-loop` or
-   retry the already-loaded entrypoint as `pave`.
+   Read them completely with the host's file-reading tool, resolved relative
+   to this `SKILL.md`. When the host has no complete-file read tool, read the
+   file in bounded chunks until EOF.
+   Never derive a `Skill` call such as `pave:execution-loop` or retry the
+   already-loaded entrypoint as `pave`.
 2. Read repo instructions when present: root `AGENTS.md`, nested `AGENTS.md`
    files that apply to touched paths, `CLAUDE.md` for Claude Code, then
    `.codex/pave/config.md` when present.
@@ -51,15 +53,9 @@ session harness for software development work.
    requires explicit DDL approval for the surfaced targets, statements, impact,
    and rollback. General implementation approval and the fast path do not waive
    this gate; one response may grant both approvals when both scopes are shown.
-   When the workflow guard is active, explicitly declare the selected route
-   after classification. Resolve the plugin root from this loaded `SKILL.md`
-   (two directories up), then run
-   `node "<pave-plugin-root>/scripts/workflow-guard.js" route
-   <fast|bug|feature>` with the absolute path. Agent shells must not assume
-   plugin-root environment variables are exported. Reading a reference records
-   evidence only and never selects a route. Change routes with the same command;
-   use `route reset` to clear only the route and approval state while preserving
-   investigation and reference evidence.
+   For standard work, surface the canonical Implementation Contract below and
+   obtain approval for that contract. For the fast path, surface its compact
+   equivalent before editing. A material contract change revokes approval.
 10. Split independent subsystems, continue safe unblocked work, and distinguish
     justified extension boundaries from deferred future behavior.
 11. Before writing logic that implements a rule, validation, transformation,
@@ -79,33 +75,58 @@ session harness for software development work.
     matching step to `in_progress` at each phase boundary, and mark every step
     completed immediately before the final response. Leave
     `[PAVE:approval]` in progress while waiting for implementation approval.
-    Do not add these markers on non-Codex hosts.
+    These markers are optional telemetry signals, not approval evidence or
+    execution authority. Do not add them on non-Codex hosts.
 15. For implementation, bug, refactor, and documentation-sync work, evaluate
     the verified result against `references/memory.md` before final reporting.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
-16. In hosts that load `hooks/hooks.json`, the workflow guard records only
-    session-scoped gate evidence. After the surfaced boundary has zero blocking
-    decisions, prefer a host-native structured approval: Codex
+16. After the surfaced Implementation Contract has zero blocking decisions,
+    prefer a host-native structured approval: Codex
     `request_user_input`, Claude Code `AskUserQuestion` in default mode, or
     `ExitPlanMode` when already in plan mode.
-    A direct conversational approval is valid only while the structured PAVE
-    approval plan step is pending. The guard validates the explicitly declared
-    route plus its reference evidence and enforces the resulting state in
-    `PreToolUse`; assistant response text and reference reads are not
-    workflow-control channels. The guard is defense in depth and does not
-    replace semantic decision triage, review, or verification. It blocks
-    unambiguous workflow bypasses; it is not a general shell or SQL sandbox and
-    must not replace host permissions with exhaustive command parsing.
+    A direct conversational approval is valid when it clearly authorizes the
+    currently surfaced Implementation Contract. Host UI state, plan telemetry,
+    assistant text, and reference reads are not technical proof of execution
+    authority. PAVE governs a cooperative development workflow; host
+    permissions and sandboxing govern tool execution, while repository and
+    operational policy govern CI, credentials, migrations, and deployment.
 17. For Codex `request_user_input`, use question ID
     `pave_implementation_approval`, or `pave_ddl_approval` when the surfaced
-    boundary includes DDL, with `Implement (Recommended)` / `Implement with DDL
-    (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use the equivalent `PAVE
-    approve` or `PAVE DDL` header. A successful `ExitPlanMode` records standard
-    approval only when Claude is already in plan mode. DDL always requires the
-    DDL-specific choice. After approval, read the file
+    contract includes DDL, with `Implement (Recommended)` / `Implement with DDL
+    (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use
+    the equivalent `PAVE approve` or `PAVE DDL` header. A successful
+    `ExitPlanMode` may serve as standard approval only when Claude is already in
+    plan mode and the surfaced contract is the one shown for approval. DDL
+    always requires the DDL-specific choice. After approval, read the file
     `references/execution-loop.md` and execute the approved scope.
+
+## Implementation Contract
+
+Before standard implementation, present one current contract containing:
+
+- the goal and observable acceptance criteria;
+- expected changed files and external operations;
+- out-of-scope behavior;
+- material capabilities such as DDL, destructive actions, external writes,
+  security boundaries, or user-visible changes;
+- fresh verification commands or checks and their expected results;
+- the remaining material blocking-decision count; and
+- the approval method and the contract the user approved.
+
+The user approves this surfaced contract, not an inferred route, tool name,
+plan marker, or hidden runtime state. Obtain renewed approval before acting when
+the expected files, external operations, material capabilities or risks,
+verification strategy, or observable behavior changes materially. DDL always
+retains its distinct approval requirement.
+
+Before completion, compare the actual changed-file list and diff with the
+approved contract. Complete only when out-of-contract work is absent or was
+reapproved, every acceptance criterion has fresh evidence, declared
+verification has passed, and failed or unavailable verification is reported
+truthfully. Security, data-model, shared-abstraction, and architecture changes
+also require an explicit human-review notice before merge.
 
 ## Dependency Policy
 
@@ -116,11 +137,6 @@ session harness for software development work.
 ## Request Routing
 
 Classify the request:
-
-When hooks are active, reference reads may happen during inspection, but they
-do not choose the route. After the classification and fast-path eligibility
-check are settled, declare `fast`, `bug`, or `feature` with the route command
-from Core Rule 9 before requesting approval or editing.
 
 - Obvious low-risk local edit: read `references/fast-path.md`,
   `references/testing.md`, and `references/verification.md`.
@@ -171,8 +187,6 @@ troubleshooting record.
 - Initialize a repo with JavaScript: `../../scripts/init_repo.js <repo-path>`
 - Check a repo: `../../scripts/doctor.js <repo-path>`
 - Re-sync templates: `../../scripts/sync_template.js <repo-path>`
-- Declare or reset guarded routing: resolve this file's plugin root, then run
-  `node "<pave-plugin-root>/scripts/workflow-guard.js" route <fast|bug|feature|reset>`
 
 ## Commands
 
@@ -187,5 +201,6 @@ troubleshooting record.
   mode in `.codex/pave/config.md` plus `/pave`.
 - `$pave:usage`: Codex-only local PAVE phase timing and token statistics.
 
-Scripts are optional helpers. Read their `--help` output before use when
-the requested action is sensitive or repo-specific.
+Repository initialization scripts are optional. Passive local usage telemetry
+and repository scripts require Node.js 18 or newer. Read script `--help` output
+before sensitive or repo-specific use.

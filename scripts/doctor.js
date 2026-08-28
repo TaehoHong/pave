@@ -119,17 +119,6 @@ function run(argv = process.argv.slice(2)) {
     return 1;
   }
 
-  try {
-    const { runSelfCheck } = require('./workflow-guard');
-    if (!runSelfCheck()) {
-      console.log('PAVE doctor failed. Workflow guard canary did not deny an existing-file overwrite.');
-      return 1;
-    }
-  } catch (error) {
-    console.log(`PAVE doctor failed. Workflow guard canary error: ${error.message}`);
-    return 1;
-  }
-
   console.log('PAVE doctor passed.');
   return 0;
 }

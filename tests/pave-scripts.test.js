@@ -349,8 +349,8 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
   assert.match(command, /Do not create `AGENTS\.md`, `CLAUDE\.md`, `\.codex\/pave\/`, or `docs\/`/);
   assert.match(fastPath, /Both limits are hard eligibility conditions/);
   assert.match(fastPath, /third hand-edited file/);
-  assert.match(fastPath, /original fast-path\s+request does not approve expanded scope/);
-  assert.match(planning, /Read-only discovery never requires this approval/);
+  assert.match(fastPath, /original fast-path request as\s+approval for expanded scope/);
+  assert.match(planning, /Read-only discovery never\s+requires this approval/);
   assert.match(planning, /design option.+settles scope or behavior\s+only/s);
   assert.match(pave, /speed,\s+terseness, or implementation size do not waive those gates/);
   assert.match(testing, /realistic defect/);
@@ -471,29 +471,31 @@ test('standard approval uses host selections or pending user responses instead o
   assert.match(planning, /pave_ddl_approval/);
 });
 
-test('guarded route selection is explicit and preserves investigation evidence', () => {
+test('PAVE separates workflow evidence from host execution enforcement', () => {
   const skill = read('skills/pave/SKILL.md');
   const command = read('commands/pave.md');
   const routing = read('skills/pave/references/request-routing.md');
-  const fastPath = read('skills/pave/references/fast-path.md');
   const planning = read('skills/pave/references/planning.md');
+  const review = read('skills/pave/references/review.md');
+  const verification = read('skills/pave/references/verification.md');
 
-  for (const [label, content] of [
-    ['skill', skill],
-    ['command', command],
-    ['routing', routing],
-  ]) {
-    assert.match(content, /workflow-guard\.js[^\n]*route/s, label);
-    assert.match(content, /(?:reading a (?:workflow )?reference records|reference reads are)\s+evidence/i, label);
+  assert.equal(
+    fs.existsSync(path.join(repoRoot, 'scripts', 'workflow-guard.js')),
+    false,
+  );
+  for (const surface of [skill, command, routing, planning, review, verification]) {
+    assert.doesNotMatch(
+      surface,
+      /workflow-guard|route reset|boundary --verify|PAVE_BLOCKED|PreToolUse/,
+    );
   }
-  assert.match(routing, /route reset/);
-  assert.match(routing, /without losing investigation or\s+reference evidence/);
-  assert.match(routing, /absolute path/);
-  assert.match(routing, /Do not assume `CLAUDE_PLUGIN_ROOT` or `PLUGIN_ROOT`/);
-  assert.match(skill, /not a general shell or SQL sandbox/);
-  assert.match(fastPath, /Reading this reference does not select a\s+route/);
-  assert.match(fastPath, /Do not restart the session/);
-  assert.match(planning, /declare the `bug` or `feature` route/);
+
+  assert.match(skill, /## Implementation Contract/);
+  assert.match(skill, /expected changed files and external operations/);
+  assert.match(skill, /host\s+permissions and sandboxing govern tool execution/i);
+  assert.match(planning, /requires renewed approval before acting/);
+  assert.match(review, /actual changed-file list and diff/);
+  assert.match(verification, /fresh evidence for every acceptance\s+criterion/);
 });
 
 test('project-init links existing documentation instead of duplicating it', () => {
@@ -591,7 +593,7 @@ test('token-save remains an optional configured workflow', () => {
   );
 });
 
-test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
+test('Codex usage telemetry is passive, local, and phase-scoped', () => {
   const manifest = JSON.parse(read('.codex-plugin/plugin.json'));
   const hooks = JSON.parse(read('hooks/hooks.json'));
   const pave = read('skills/pave/SKILL.md');
@@ -609,30 +611,31 @@ test('Codex usage telemetry is discoverable, local, and phase-scoped', () => {
 
   assert.deepEqual(Object.keys(hooks.hooks).sort(), [
     'PostToolUse',
-    'PreToolUse',
     'SessionEnd',
     'Stop',
-    'UserPromptExpansion',
     'UserPromptSubmit',
   ]);
+  assert.match(hooks.description, /without.+controlling tool execution/);
+  assert.equal(hooks.hooks.PostToolUse.length, 1);
   assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /apply_patch/);
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /exec_command/);
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /AskUserQuestion/);
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /ExitPlanMode/);
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /request_user_input/);
-  assert.match(hooks.hooks.PostToolUse[1].matcher, /update_plan/);
-  assert.match(hooks.hooks.PreToolUse[0].matcher, /apply_patch/);
-  assert.match(hooks.hooks.PreToolUse[0].matcher, /exec_command/);
 
   const commands = new Set(Object.values(hooks.hooks).flatMap((event) => (
     event.flatMap((entry) => entry.hooks.map((hook) => hook.command))
   )));
   assert.equal([...commands].some((command) => /scripts\/usage\.js/.test(command)), true);
-  assert.equal([...commands].some((command) => /scripts\/workflow-guard\.js/.test(command)), true);
-  for (const event of ['UserPromptSubmit', 'UserPromptExpansion', 'PreToolUse', 'Stop']) {
-    const eventCommands = hooks.hooks[event].flatMap((entry) => entry.hooks.map((hook) => hook.command));
-    assert.equal(eventCommands.some((command) => /scripts\/workflow-guard\.js/.test(command)), true, event);
+  assert.equal(
+    [...commands].some((command) => /workflow-guard|permissionDecision/.test(command)),
+    false,
+  );
+  for (const event of ['UserPromptSubmit', 'PostToolUse', 'Stop', 'SessionEnd']) {
+    const eventCommands = hooks.hooks[event].flatMap((entry) => (
+      entry.hooks.map((hook) => hook.command)
+    ));
+    assert.equal(
+      eventCommands.every((command) => /scripts\/usage\.js/.test(command)),
+      true,
+      event,
+    );
   }
 
   for (const command of commands) {

@@ -24,25 +24,19 @@ Route each user request to the smallest safe PAVE workflow.
    compatibility mode and propose migration when harness files need
    to change.
 
-## Guarded Route State
+## Implementation Contract Summary
 
-Reference reads are evidence, not route selection. Once inspection settles the
-classification and fast-path eligibility, declare the route explicitly:
+Routing selects the workflow instructions; it does not grant tool permission or
+implementation approval. Before standard implementation, surface the canonical
+Implementation Contract from `SKILL.md`. For the fast path, surface its compact
+equivalent: expected files, line count, observable result, risks, and
+verification.
 
-Resolve the plugin root from the loaded PAVE `SKILL.md` (two directories up),
-then invoke the guard by absolute path:
-
-```sh
-node "<pave-plugin-root>/scripts/workflow-guard.js" route <fast|bug|feature>
-```
-
-Do not assume `CLAUDE_PLUGIN_ROOT` or `PLUGIN_ROOT` is exported into the agent's
-shell; those variables are hook-runner details.
-
-Declare a different route to promote or switch without losing investigation or
-reference evidence. Use `route reset` to clear only the selected route and any
-approval derived from it. A route change always revokes prior implementation
-and DDL approval because that approval belonged to the previous boundary.
+Obtain renewed approval before acting when the expected files, external
+operations, material capabilities or risks, verification strategy, or
+observable behavior changes materially. Host permissions and sandboxing own
+technical execution control; PAVE does not infer command effects from tool,
+framework, extension, or command names.
 
 ## Outputs
 
