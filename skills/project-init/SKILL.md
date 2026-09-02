@@ -7,11 +7,8 @@ description: Use when the user asks for /project-init or explicit PAVE repo-loca
 
 Use this as the discoverable Codex entrypoint for `/project-init`.
 
-Before acting:
-1. Read `../pave/SKILL.md`.
-2. Read `../pave/references/project-init.md`.
-
-Then follow the reference. Stop after project initialization.
+Read `../pave/references/project-init.md` completely and follow it as the
+canonical workflow. Stop after project initialization.
 
 On an existing repository, inventory documentation the project already has,
 link each PAVE doc to the existing document that owns its subject, and keep

@@ -147,13 +147,17 @@ test('project-init uses one canonical workflow reference', () => {
     /For each feature, record the\s+actor, trigger, happy path, edge cases/,
   );
   assert.match(alias, /\.\.\/pave\/references\/project-init\.md/);
+  assert.doesNotMatch(alias, /\.\.\/pave\/SKILL\.md/);
   assert.doesNotMatch(alias, /\.\.\/\.\.\/commands\/project-init\.md/);
   assert.match(alias, /explicit PAVE repo-local runtime and project docs initialization/);
+  assert.match(reference, /root and nested `AGENTS\.md`/);
+  assert.match(reference, /`\.codex\/ai-dev-harness\/` exists[\s\S]+legacy-compatible/);
   assert.doesNotMatch(
     reference,
     /set up AI-assisted\s+development|bootstrap a new repo/,
   );
   assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/pave\/references\/project-init\.md/);
+  assert.doesNotMatch(command, /skills\/pave\/SKILL\.md/);
   assert.ok(command.split('\n').length <= 20, 'legacy command should stay a thin shim');
 });
 

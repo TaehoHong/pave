@@ -6,8 +6,8 @@ description: Initialize optional repo-local PAVE runtime and project docs.
 
 Run PAVE Project Initialization for the current repository.
 
-Read `${CLAUDE_PLUGIN_ROOT}/skills/pave/SKILL.md`, then read and follow
-`${CLAUDE_PLUGIN_ROOT}/skills/pave/references/project-init.md`.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/pave/references/project-init.md` completely
+and follow it as the canonical workflow.
 
 On an existing repository, inventory the documentation the project already has
 before the interview, link each PAVE doc to the existing document that owns its

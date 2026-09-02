@@ -33,7 +33,11 @@ workflows.
 
 ## Steps
 
-1. Read repo instructions and inspect the project tree.
+1. Read the applicable root and nested `AGENTS.md` files, `CLAUDE.md` on
+   Claude Code, and `.codex/pave/config.md` when present, then inspect the
+   project tree. If `.codex/pave/` is absent but
+   `.codex/ai-dev-harness/` exists, treat the repo as legacy-compatible and
+   offer migration before changing harness files.
 2. Identify framework, package manager, test runner, build command,
    deployment shape, existing docs, module boundaries, shared capabilities,
    canonical examples, and generated or excluded paths.
