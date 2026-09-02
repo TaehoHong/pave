@@ -61,10 +61,8 @@ they affect a public contract, user experience, security, data, or an explicit
 policy. Record consequential assumptions in the design and proceed.
 
 Writing, modifying, or executing DDL or a database schema migration is always
-a material user-owned decision. Before implementation, surface the exact target
-files, DDL statements or migration operations, data and compatibility effects,
-and rollback approach. Existing schema conventions are evidence for a proposal,
-not authority to make the change without explicit approval.
+a material user-owned decision. Record its exact scope, effects, and rollback
+in the design; the later implementation gate owns its distinct approval.
 
 A recommendation is a proposal, not a settled user decision. Do not call a
 design confirmed while an in-scope, material `recommended-unconfirmed`
@@ -138,25 +136,9 @@ The interview is complete when every in-scope material user-owned decision is
 do not continue asking about agent-owned details.
 
 A response that selects an option or answers a design question settles that
-decision only. Surface the resulting implementation boundary and plan, then
-request implementation approval.
-
-Read-only discovery does not require implementation approval. Treat the
-workflow states separately:
-
-1. scope intent authorizes investigation of the requested area;
-2. read-only discovery gathers evidence;
-3. design decisions settle behavior but do not authorize writes;
-4. consolidated implementation approval authorizes code or test edits within
-   the surfaced boundary.
-
-DDL approval is an additional gate within that boundary. A general
-implementation approval does not authorize DDL unless the approval request
-explicitly surfaced the DDL scope. If implementation discovers new or changed
-DDL, return to decision and planning before editing or executing it.
-
-Do not reinterpret a goal update as write approval, and do not stop safe
-read-only discovery merely because write approval has not been granted.
+decision only. Read-only discovery needs no implementation approval, and a
+goal update does not authorize writes. Surface the resulting implementation
+boundary and plan before the standard workflow requests approval.
 
 When a read-only turn ends with a material user decision still pending, ask the
 question normally and stop. Carry workflow state in the conversation or an

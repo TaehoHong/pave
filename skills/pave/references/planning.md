@@ -30,52 +30,9 @@ Produce an implementation-ready checklist plan before implementation.
    zero blocking decisions without loading the full design workflow.
 8. Apply the Feature Readiness Gate.
 9. List out-of-scope work.
-10. Ask once for consolidated approval immediately before code or
-    test edits.
-
-Approval must be an explicit implementation instruction for the surfaced
-Implementation Contract and checklist. The contract contains the goal and
-acceptance criteria, expected changed files and external operations,
-out-of-scope behavior, material capabilities and risks, fresh verification,
-remaining blocking decisions, and approval method. Selecting a design option,
-answering a clarification, or adding requirements settles scope or behavior
-only. An earlier request to implement records implementation intent but does
-not authorize a materially changed contract. Read-only discovery never
-requires this approval.
-
-Immediately before asking for standard-work implementation approval, confirm
-that the Feature Readiness Gate has passed, the surfaced boundary is complete,
-and no material in-scope decision remains unknown or
-`recommended-unconfirmed`. Then use the host's normal approval UX instead of
-requiring another PAVE command:
-
-- Codex: use `request_user_input` when available with question ID
-  `pave_implementation_approval` and `Implement (Recommended)` / `Revise plan`
-  choices.
-  When a structured choice is unavailable, a direct response must clearly
-  authorize the currently surfaced contract.
-- Claude Code: when already in plan mode, use `ExitPlanMode` for ordinary plan
-  approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
-  `Implement` / `Revise plan` choices.
-
-The user approves the surfaced contract, not a route, tool name, or hidden
-runtime state. Changing expected files, external operations, material
-capabilities or risks, verification strategy, or observable behavior
-materially requires renewed approval before acting. Host permissions and
-sandboxing govern tool execution; repository and operational policy govern CI,
-credentials, migrations, and deployment. Do not place machine-readable
-approval markers in assistant response text.
-
-When the implementation boundary includes writing, modifying, or executing DDL
-or a database schema migration, also show the exact target files, statements or
-migration operations, data and compatibility effects, and rollback approach.
-Then use a distinct structured choice: Codex question ID
-`pave_ddl_approval`, or Claude Code `PAVE DDL`, with `Implement with DDL` and
-`Revise plan` options (`Implement with DDL (Recommended)` on Codex). If a
-structured choice is unavailable, require a direct
-response that explicitly names DDL. General approval does not authorize DDL.
-Newly discovered or changed DDL requires a newly surfaced approval request and
-another DDL-specific choice.
+10. For plan-only work, output the approval gate and stop. In the standard
+    workflow, request consolidated approval only after the Feature Readiness
+    Gate has passed and immediately before code or test edits.
 
 Each checklist item must identify exact files, its observable outcome, the
 narrow verification command, and the expected result. Fold scaffolding,

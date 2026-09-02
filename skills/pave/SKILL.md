@@ -42,20 +42,13 @@ session harness for software development work.
    durable design policy, repo design artifacts, or the nearest canonical
    component, reuse its existing components and tokens, and treat every
    deviation as a material user-owned decision.
-9. Apply `references/fast-path.md` before standard planning. For an eligible
-   small change, the user's concrete request is implementation approval. For
-   other code or test edits, ask for one consolidated approval immediately
-   before implementation. Scope intent authorizes read-only discovery but not
-   writes; design answers settle behavior but are not write approval. After
-   approval, do not ask routine per-item approval unless scope, safety,
-   destructive action, credentials, or a material user-owned ambiguity changes.
-   Writing, modifying, or executing DDL or a database schema migration always
-   requires explicit DDL approval for the surfaced targets, statements, impact,
-   and rollback. General implementation approval and the fast path do not waive
-   this gate; one response may grant both approvals when both scopes are shown.
-   For standard work, surface the canonical Implementation Contract below and
-   obtain approval for that contract. For the fast path, surface its compact
-   equivalent before editing. A material contract change revokes approval.
+9. Apply `references/fast-path.md` before standard planning. An eligible small
+   change uses its compact approval flow. For all other code or test edits,
+   read `references/approval.md` only after the implementation boundary is
+   ready and immediately before requesting approval. Never treat read-only
+   discovery or a design answer as write approval, and never write or execute
+   DDL without the distinct approval defined there. After approval, read
+   `references/execution-loop.md` and execute only the approved scope.
 10. Split independent subsystems, continue safe unblocked work, and distinguish
     justified extension boundaries from deferred future behavior.
 11. Before writing logic that implements a rule, validation, transformation,
@@ -73,52 +66,6 @@ session harness for software development work.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
-15. After the surfaced Implementation Contract has zero blocking decisions,
-    prefer a host-native structured approval: Codex
-    `request_user_input`, Claude Code `AskUserQuestion` in default mode, or
-    `ExitPlanMode` when already in plan mode.
-    A direct conversational approval is valid when it clearly authorizes the
-    currently surfaced Implementation Contract. Host UI state, assistant text,
-    and reference reads are not technical proof of execution authority. PAVE
-    governs a cooperative development workflow; host
-    permissions and sandboxing govern tool execution, while repository and
-    operational policy govern CI, credentials, migrations, and deployment.
-16. For Codex `request_user_input`, use question ID
-    `pave_implementation_approval`, or `pave_ddl_approval` when the surfaced
-    contract includes DDL, with `Implement (Recommended)` / `Implement with DDL
-    (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use
-    the equivalent `PAVE approve` or `PAVE DDL` header. A successful
-    `ExitPlanMode` may serve as standard approval only when Claude is already in
-    plan mode and the surfaced contract is the one shown for approval. DDL
-    always requires the DDL-specific choice. After approval, read the file
-    `references/execution-loop.md` and execute the approved scope.
-
-## Implementation Contract
-
-Before standard implementation, present one current contract containing:
-
-- the goal and observable acceptance criteria;
-- expected changed files and external operations;
-- out-of-scope behavior;
-- material capabilities such as DDL, destructive actions, external writes,
-  security boundaries, or user-visible changes;
-- fresh verification commands or checks and their expected results;
-- the remaining material blocking-decision count; and
-- the approval method and the contract the user approved.
-
-The user approves this surfaced contract, not an inferred route, tool name, or
-hidden runtime state. Obtain renewed approval before acting when
-the expected files, external operations, material capabilities or risks,
-verification strategy, or observable behavior changes materially. DDL always
-retains its distinct approval requirement.
-
-Before completion, compare the actual changed-file list and diff with the
-approved contract. Complete only when out-of-contract work is absent or was
-reapproved, every acceptance criterion has fresh evidence, declared
-verification has passed, and failed or unavailable verification is reported
-truthfully. Security, data-model, shared-abstraction, and architecture changes
-also require an explicit human-review notice before merge.
-
 ## Dependency Policy
 
 - PAVE is standalone and does not invoke an external workflow plugin.

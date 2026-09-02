@@ -340,7 +340,7 @@ test('outcome-only feature requests triage material decisions and bound intervie
   assert.match(design, /evidence, current cost, avoided rework/);
   assert.match(design, /status: `active`, `superseded`, or `deferred`/);
   assert.match(design, /remaining blocking decision\s+count/);
-  assert.match(design, /Read-only discovery does not require implementation approval/);
+  assert.match(design, /Read-only discovery needs no implementation approval/);
   assert.match(planning, /Agent-owned implementation details do not block readiness/);
   assert.match(pave, /continue safe unblocked work/);
   assert.match(runtimePlan, /Extension boundaries: <evidence, current cost, avoided rework>/);
@@ -386,8 +386,9 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
   assert.match(fastPath, /Both limits are hard eligibility conditions/);
   assert.match(fastPath, /third hand-edited file/);
   assert.match(fastPath, /original fast-path request as\s+approval for expanded scope/);
-  assert.match(planning, /Read-only discovery never\s+requires this approval/);
-  assert.match(planning, /design option.+settles scope or behavior\s+only/s);
+  const approval = read('skills/pave/references/approval.md');
+  assert.match(approval, /Scope intent authorizes read-only discovery but\s+not writes/);
+  assert.match(approval, /Selecting a design option.+settles scope or behavior only/s);
   assert.match(pave, /speed,\s+terseness, or implementation size do not waive those gates/);
   assert.match(testing, /realistic defect/);
   assert.match(testing, /machine-consumed or explicitly supported public interface/);
@@ -483,29 +484,38 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
 });
 
 test('standard approval uses host selections or pending user responses instead of commands or response markers', () => {
-  const surfaces = [
+  const routedSurfaces = [
     'skills/pave/SKILL.md',
     'skills/pave/references/design.md',
     'skills/pave/references/planning.md',
   ];
+  const approval = read('skills/pave/references/approval.md');
   const retiredMarkers = /PAVE_(?:DECISIONS_RESOLVED|APPROVAL_READY|DDL_APPROVAL_READY|AWAITING_DECISION)/;
 
-  for (const surface of surfaces) {
+  for (const surface of [...routedSurfaces, 'skills/pave/references/approval.md']) {
     assert.doesNotMatch(read(surface), retiredMarkers, surface);
   }
-  assert.doesNotMatch(read('skills/pave/SKILL.md'), /\$pave:pave approve|\/pave:pave approve/);
-  assert.match(read('skills/pave/SKILL.md'), /request_user_input/);
-  assert.match(read('skills/pave/SKILL.md'), /ExitPlanMode/);
-  const planning = read('skills/pave/references/planning.md');
-  assert.match(planning, /already in plan mode.+ExitPlanMode/s);
-  assert.match(planning, /Otherwise.+AskUserQuestion/s);
-  assert.doesNotMatch(planning, /prefer `ExitPlanMode`/);
-  assert.match(planning, /pave_ddl_approval/);
+  assert.doesNotMatch(approval, /\$pave:pave approve|\/pave:pave approve/);
+  assert.match(approval, /already in plan mode.+ExitPlanMode/s);
+  assert.match(approval, /Otherwise.+AskUserQuestion/s);
+  assert.doesNotMatch(approval, /prefer `ExitPlanMode`/);
+  assert.match(approval, /pave_implementation_approval/);
+  assert.match(approval, /pave_ddl_approval/);
+
+  assert.match(read('skills/pave/SKILL.md'), /references\/approval\.md/);
+  for (const surface of routedSurfaces) {
+    const content = read(surface);
+    assert.doesNotMatch(
+      content,
+      /request_user_input|AskUserQuestion|ExitPlanMode|pave_(?:implementation|ddl)_approval/,
+      surface,
+    );
+  }
 });
 
 test('PAVE separates workflow evidence from host execution enforcement', () => {
   const skill = read('skills/pave/SKILL.md');
-  const planning = read('skills/pave/references/planning.md');
+  const approval = read('skills/pave/references/approval.md');
   const review = read('skills/pave/references/review.md');
   const verification = read('skills/pave/references/verification.md');
 
@@ -513,17 +523,17 @@ test('PAVE separates workflow evidence from host execution enforcement', () => {
     fs.existsSync(path.join(repoRoot, 'scripts', 'workflow-guard.js')),
     false,
   );
-  for (const surface of [skill, planning, review, verification]) {
+  for (const surface of [skill, approval, review, verification]) {
     assert.doesNotMatch(
       surface,
       /workflow-guard|route reset|boundary --verify|PAVE_BLOCKED|PreToolUse/,
     );
   }
 
-  assert.match(skill, /## Implementation Contract/);
-  assert.match(skill, /expected changed files and external operations/);
-  assert.match(skill, /host\s+permissions and sandboxing govern tool execution/i);
-  assert.match(planning, /requires renewed approval before acting/);
+  assert.match(approval, /## Implementation Contract/);
+  assert.match(approval, /expected changed files and external operations/);
+  assert.match(approval, /host permissions and\s+sandboxing govern tool execution/i);
+  assert.match(approval, /Obtain renewed approval before acting/);
   assert.match(review, /actual changed-file list and diff/);
   assert.match(verification, /fresh evidence for every acceptance\s+criterion/);
 });
