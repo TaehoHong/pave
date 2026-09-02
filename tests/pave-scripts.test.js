@@ -226,13 +226,8 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   }
 });
 
-test('plugin instruction files use resolvable script paths', () => {
-  for (const instruction of [
-    'skills/pave/SKILL.md',
-    'skills/pave/references/project-init.md',
-  ]) {
-    assertPluginScriptLinksResolve(instruction);
-  }
+test('project-init uses resolvable script paths', () => {
+  assertPluginScriptLinksResolve('skills/pave/references/project-init.md');
 });
 
 test('workflow references do not chain to sibling workflow references', () => {
@@ -276,7 +271,9 @@ test('the main skill owns routing and scopes completion reporting', () => {
   );
   assert.match(pave, /Status request: read `\.\.\/\.\.\/commands\/status\.md`/);
   assert.match(pave, /Bug: read `references\/debugging\.md`/);
+  assert.match(pave, /Plugin installation or local development: read `\.\.\/\.\.\/README\.md`/);
   assert.doesNotMatch(pave, /references\/request-routing\.md/);
+  assert.doesNotMatch(pave, /## Scripts|## Commands/);
   assert.match(pave, /only for a mutating completion or a task blocked/);
   assert.match(pave, /Read-only analysis, review, status, plan-only/);
   assert.match(reporting, /Do not load it for read-only analysis, review, status/);

@@ -79,6 +79,8 @@ Classify the request:
 - Obvious low-risk local edit: read `references/fast-path.md`,
   `references/testing.md`, and `references/verification.md`.
 - Project initialization or optional repo runtime setup: read `references/project-init.md`.
+- Plugin installation or local development: read `../../README.md` and inspect
+  referenced script help only when the request requires running a script.
 - Status request: read `../../commands/status.md`, then report state without
   editing files.
 - Plan-only request: read `references/design.md`, `references/testing.md`, and
@@ -115,26 +117,3 @@ Knowledge Delta or the reason no promotion was warranted. Read
 `references/git.md` only when the task requires Git operations. Use assets from
 `assets/` when initializing, syncing, or creating a durable troubleshooting
 record.
-
-## Scripts
-
-- Codex plugin install: `codex plugin marketplace add TaehoHong/pave --ref main`,
-  then `codex plugin add pave@pave`
-- Claude Code plugin install:
-  `claude plugin marketplace add TaehoHong/pave`,
-  then `claude plugin install pave@pave`
-- Local source plugin install helper: `../../scripts/install_plugin.sh`
-- Optional repo runtime install: `../../scripts/install.sh <repo-path>`
-- Initialize a repo with JavaScript: `../../scripts/init_repo.js <repo-path>`
-- Re-sync templates: `../../scripts/sync_template.js <repo-path>`
-
-## Commands
-
-- `/pave`: default workflow router.
-- `/project-init`: optional repo-local direction and runtime initialization.
-- `/status`: read-only project and PAVE state summary.
-- `/plan`: plan only; do not edit code or tests.
-- `/sync-docs`: update project direction docs from evidence and user decisions.
-
-Repository scripts require Node.js 18 or newer. Read script `--help` output
-before sensitive or repo-specific use.
