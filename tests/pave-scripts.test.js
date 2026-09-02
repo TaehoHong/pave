@@ -171,7 +171,7 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), true);
   }
 
-  for (const name of ['plan', 'sync-docs', 'token-save']) {
+  for (const name of ['sync-docs', 'token-save']) {
     const skill = read(`skills/${name}/SKILL.md`);
     assert.match(skill, /\.\.\/pave\/SKILL\.md/);
     assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
@@ -187,6 +187,25 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   assert.match(
     statusCommand,
     /do not scan source files or validate the guide's recorded evidence paths/i,
+  );
+
+  const planSkill = read('skills/plan/SKILL.md');
+  const planCommand = read('commands/plan.md');
+
+  assert.match(planSkill, /\$pave:plan/);
+  assert.doesNotMatch(planSkill, /\.\.\/pave\/SKILL\.md/);
+  assert.match(planSkill, /references\/planning\.md/);
+  assert.match(planSkill, /references\/testing\.md/);
+  assert.match(planSkill, /also read `\.\.\/pave\/references\/design\.md`/);
+  for (const reference of ['planning', 'testing', 'design']) {
+    assert.match(
+      planCommand,
+      new RegExp(`\\$\\{CLAUDE_PLUGIN_ROOT\\}/skills/pave/references/${reference}\\.md`),
+    );
+  }
+  assert.ok(
+    planCommand.trimEnd().split('\n').length <= 30,
+    'plan command should stay a thin router',
   );
 
   for (const name of ['doctor', 'verify']) {
@@ -312,7 +331,6 @@ test('outcome-only feature requests triage material decisions and bound intervie
   assert.match(design, /Read-only discovery does not require implementation approval/);
   assert.match(planning, /Agent-owned implementation details do not block readiness/);
   assert.match(pave, /continue safe unblocked work/);
-  assert.match(planCommand, /current decision ledger and remaining blocking decision count/);
   assert.match(runtimePlan, /Extension boundaries: <evidence, current cost, avoided rework>/);
   assert.match(runtimePlan, /externally-evidenced/);
   assert.match(runtimePlan, /active, superseded, or deferred/);

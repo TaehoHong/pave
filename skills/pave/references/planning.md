@@ -23,9 +23,11 @@ Produce an implementation-ready checklist plan before implementation.
 6. Apply the Test Value Gate and attach only tests with material regression
    value. Otherwise name the proportionate verification command and residual
    risk.
-7. Apply the Decision Triage, Evidence, Extensibility, Decision Ledger, and
-   Interview Progress gates. Resolve only material, user-owned decisions that
-   block the current slice.
+7. For a behavior-changing outcome without implementation-ready requirements,
+   or when a material user-owned decision remains unresolved, apply the
+   Decision Triage, Evidence, Extensibility, Decision Ledger, and Interview
+   Progress gates. For a mechanical plan with one repo-evidenced path, record
+   zero blocking decisions without loading the full design workflow.
 8. Apply the Feature Readiness Gate.
 9. List out-of-scope work.
 10. Ask once for consolidated approval immediately before code or
