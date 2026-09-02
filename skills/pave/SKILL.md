@@ -188,8 +188,6 @@ record.
 - `/status`: read-only project and PAVE state summary.
 - `/plan`: plan only; do not edit code or tests.
 - `/sync-docs`: update project direction docs from evidence and user decisions.
-- `/token-save`: one-off token-conscious contract; normal use is token-save
-  mode in `.codex/pave/config.md` plus `/pave`.
 
 Repository scripts require Node.js 18 or newer. Read script `--help` output
 before sensitive or repo-specific use.

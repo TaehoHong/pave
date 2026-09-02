@@ -93,7 +93,6 @@ canonical examples, and narrow verification without rereading unrelated code.
 | Show project and workflow status | `$pave:status` | `/pave:status` |
 | Create a plan without editing source | `$pave:plan` | `/pave:plan` |
 | Sync durable project documentation | `$pave:sync-docs` | `/pave:sync-docs` |
-| Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
 
 For verification without source changes, ask the default PAVE workflow to run
 the repository's declared verification commands.

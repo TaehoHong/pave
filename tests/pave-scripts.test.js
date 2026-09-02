@@ -163,18 +163,11 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     'status',
     'plan',
     'sync-docs',
-    'token-save',
   ];
 
   for (const name of aliases) {
     assert.equal(fs.existsSync(path.join(repoRoot, 'skills', name, 'SKILL.md')), true);
     assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), true);
-  }
-
-  for (const name of ['token-save']) {
-    const skill = read(`skills/${name}/SKILL.md`);
-    assert.match(skill, /\.\.\/pave\/SKILL\.md/);
-    assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
   }
 
   const statusSkill = read('skills/status/SKILL.md');
@@ -619,16 +612,24 @@ test('user-visible work follows the resolved design system', () => {
   }
 });
 
-test('token-save remains an optional configured workflow', () => {
-  assert.match(
-    read('skills/pave/assets/repo-template/.claude/commands/pave.md'),
-    /If token-save is enabled/,
-  );
-  assert.match(read('commands/token-save.md'), /Implementation Contract/);
-  assert.match(
-    read('skills/pave/assets/repo-template/.codex/pave/config.md'),
-    /Token-save: disabled/,
-  );
+test('the core plugin installs no token-save workflow', () => {
+  for (const removedPath of [
+    'commands/token-save.md',
+    'skills/token-save/SKILL.md',
+  ]) {
+    assert.equal(fs.existsSync(path.join(repoRoot, removedPath)), false, removedPath);
+  }
+
+  for (const surface of [
+    'skills/pave/SKILL.md',
+    'skills/pave/assets/repo-template/.codex/pave/config.md',
+    'skills/pave/assets/repo-template/.claude/commands/pave.md',
+    'README.md',
+    'README.kr.md',
+    'BENCHMARKING.md',
+  ]) {
+    assert.doesNotMatch(read(surface), /token-save|low-cost implementer/i, surface);
+  }
 });
 
 test('the core plugin installs no passive usage telemetry', () => {

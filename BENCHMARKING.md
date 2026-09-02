@@ -99,7 +99,6 @@ represents PAVE as a whole.
 | Read-only requests | Plan, review, status, and verification routing | Analysis accuracy, unauthorized writes, unnecessary work |
 | Runtime lifecycle | Project initialization, validation, and sync behavior | Idempotency, preservation, validation accuracy, repo pollution |
 | Delegated work | Bounded specialist dispatch and integration | End-to-end success, conflicting edits, context and coordination cost |
-| Cost-saving mode | Token-save routing and bounded implementation | Quality retention, token and latency reduction, escalation accuracy |
 | Durable knowledge | Memory promotion and documentation routing | Promotion precision/recall, stale or duplicate documentation |
 | Safety and compatibility | Risk recognition and preservation | Critical violations, destructive actions, compatibility regressions |
 | Long-context work | Selective retrieval and context control | Success by context size, irrelevant reads, premature termination |

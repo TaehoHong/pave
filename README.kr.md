@@ -90,7 +90,6 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 | 프로젝트와 워크플로 상태 확인 | `$pave:status` | `/pave:status` |
 | source 수정 없는 계획 작성 | `$pave:plan` | `/pave:plan` |
 | 장기 프로젝트 문서 동기화 | `$pave:sync-docs` | `/pave:sync-docs` |
-| 일회성 저비용 워크플로 | `$pave:token-save` | `/pave:token-save` |
 
 source 변경 없는 검증은 기본 PAVE 워크플로에 저장소의 선언된 검증 명령을
 실행해 달라고 요청합니다.
