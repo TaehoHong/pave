@@ -46,9 +46,6 @@ said it would implement after the reply.
 4. Treat the user's concrete edit request as implementation approval. Do not
    ask for a second approval or create a formal design, feature inventory,
    vertical-slice plan, plan file, or subagent task.
-   On Codex, a compact `update_plan` containing only `[PAVE:inspect]`,
-   `[PAVE:execute]`, `[PAVE:verify]`, and `[PAVE:report]` telemetry steps is
-   allowed and does not turn the request into the standard planning workflow.
 5. Make the smallest maintainable edit.
 6. Apply the Test Value Gate; do not add a low-value test for a tiny change
    merely to satisfy process.

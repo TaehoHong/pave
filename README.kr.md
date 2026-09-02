@@ -91,7 +91,6 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 | source 수정 없는 계획 작성 | `$pave:plan` | `/pave:plan` |
 | 장기 프로젝트 문서 동기화 | `$pave:sync-docs` | `/pave:sync-docs` |
 | 일회성 저비용 워크플로 | `$pave:token-save` | `/pave:token-save` |
-| 단계별 시간과 토큰 통계 확인 | `$pave:usage` | 아직 지원하지 않음 |
 
 source 변경 없는 검증은 기본 PAVE 워크플로에 저장소의 선언된 검증 명령을
 실행해 달라고 요청합니다.
@@ -101,34 +100,12 @@ source 변경 없는 검증은 기본 PAVE 워크플로에 저장소의 선언�
 PAVE는 협조적인 개발 워크플로입니다. skill은 조사, 명시적인 Implementation
 Contract, 사용자 승인, 범위 변경 재승인, diff 검토, fresh verification, 보고를
 정의합니다. 임의의 명령이나 도구 payload를 해석해 안전성과 변경 여부를 추론하지
-않으며, plan marker나 승인 UI 호출 성공을 기술적 실행 권한의 증거라고 주장하지
-않습니다.
+않으며, 승인 UI 호출 성공을 기술적 실행 권한의 증거라고 주장하지 않습니다.
 
 도구 권한, sandbox, 파일·네트워크·외부 시스템 접근은 호스트가 담당합니다. CI,
 credential, migration, deployment 정책은 저장소와 운영 환경이 담당합니다. 더
 강한 기술적 강제가 필요하면 특정 언어나 명령어를 추론하는 PAVE parser가 아니라
 해당 계층에 구현해야 합니다.
-
-## 로컬 사용량 통계
-
-Codex에서 PAVE는 `inspect`, `plan`, `approval`, `execute`, `verify`,
-`report` 단계의 소요시간과 토큰 차이를 기록할 수 있습니다. 플러그인을
-설치하거나 업데이트한 뒤 `/hooks`에서 PAVE의 로컬 lifecycle hook을 검토하고
-신뢰 처리한 다음 아래 명령을 사용합니다.
-
-```text
-$pave:usage latest
-$pave:usage daily
-$pave:usage weekly
-$pave:usage cumulative
-```
-
-Codex 내장 `/usage`는 기존처럼 계정 단위 사용량을 표시합니다. PAVE는
-플러그인의 쓰기 가능한 data 디렉터리에 집계된 시각, 토큰 수, 모델,
-저장소 이름만 보관하며 prompt, 응답, source 파일, transcript 내용은 복사하지
-않습니다. 현재 Codex transcript에서 호환되는 `token_count` 이벤트를 얻을 수
-없으면 토큰 값은 추정하지 않고 `unavailable`로 표시합니다. Claude Code의
-사용량 수집은 이번 범위에 포함하지 않았습니다.
 
 ## 장기 프로젝트 지식
 
@@ -230,7 +207,7 @@ claude plugin uninstall pave@pave
 
 ## Project Runtime 수동 설치
 
-passive 사용량 hook과 선택적 저장소 스크립트에 Node.js 18 이상이 필요합니다.
+선택적 저장소 스크립트에 Node.js 18 이상이 필요합니다.
 
 ```bash
 git clone https://github.com/TaehoHong/pave.git

@@ -631,89 +631,27 @@ test('token-save remains an optional configured workflow', () => {
   );
 });
 
-test('Codex usage telemetry is passive, local, and phase-scoped', () => {
-  const manifest = JSON.parse(read('.codex-plugin/plugin.json'));
-  const hooks = JSON.parse(read('hooks/hooks.json'));
-  const pave = read('skills/pave/SKILL.md');
-  const usage = read('skills/usage/SKILL.md');
-  const hookData = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-hook-test-'));
-
-  assert.equal(manifest.hooks, undefined);
-  assert.equal(fs.existsSync(path.join(repoRoot, 'hooks', 'hooks.json')), true);
-  assert.equal(fs.existsSync(path.join(repoRoot, 'commands', 'usage.md')), false);
-  assert.match(usage, /Codex's native `\/usage`/);
-  assert.match(usage, /latest`, `daily`, `weekly`, or `cumulative`/);
-  assert.match(usage, /scripts\/usage\.js` relative to this `SKILL\.md`/);
-  assert.match(pave, /\[PAVE:inspect\]/);
-  assert.match(pave, /\[PAVE:approval\].+in progress/s);
-
-  assert.deepEqual(Object.keys(hooks.hooks).sort(), [
-    'PostToolUse',
-    'SessionEnd',
-    'Stop',
-    'UserPromptSubmit',
-  ]);
-  assert.match(hooks.description, /without.+controlling tool execution/);
-  assert.equal(hooks.hooks.PostToolUse.length, 1);
-  assert.equal(hooks.hooks.PostToolUse[0].matcher, '^update_plan$');
-
-  const commands = new Set(Object.values(hooks.hooks).flatMap((event) => (
-    event.flatMap((entry) => entry.hooks.map((hook) => hook.command))
-  )));
-  assert.equal([...commands].some((command) => /scripts\/usage\.js/.test(command)), true);
-  assert.equal(
-    [...commands].some((command) => /workflow-guard|permissionDecision/.test(command)),
-    false,
-  );
-  for (const event of ['UserPromptSubmit', 'PostToolUse', 'Stop', 'SessionEnd']) {
-    const eventCommands = hooks.hooks[event].flatMap((entry) => (
-      entry.hooks.map((hook) => hook.command)
-    ));
-    assert.equal(
-      eventCommands.every((command) => /scripts\/usage\.js/.test(command)),
-      true,
-      event,
-    );
+test('the core plugin installs no passive usage telemetry', () => {
+  for (const removedPath of [
+    'hooks/hooks.json',
+    'scripts/usage.js',
+    'skills/usage/SKILL.md',
+    'tests/usage.test.js',
+  ]) {
+    assert.equal(fs.existsSync(path.join(repoRoot, removedPath)), false, removedPath);
   }
 
-  for (const command of commands) {
-    assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT:-\}/);
-    assert.match(command, /\$\{PLUGIN_ROOT:-\}/);
-
-    for (const hostRoot of [
-      { PLUGIN_ROOT: repoRoot },
-      { CLAUDE_PLUGIN_ROOT: repoRoot },
-      {
-        CLAUDE_PLUGIN_ROOT: path.join(hookData, 'stale-plugin'),
-        PLUGIN_ROOT: repoRoot,
-      },
-    ]) {
-      const result = run(['/bin/sh', '-c', command], {
-        input: '{}\n',
-        env: {
-          PATH: process.env.PATH,
-          CLAUDE_PLUGIN_DATA: hookData,
-          ...hostRoot,
-        },
-      });
-      assert.equal(result.status, 0, result.stderr);
-      assert.equal(result.stdout, '{}\n');
-    }
-
-    for (const missingRoot of [
-      {},
-      { PLUGIN_ROOT: path.join(hookData, 'missing-plugin') },
-    ]) {
-      const result = run(['/bin/sh', '-c', command], {
-        input: '{}\n',
-        env: {
-          PATH: process.env.PATH,
-          PLUGIN_DATA: hookData,
-          ...missingRoot,
-        },
-      });
-      assert.equal(result.status, 0, result.stderr);
-    }
+  for (const surface of [
+    'skills/pave/SKILL.md',
+    'README.md',
+    'README.kr.md',
+    'BENCHMARKING.md',
+  ]) {
+    assert.doesNotMatch(
+      read(surface),
+      /PAVE_USAGE|pave:usage|scripts\/usage\.js|\[PAVE:/,
+      surface,
+    );
   }
 });
 

@@ -68,31 +68,22 @@ session harness for software development work.
 12. Never claim completion without fresh verification evidence.
 13. PAVE owns workflow and approval gates. Instructions that optimize speed,
     terseness, or implementation size do not waive those gates.
-14. On Codex, when `update_plan` is available, expose phase telemetry by
-    prefixing each plan step with exactly one of `[PAVE:inspect]`,
-    `[PAVE:plan]`, `[PAVE:approval]`, `[PAVE:execute]`, `[PAVE:verify]`, or
-    `[PAVE:report]`. Keep the task-specific outcome after the prefix, move the
-    matching step to `in_progress` at each phase boundary, and mark every step
-    completed immediately before the final response. Leave
-    `[PAVE:approval]` in progress while waiting for implementation approval.
-    These markers are optional telemetry signals, not approval evidence or
-    execution authority. Do not add them on non-Codex hosts.
-15. For implementation, bug, refactor, and documentation-sync work, evaluate
+14. For implementation, bug, refactor, and documentation-sync work, evaluate
     the verified result against `references/memory.md` before final reporting.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
-16. After the surfaced Implementation Contract has zero blocking decisions,
+15. After the surfaced Implementation Contract has zero blocking decisions,
     prefer a host-native structured approval: Codex
     `request_user_input`, Claude Code `AskUserQuestion` in default mode, or
     `ExitPlanMode` when already in plan mode.
     A direct conversational approval is valid when it clearly authorizes the
-    currently surfaced Implementation Contract. Host UI state, plan telemetry,
-    assistant text, and reference reads are not technical proof of execution
-    authority. PAVE governs a cooperative development workflow; host
+    currently surfaced Implementation Contract. Host UI state, assistant text,
+    and reference reads are not technical proof of execution authority. PAVE
+    governs a cooperative development workflow; host
     permissions and sandboxing govern tool execution, while repository and
     operational policy govern CI, credentials, migrations, and deployment.
-17. For Codex `request_user_input`, use question ID
+16. For Codex `request_user_input`, use question ID
     `pave_implementation_approval`, or `pave_ddl_approval` when the surfaced
     contract includes DDL, with `Implement (Recommended)` / `Implement with DDL
     (Recommended)` and `Revise plan` choices. For Claude `AskUserQuestion`, use
@@ -115,8 +106,8 @@ Before standard implementation, present one current contract containing:
 - the remaining material blocking-decision count; and
 - the approval method and the contract the user approved.
 
-The user approves this surfaced contract, not an inferred route, tool name,
-plan marker, or hidden runtime state. Obtain renewed approval before acting when
+The user approves this surfaced contract, not an inferred route, tool name, or
+hidden runtime state. Obtain renewed approval before acting when
 the expected files, external operations, material capabilities or risks,
 verification strategy, or observable behavior changes materially. DDL always
 retains its distinct approval requirement.
@@ -199,8 +190,6 @@ record.
 - `/sync-docs`: update project direction docs from evidence and user decisions.
 - `/token-save`: one-off token-conscious contract; normal use is token-save
   mode in `.codex/pave/config.md` plus `/pave`.
-- `$pave:usage`: Codex-only local PAVE phase timing and token statistics.
 
-Repository initialization scripts are optional. Passive local usage telemetry
-and repository scripts require Node.js 18 or newer. Read script `--help` output
+Repository scripts require Node.js 18 or newer. Read script `--help` output
 before sensitive or repo-specific use.

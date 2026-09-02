@@ -5,14 +5,10 @@
 This document defines how to measure PAVE's behavioral effects and operating
 costs. It is an evaluation contract, not evidence that PAVE is effective.
 
-The repository currently has two narrower forms of evidence:
+The repository's current narrow evidence is `tests/*.test.js`, which checks
+plugin structure and workflow wiring.
 
-- `tests/*.test.js` checks plugin structure, workflow wiring, and local usage
-  accounting;
-- `scripts/usage.js` records phase duration and token deltas when the host
-  exposes compatible usage events.
-
-Those checks can prove that instructions and instrumentation are present. They
+Those checks can prove that instructions and workflow wiring are present. They
 cannot prove that an agent follows the workflow, produces a better patch, or is
 worth its additional cost. Behavioral claims require the controlled evaluations
 defined below.
@@ -53,7 +49,7 @@ effort, permissions, tool availability, task prompt, starting commit, and
 resource limits. A model or host comparison is a separate experiment.
 
 An ablation removes only the instruction or mechanism being studied. It must
-not silently remove unrelated context, hooks, commands, or verification tools.
+not silently remove unrelated context, commands, or verification tools.
 For example, an Existing Owner Check ablation keeps the rest of PAVE intact.
 
 ## Evaluation Layers
@@ -62,9 +58,9 @@ PAVE should be evaluated at four distinct layers.
 
 ### 1. Contract conformance
 
-Static checks answer whether manifests, commands, skills, references, and hooks
-are valid and reachable. The existing repository tests primarily cover this
-layer. Conformance is necessary but is not a behavioral result.
+Static checks answer whether manifests, commands, skills, references, and
+scripts are valid and reachable. The existing repository tests primarily cover
+this layer. Conformance is necessary but is not a behavioral result.
 
 ### 2. Trajectory behavior
 
@@ -377,9 +373,8 @@ Measure cost over the entire run, including failed attempts and final reporting.
 - automated verification duration;
 - blinded human review and correction time.
 
-`scripts/usage.js` is the canonical source for PAVE's current Codex phase token
-and duration data. A benchmark runner may collect additional trajectory and
-artifact metrics, but raw prompts, responses, private source, credentials, and
+The benchmark runner owns cost instrumentation; PAVE does not install passive
+usage telemetry. Raw prompts, responses, private source, credentials, and
 transcripts must remain local and must not be copied into published results.
 Missing usage events remain `unavailable`; do not estimate them.
 
@@ -574,7 +569,7 @@ repository or user identity is sensitive.
 2. Add gold, known-bad, empty, shortcut, and alternative-valid artifacts.
 3. Build a local runner that creates clean checkouts, executes assigned
    conditions, and records redacted result rows.
-4. Reuse `scripts/usage.js` output for phase cost and add only the missing
+4. Add local benchmark-runner instrumentation for phase cost and required
    benchmark-specific counters.
 5. Run the 48-run evaluator pilot and fix unreliable oracles.
 6. Freeze thresholds, expand to at least twenty tasks, and run the release
@@ -582,5 +577,5 @@ repository or user identity is sensitive.
 7. Add historical replay and shadow tasks before claiming real-world impact.
 
 Until these steps produce paired behavioral results, PAVE should describe its
-workflow contracts and measured local usage, but should not claim proven gains
-in agent correctness, maintainability, safety, or productivity.
+workflow contracts and controlled cost measurements, but should not claim
+proven gains in agent correctness, maintainability, safety, or productivity.

@@ -94,7 +94,6 @@ canonical examples, and narrow verification without rereading unrelated code.
 | Create a plan without editing source | `$pave:plan` | `/pave:plan` |
 | Sync durable project documentation | `$pave:sync-docs` | `/pave:sync-docs` |
 | Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
-| Show phase timing and token usage | `$pave:usage` | Not supported yet |
 
 For verification without source changes, ask the default PAVE workflow to run
 the repository's declared verification commands.
@@ -105,35 +104,13 @@ PAVE is a cooperative workflow: its skill defines investigation, an explicit
 Implementation Contract, user approval, scope-change reapproval, diff review,
 fresh verification, and reporting. It does not parse arbitrary commands or
 tool payloads to infer whether they are safe or mutating, and it does not claim
-that a plan marker or successful approval UI call proves technical authority.
+that a successful approval UI call proves technical authority.
 
 The host owns tool permissions, sandboxing, and file, network, or external
 system access. Repository and operational controls own CI, credentials,
 migrations, and deployment policy. If stronger enforcement is required, it
 belongs in those layers rather than in a language- or command-specific PAVE
 parser.
-
-## Local Usage Statistics
-
-On Codex, PAVE can passively record elapsed time and token deltas for the
-`inspect`, `plan`, `approval`, `execute`, `verify`, and `report` phases. After
-installing or updating the plugin, review and trust its local lifecycle hook
-with `/hooks`, then use:
-
-```text
-$pave:usage latest
-$pave:usage daily
-$pave:usage weekly
-$pave:usage cumulative
-```
-
-Codex's native `/usage` remains the account-level usage command. PAVE stores
-only aggregated timestamps, token counters, model, and repository name under
-the plugin's writable data directory. It does not copy prompts, responses,
-source files, or transcript contents. Token statistics are shown as
-`unavailable` when the current Codex transcript does not expose a compatible
-`token_count` event; PAVE does not estimate missing values. Claude Code usage
-collection is deferred.
 
 ## Durable Project Knowledge
 
@@ -238,9 +215,7 @@ claude plugin uninstall pave@pave
 
 ## Manual Project Runtime Installation
 
-Node.js 18 or newer is required for passive usage hooks and the optional
-repository scripts. Hook commands run through the shell provided by the
-supported Codex or Claude Code host.
+Node.js 18 or newer is required for the optional repository scripts.
 
 ```bash
 git clone https://github.com/TaehoHong/pave.git

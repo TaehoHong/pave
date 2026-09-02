@@ -49,8 +49,7 @@ and no material in-scope decision remains unknown or
 `recommended-unconfirmed`. Then use the host's normal approval UX instead of
 requiring another PAVE command:
 
-- Codex: move `[PAVE:approval]` to `in_progress`, then use
-  `request_user_input` when available with question ID
+- Codex: use `request_user_input` when available with question ID
   `pave_implementation_approval` and `Implement (Recommended)` / `Revise plan`
   choices.
   When a structured choice is unavailable, a direct response must clearly
@@ -59,8 +58,8 @@ requiring another PAVE command:
   approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
   `Implement` / `Revise plan` choices.
 
-The user approves the surfaced contract, not a route, tool name, plan marker,
-or hidden runtime state. Changing expected files, external operations, material
+The user approves the surfaced contract, not a route, tool name, or hidden
+runtime state. Changing expected files, external operations, material
 capabilities or risks, verification strategy, or observable behavior
 materially requires renewed approval before acting. Host permissions and
 sandboxing govern tool execution; repository and operational policy govern CI,
