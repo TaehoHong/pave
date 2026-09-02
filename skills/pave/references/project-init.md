@@ -94,18 +94,25 @@ workflows.
    `claude plugin marketplace add TaehoHong/pave`,
    then `claude plugin install pave@pave`. Do not present a skill prompt
    as the plugin installation method.
-12. To apply PAVE runtime files to the repo, run
-   `../../../scripts/install.sh <repo>`.
-13. Use `../../../scripts/init_repo.js <repo>` as the JavaScript automation
-   helper when direct repo initialization is preferred. It reports existing
-   documentation it detects; treat that list as a discovery hint, not the
-   complete inventory.
-14. For project-init, edits to product docs, `AGENTS.md`, `CLAUDE.md`, and
-   PAVE runtime policy files require approval after the interview summary
-   and before writing.
-15. Fill `AGENTS.md` declared verification commands with real repo
+12. Before requesting repository writes, run
+   `../../../scripts/install.sh <repo> --dry-run` to preview the runtime,
+   agent, and documentation targets. Treat detected documentation as a
+   discovery hint, not the complete inventory.
+13. When direct JavaScript initialization is preferred, use
+   `../../../scripts/init_repo.js <repo> --dry-run` for the same preview.
+14. Present the interview summary, decision coverage, linked existing
+   documentation, setup gaps, and exact previewed write set.
+   Next, require approval before editing product docs, `AGENTS.md`,
+   `CLAUDE.md`, or PAVE runtime policy files.
+15. After approval, apply the previewed runtime with
+   `../../../scripts/install.sh <repo>`, or use the equivalent direct
+   JavaScript helper. Include `--skip-docs` when direction docs were not
+   approved or the user selected another canonical documentation root. Never
+   use `--force` unless the exact existing files and overwrite effects were
+   surfaced and approved.
+16. Fill `AGENTS.md` declared verification commands with real repo
    commands, or mark missing commands as setup gaps.
-16. Create or update initial docs:
+17. Create or update initial docs:
    - `docs/00-overview.md`
    - `docs/01-roadmap.md`
    - `docs/02-development-rules.md`
@@ -114,18 +121,18 @@ workflows.
    - `docs/05-quality-rules.md`
    - `docs/06-architecture.md`
    - `docs/07-codebase-guide.md`
-17. Do not stop at copying templates. Populate the docs with clearly separated
+18. Do not stop at copying templates. Populate the docs with clearly separated
     repo facts, user decisions, unresolved-after-asking questions, deferred
     decisions, not-applicable reasons, and setup gaps so future work keeps the
     same direction. Populate `docs/07-codebase-guide.md` from code evidence
     with module paths, shared owners, canonical symbols or examples,
     dependency rules, test locations, verification commands, excluded paths,
     and per-entry evidence paths.
-18. Fill the `Linked Sources` table of each doc that a discovered document
+19. Fill the `Linked Sources` table of each doc that a discovered document
     owns, and leave it empty when nothing was discovered for that subject.
-19. Confirm that the initialization helper completed its built-in runtime
+20. Confirm that the initialization helper completed its built-in runtime
     validation.
-20. Report generated files, linked existing documentation, decision coverage,
+21. Report generated files, linked existing documentation, decision coverage,
     setup gaps, and verification commands.
 
 ## Existing Documentation Discovery

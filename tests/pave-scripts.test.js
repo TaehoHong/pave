@@ -152,6 +152,17 @@ test('project-init uses one canonical workflow reference', () => {
   assert.match(alias, /explicit PAVE repo-local runtime and project docs initialization/);
   assert.match(reference, /root and nested `AGENTS\.md`/);
   assert.match(reference, /`\.codex\/ai-dev-harness\/` exists[\s\S]+legacy-compatible/);
+  const previewIndex = reference.indexOf(
+    '`../../../scripts/install.sh <repo> --dry-run`',
+  );
+  const approvalIndex = reference.indexOf('require approval', previewIndex);
+  const applyIndex = reference.indexOf(
+    '`../../../scripts/install.sh <repo>`',
+    approvalIndex,
+  );
+  assert.ok(previewIndex >= 0, 'project-init should preview writes with dry-run');
+  assert.ok(approvalIndex > previewIndex, 'project-init should approve after preview');
+  assert.ok(applyIndex > approvalIndex, 'project-init should install after approval');
   assert.doesNotMatch(
     reference,
     /set up AI-assisted\s+development|bootstrap a new repo/,
