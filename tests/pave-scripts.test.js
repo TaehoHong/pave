@@ -171,7 +171,7 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), true);
   }
 
-  for (const name of ['sync-docs', 'token-save']) {
+  for (const name of ['token-save']) {
     const skill = read(`skills/${name}/SKILL.md`);
     assert.match(skill, /\.\.\/pave\/SKILL\.md/);
     assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
@@ -206,6 +206,25 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   assert.ok(
     planCommand.trimEnd().split('\n').length <= 30,
     'plan command should stay a thin router',
+  );
+
+  const syncDocsSkill = read('skills/sync-docs/SKILL.md');
+  const syncDocsCommand = read('commands/sync-docs.md');
+
+  assert.match(syncDocsSkill, /\$pave:sync-docs/);
+  assert.doesNotMatch(syncDocsSkill, /\.\.\/pave\/SKILL\.md/);
+  for (const reference of ['memory', 'verification', 'context-retrieval', 'history-backfill', 'git']) {
+    assert.match(syncDocsSkill, new RegExp(`references/${reference}\\.md`));
+    assert.match(
+      syncDocsCommand,
+      new RegExp(`\\$\\{CLAUDE_PLUGIN_ROOT\\}/skills/pave/references/${reference}\\.md`),
+    );
+  }
+  assert.doesNotMatch(syncDocsCommand, /docs\/00-overview\.md/);
+  assert.match(syncDocsCommand, /Do not read every\s+PAVE project document by default/);
+  assert.match(
+    syncDocsCommand,
+    /Git\s+range only when history\s+or troubleshooting backfill was requested/,
   );
 
   for (const name of ['doctor', 'verify']) {
@@ -410,7 +429,7 @@ test('verified troubleshooting is promoted as scoped durable project knowledge',
   const memory = read('skills/pave/references/memory.md');
   const reporting = read('skills/pave/references/reporting.md');
   const context = read('skills/pave/references/context-retrieval.md');
-  const syncDocs = read('commands/sync-docs.md');
+  const historyBackfill = read('skills/pave/references/history-backfill.md');
   const runtimeAgent = read('skills/pave/assets/repo-template/AGENTS.md');
   const runtimeCommand = read(
     'skills/pave/assets/repo-template/.claude/commands/pave.md',
@@ -436,8 +455,8 @@ test('verified troubleshooting is promoted as scoped durable project knowledge',
   assert.match(reporting, /a `Troubleshooting Delta`/);
   assert.match(context, /docs\/troubleshooting\/_index\.md/);
   assert.match(context, /historical evidence, not proof of current\s+behavior/);
-  assert.match(syncDocs, /at most 50 first-parent\s+commits/);
-  assert.match(syncDocs, /A commit\s+message alone is not enough evidence/);
+  assert.match(historyBackfill, /at most 50 first-parent\s+commits/);
+  assert.match(historyBackfill, /A commit\s+message alone is not enough evidence/);
   assert.match(indexTemplate, /Follow `superseded-by` links/);
   assert.match(recordTemplate, /root-cause-confidence: proven/);
   assert.match(recordTemplate, /## Regression Guard and Verification/);
