@@ -1,14 +1,13 @@
 ---
 name: status
-description: Use when the user asks for /status or a read-only PAVE project state summary.
+description: Use for explicit PAVE status requests such as $pave:status or /pave:status; reports read-only repository and PAVE workflow state.
 ---
 
 # PAVE Status
 
-Use this as the discoverable Codex entrypoint for `/status`.
+Use this as the discoverable Codex entrypoint for `$pave:status`.
 
 Before acting:
-1. Read `../pave/SKILL.md`.
-2. Read `../../commands/status.md`.
+1. Read `../../commands/status.md`.
 
 Then follow the command file. Do not edit project files.

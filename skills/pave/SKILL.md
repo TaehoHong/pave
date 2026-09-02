@@ -141,18 +141,18 @@ Classify the request:
 - Obvious low-risk local edit: read `references/fast-path.md`,
   `references/testing.md`, and `references/verification.md`.
 - Project initialization or optional repo runtime setup: read `references/project-init.md`.
-- Status request: read `references/request-routing.md`, then report state
-  without editing files.
+- Status request: read `../../commands/status.md`, then report state without
+  editing files.
 - Plan-only request: read `references/design.md`, `references/testing.md`, and
   `references/planning.md`; stop before code or test edits.
 - Feature or behavior change: read `references/design.md`,
   `references/testing.md`, `references/planning.md`,
   `references/execution-loop.md`, `references/review.md`, and
   `references/verification.md` as the work reaches each step.
-- Bug: read `references/request-routing.md`, `references/debugging.md`,
-  `references/testing.md`, and `references/memory.md` before proposing a fix;
-  after approval, use `references/execution-loop.md`, `references/review.md`,
-  and `references/verification.md`.
+- Bug: read `references/debugging.md`, `references/testing.md`, and
+  `references/memory.md` before proposing a fix; after approval, use
+  `references/execution-loop.md`, `references/review.md`, and
+  `references/verification.md`.
 - UI or UX work: additionally read `references/design-system.md` before editing
   a user-visible surface and before claiming that change complete. This applies
   to any request type, including a fast-path edit and the user-visible part of a
@@ -168,12 +168,15 @@ Classify the request:
   `.codex/pave/plans/` exists; otherwise continue from the conversation state.
 
 Before dispatching bounded helpers, read `references/subagent-dispatch.md` and
-use role briefs from `references/subagents/`. Before final reporting, read
-`references/reporting.md`; for mutating work also read `references/memory.md`
-and report the resulting Knowledge Delta or the reason no promotion was
-warranted. Read `references/git.md` only when the task requires Git operations.
-Use assets from `assets/` when initializing, syncing, or creating a durable
-troubleshooting record.
+use role briefs from `references/subagents/`. Read `references/reporting.md`
+only for a mutating completion or a task blocked after meaningful attempts.
+Read-only analysis, review, status, plan-only, and verification-only requests
+follow their route-specific output without loading the reporting reference.
+For mutating work also read `references/memory.md` and report the resulting
+Knowledge Delta or the reason no promotion was warranted. Read
+`references/git.md` only when the task requires Git operations. Use assets from
+`assets/` when initializing, syncing, or creating a durable troubleshooting
+record.
 
 ## Scripts
 

@@ -171,11 +171,23 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), true);
   }
 
-  for (const name of aliases.slice(1)) {
+  for (const name of ['plan', 'sync-docs', 'token-save']) {
     const skill = read(`skills/${name}/SKILL.md`);
     assert.match(skill, /\.\.\/pave\/SKILL\.md/);
     assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
   }
+
+  const statusSkill = read('skills/status/SKILL.md');
+  const statusCommand = read('commands/status.md');
+
+  assert.match(statusSkill, /\$pave:status/);
+  assert.doesNotMatch(statusSkill, /\.\.\/pave\/SKILL\.md/);
+  assert.match(statusSkill, /\.\.\/\.\.\/commands\/status\.md/);
+  assert.match(statusCommand, /read at most one plan and one report/i);
+  assert.match(
+    statusCommand,
+    /do not scan source files or validate the guide's recorded evidence paths/i,
+  );
 
   for (const name of ['doctor', 'verify']) {
     assert.equal(fs.existsSync(path.join(repoRoot, 'skills', name, 'SKILL.md')), false);
@@ -212,51 +224,37 @@ test('workflow references do not chain to sibling workflow references', () => {
   }
 });
 
-test('the pave command wires every workflow reference the skill routes to', () => {
-  const named = (text) => new Set(
-    [...text.matchAll(/references\/([a-z-]+)\.md/g)].map((match) => match[1]),
+test('the pave command is a thin shim to the canonical skill', () => {
+  const command = read('commands/pave.md');
+
+  assert.match(command, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/pave\/SKILL\.md/);
+  assert.match(command, /\$ARGUMENTS/);
+  assert.match(command, /Request Routing/);
+  assert.match(command, /canonical PAVE workflow/);
+  assert.ok(command.split('\n').length <= 24, 'pave command should stay a thin shim');
+  assert.doesNotMatch(command, /## Command Behavior|## Decision and Approval Contract/);
+});
+
+test('the main skill owns routing and scopes completion reporting', () => {
+  const pave = read('skills/pave/SKILL.md');
+  const reporting = read('skills/pave/references/reporting.md');
+
+  assert.equal(
+    fs.existsSync(path.join(repoRoot, 'skills/pave/references/request-routing.md')),
+    false,
   );
-  const skillReferences = named(read('skills/pave/SKILL.md'));
-  const commandReferences = named(read('commands/pave.md'));
-
-  // References the command deliberately does not name by path, because it
-  // either inlines their contract as a numbered step or another command owns
-  // them. Everything else the skill routes to must stay reachable from the
-  // command, which is the entrypoint `/pave` actually injects.
-  const inlinedByCommand = new Set([
-    'request-routing',
-    'fast-path',
-    'testing',
-    'verification',
-    'reporting',
-    'subagent-dispatch',
-    'git',
-    'project-init',
-  ]);
-
-  const unreachable = [...skillReferences]
-    .filter((name) => !inlinedByCommand.has(name) && !commandReferences.has(name))
-    .sort();
-
-  assert.deepEqual(
-    unreachable,
-    [],
-    `commands/pave.md should load these workflow references: ${unreachable.join(', ')}`,
-  );
-
-  for (const name of inlinedByCommand) {
-    assert.equal(
-      fs.existsSync(path.join(repoRoot, 'skills/pave/references', `${name}.md`)),
-      true,
-      `${name}.md is listed as inlined but does not exist`,
-    );
-  }
+  assert.match(pave, /Status request: read `\.\.\/\.\.\/commands\/status\.md`/);
+  assert.match(pave, /Bug: read `references\/debugging\.md`/);
+  assert.doesNotMatch(pave, /references\/request-routing\.md/);
+  assert.match(pave, /only for a mutating completion or a task blocked/);
+  assert.match(pave, /Read-only analysis, review, status, plan-only/);
+  assert.match(reporting, /Do not load it for read-only analysis, review, status/);
+  assert.match(reporting, /Plan path, when a durable plan exists/);
 });
 
 test('code-changing work searches for an existing owner before writing logic', () => {
   const context = read('skills/pave/references/context-retrieval.md');
   const skill = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
   const planning = read('skills/pave/references/planning.md');
   const fastPath = read('skills/pave/references/fast-path.md');
   const review = read('skills/pave/references/review.md');
@@ -268,7 +266,6 @@ test('code-changing work searches for an existing owner before writing logic', (
 
   for (const [label, content] of [
     ['skill', skill],
-    ['command', command],
     ['planning', planning],
     ['fast-path', fastPath],
     ['review', review],
@@ -293,10 +290,8 @@ test('code-changing work searches for an existing owner before writing logic', (
 
 test('outcome-only feature requests triage material decisions and bound interviews', () => {
   const pave = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
   const design = read('skills/pave/references/design.md');
   const planning = read('skills/pave/references/planning.md');
-  const routing = read('skills/pave/references/request-routing.md');
   const planCommand = read('commands/plan.md');
   const runtimePlan = read(
     'skills/pave/assets/repo-template/.codex/pave/templates/plan.md',
@@ -307,7 +302,6 @@ test('outcome-only feature requests triage material decisions and bound intervie
   ];
 
   assert.match(pave, /states an outcome without implementation-ready\s+requirements/);
-  assert.match(command, /load and apply `skills\/pave\/references\/design\.md`/);
   assert.match(design, /Ask the user only when all of these are true/);
   assert.match(design, /`externally-evidenced`/);
   assert.match(design, /External facts are constraints, not user\s+preferences/);
@@ -317,7 +311,7 @@ test('outcome-only feature requests triage material decisions and bound intervie
   assert.match(design, /remaining blocking decision\s+count/);
   assert.match(design, /Read-only discovery does not require implementation approval/);
   assert.match(planning, /Agent-owned implementation details do not block readiness/);
-  assert.match(routing, /partial blocker and continue\s+unblocked in-scope work/);
+  assert.match(pave, /continue safe unblocked work/);
   assert.match(planCommand, /current decision ledger and remaining blocking decision count/);
   assert.match(runtimePlan, /Extension boundaries: <evidence, current cost, avoided rework>/);
   assert.match(runtimePlan, /externally-evidenced/);
@@ -334,10 +328,8 @@ test('outcome-only feature requests triage material decisions and bound intervie
 
   for (const entrypoint of [
     pave,
-    command,
     design,
     planning,
-    routing,
     planCommand,
     read('skills/pave/assets/repo-template/AGENTS.md'),
     read('skills/pave/assets/repo-template/.claude/commands/pave.md'),
@@ -353,7 +345,6 @@ test('outcome-only feature requests triage material decisions and bound intervie
 
 test('plugin-only workflows preserve safety and verification contracts', () => {
   const pave = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
   const fastPath = read('skills/pave/references/fast-path.md');
   const planning = read('skills/pave/references/planning.md');
   const testing = read('skills/pave/references/testing.md');
@@ -361,7 +352,7 @@ test('plugin-only workflows preserve safety and verification contracts', () => {
 
   assert.match(pave, /continue in plugin-only mode/);
   assert.match(pave, /Never claim completion without fresh verification evidence/);
-  assert.match(command, /Do not create `AGENTS\.md`, `CLAUDE\.md`, `\.codex\/pave\/`, or `docs\/`/);
+  assert.match(pave, /Do not create repo-local runtime files unless/);
   assert.match(fastPath, /Both limits are hard eligibility conditions/);
   assert.match(fastPath, /third hand-edited file/);
   assert.match(fastPath, /original fast-path request as\s+approval for expanded scope/);
@@ -397,7 +388,6 @@ test('code work reuses a freshness-checked durable codebase guide', () => {
 
 test('verified troubleshooting is promoted as scoped durable project knowledge', () => {
   const pave = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
   const debugging = read('skills/pave/references/debugging.md');
   const memory = read('skills/pave/references/memory.md');
   const reporting = read('skills/pave/references/reporting.md');
@@ -415,7 +405,7 @@ test('verified troubleshooting is promoted as scoped durable project knowledge',
 
   assert.match(pave, /For implementation, bug, refactor, and documentation-sync work/);
   assert.match(pave, /Bug:[\s\S]+references\/memory\.md/);
-  assert.match(command, /report the Knowledge Delta/);
+  assert.match(pave, /report the resulting\s+Knowledge Delta/);
   assert.match(debugging, /## Investigation Ledger/);
   assert.match(debugging, /`unknown`, `probable`, or `proven`/);
   assert.match(debugging, /An unresolved investigation may be preserved only/);
@@ -424,7 +414,7 @@ test('verified troubleshooting is promoted as scoped durable project knowledge',
   assert.match(memory, /In plugin-only mode, do not create `docs\/`, `\.wiki\/`/);
   assert.match(memory, /root-cause-confidence: proven/);
   assert.match(memory, /Update or supersede an existing record/);
-  assert.match(reporting, /A `Knowledge Delta`/);
+  assert.match(reporting, /`Knowledge Delta`:/);
   assert.match(reporting, /a `Troubleshooting Delta`/);
   assert.match(context, /docs\/troubleshooting\/_index\.md/);
   assert.match(context, /historical evidence, not proof of current\s+behavior/);
@@ -442,7 +432,6 @@ test('verified troubleshooting is promoted as scoped durable project knowledge',
 
 test('every fast-path entrypoint preserves the hard size and approval gates', () => {
   const entrypoints = [
-    'commands/pave.md',
     'skills/pave/references/fast-path.md',
     'skills/pave/assets/repo-template/AGENTS.md',
     'skills/pave/assets/repo-template/.claude/commands/pave.md',
@@ -457,7 +446,6 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
     assert.doesNotMatch(content, /\bnormally\b|\broughly\b/, entrypoint);
   }
 
-  assert.match(read('commands/pave.md'), /design choice.+is not\s+write approval/s);
   assert.match(
     read('skills/pave/assets/repo-template/AGENTS.md'),
     /design choice or clarification answer is not write approval/i,
@@ -466,7 +454,6 @@ test('every fast-path entrypoint preserves the hard size and approval gates', ()
 
 test('standard approval uses host selections or pending user responses instead of commands or response markers', () => {
   const surfaces = [
-    'commands/pave.md',
     'skills/pave/SKILL.md',
     'skills/pave/references/design.md',
     'skills/pave/references/planning.md',
@@ -476,9 +463,9 @@ test('standard approval uses host selections or pending user responses instead o
   for (const surface of surfaces) {
     assert.doesNotMatch(read(surface), retiredMarkers, surface);
   }
-  assert.doesNotMatch(read('commands/pave.md'), /\$pave:pave approve|\/pave:pave approve/);
-  assert.match(read('commands/pave.md'), /request_user_input/);
-  assert.match(read('commands/pave.md'), /ExitPlanMode/);
+  assert.doesNotMatch(read('skills/pave/SKILL.md'), /\$pave:pave approve|\/pave:pave approve/);
+  assert.match(read('skills/pave/SKILL.md'), /request_user_input/);
+  assert.match(read('skills/pave/SKILL.md'), /ExitPlanMode/);
   const planning = read('skills/pave/references/planning.md');
   assert.match(planning, /already in plan mode.+ExitPlanMode/s);
   assert.match(planning, /Otherwise.+AskUserQuestion/s);
@@ -488,8 +475,6 @@ test('standard approval uses host selections or pending user responses instead o
 
 test('PAVE separates workflow evidence from host execution enforcement', () => {
   const skill = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
-  const routing = read('skills/pave/references/request-routing.md');
   const planning = read('skills/pave/references/planning.md');
   const review = read('skills/pave/references/review.md');
   const verification = read('skills/pave/references/verification.md');
@@ -498,7 +483,7 @@ test('PAVE separates workflow evidence from host execution enforcement', () => {
     fs.existsSync(path.join(repoRoot, 'scripts', 'workflow-guard.js')),
     false,
   );
-  for (const surface of [skill, command, routing, planning, review, verification]) {
+  for (const surface of [skill, planning, review, verification]) {
     assert.doesNotMatch(
       surface,
       /workflow-guard|route reset|boundary --verify|PAVE_BLOCKED|PreToolUse/,
@@ -555,7 +540,6 @@ test('project-init links existing documentation instead of duplicating it', () =
 test('user-visible work follows the resolved design system', () => {
   const designSystem = read('skills/pave/references/design-system.md');
   const pave = read('skills/pave/SKILL.md');
-  const command = read('commands/pave.md');
   const design = read('skills/pave/references/design.md');
   const review = read('skills/pave/references/review.md');
   const fastPath = read('skills/pave/references/fast-path.md');
@@ -569,7 +553,6 @@ test('user-visible work follows the resolved design system', () => {
   assert.match(designSystem, /do not start a second parallel system/);
 
   assert.match(pave, /references\/design-system\.md/);
-  assert.match(command, /skills\/pave\/references\/design-system\.md/);
   assert.match(design, /resolve the project's design system/);
   assert.match(review, /check design-system\s+compliance/);
   assert.match(fastPath, /Needing a new component, token, or variant/);
@@ -600,7 +583,10 @@ test('user-visible work follows the resolved design system', () => {
 });
 
 test('token-save remains an optional configured workflow', () => {
-  assert.match(read('commands/pave.md'), /If token-save is enabled/);
+  assert.match(
+    read('skills/pave/assets/repo-template/.claude/commands/pave.md'),
+    /If token-save is enabled/,
+  );
   assert.match(read('commands/token-save.md'), /Implementation Contract/);
   assert.match(
     read('skills/pave/assets/repo-template/.codex/pave/config.md'),
