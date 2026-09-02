@@ -119,7 +119,8 @@ workflows.
     and per-entry evidence paths.
 18. Fill the `Linked Sources` table of each doc that a discovered document
     owns, and leave it empty when nothing was discovered for that subject.
-19. Run `../../../scripts/doctor.js <repo>`.
+19. Confirm that the initialization helper completed its built-in runtime
+    validation.
 20. Report generated files, linked existing documentation, decision coverage,
     setup gaps, and verification commands.
 
@@ -258,7 +259,7 @@ all future feature decisions in advance.
 - No blank troubleshooting directory. Create one lazily only after a verified
   high-signal incident passes the durable knowledge promotion gate.
 - Linked-source entries pointing at the project's existing documentation.
-- Doctor result.
+- Initialization validation result.
 
 ## Blocked Conditions
 

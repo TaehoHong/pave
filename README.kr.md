@@ -87,13 +87,14 @@ canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시
 | --- | --- | --- |
 | 기본 워크플로 | `$pave:pave` | `/pave:pave` |
 | 선택적 프로젝트 runtime 초기화 | `$pave:project-init` | `/pave:project-init` |
-| 설치와 프로젝트 상태 점검 | `$pave:doctor` | `/pave:doctor` |
 | 프로젝트와 워크플로 상태 확인 | `$pave:status` | `/pave:status` |
 | source 수정 없는 계획 작성 | `$pave:plan` | `/pave:plan` |
-| source 수정 없는 검증 실행 | `$pave:verify` | `/pave:verify` |
 | 장기 프로젝트 문서 동기화 | `$pave:sync-docs` | `/pave:sync-docs` |
 | 일회성 저비용 워크플로 | `$pave:token-save` | `/pave:token-save` |
 | 단계별 시간과 토큰 통계 확인 | `$pave:usage` | 아직 지원하지 않음 |
+
+source 변경 없는 검증은 기본 PAVE 워크플로에 저장소의 선언된 검증 명령을
+실행해 달라고 요청합니다.
 
 ## 워크플로와 실행 권한의 책임
 
@@ -227,9 +228,6 @@ claude plugin list
 claude plugin uninstall pave@pave
 ```
 
-초기화된 프로젝트에서는 Codex의 `$pave:doctor` 또는 Claude Code의
-`/pave:doctor`로 repo-local runtime 상태를 확인합니다.
-
 ## Project Runtime 수동 설치
 
 passive 사용량 hook과 선택적 저장소 스크립트에 Node.js 18 이상이 필요합니다.
@@ -243,10 +241,9 @@ cd pave
 
 # 기존 파일을 덮어쓰지 않고 runtime과 starter docs 설치
 ./scripts/install.sh <repo-path>
-
-# 초기화된 프로젝트 점검
-node ./scripts/doctor.js <repo-path>
 ```
+
+설치 스크립트는 성공을 보고하기 전에 초기화된 runtime을 검증합니다.
 
 `--force`는 대상 파일을 검토한 뒤에만 사용합니다. 일치하는 runtime과
 문서 template을 덮어씁니다.

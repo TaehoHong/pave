@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
+const { collectFiles } = require('../scripts/init_repo.js');
 
 const repoRoot = path.resolve(__dirname, '..');
 const node = process.execPath;
@@ -42,12 +43,24 @@ function assertPluginScriptLinksResolve(rel) {
   }
 }
 
-test('init installs canonical role agents and doctor accepts the result', () => {
+function assertTreeInstalled(srcRoot, dstRoot) {
+  for (const sourceFile of collectFiles(srcRoot)) {
+    const relativePath = path.relative(srcRoot, sourceFile);
+    const installedFile = path.join(dstRoot, relativePath);
+    assert.equal(
+      fs.existsSync(installedFile) && fs.statSync(installedFile).isFile(),
+      true,
+      `${relativePath} should be installed`,
+    );
+  }
+}
+
+test('init installs and validates the complete runtime', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-init-test-'));
   const init = run([node, 'scripts/init_repo.js', tmp]);
 
   assert.equal(init.status, 0, init.stderr || init.stdout);
-  assert.match(init.stdout, /PAVE initialization complete/);
+  assert.match(init.stdout, /PAVE initialization complete and validated/);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '06-architecture.md')), true);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '07-codebase-guide.md')), true);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', 'troubleshooting')), false);
@@ -67,9 +80,9 @@ test('init installs canonical role agents and doctor accepts the result', () => 
     );
   }
 
-  const doctor = run([node, 'scripts/doctor.js', tmp]);
-  assert.equal(doctor.status, 0, doctor.stderr || doctor.stdout);
-  assert.match(doctor.stdout, /PAVE doctor passed/);
+  assertTreeInstalled(path.join(repoRoot, 'skills/pave/assets/repo-template'), tmp);
+  assertTreeInstalled(path.join(repoRoot, 'agents'), path.join(tmp, '.claude', 'agents'));
+  assertTreeInstalled(path.join(repoRoot, 'skills/pave/assets/docs-templates'), path.join(tmp, 'docs'));
 });
 
 test('marketplace manifests expose one synchronized plugin', () => {
@@ -147,10 +160,8 @@ test('project-init uses one canonical workflow reference', () => {
 test('command aliases remain discoverable and purpose-scoped', () => {
   const aliases = [
     'project-init',
-    'doctor',
     'status',
     'plan',
-    'verify',
     'sync-docs',
     'token-save',
   ];
@@ -165,13 +176,17 @@ test('command aliases remain discoverable and purpose-scoped', () => {
     assert.match(skill, /\.\.\/pave\/SKILL\.md/);
     assert.match(skill, new RegExp(`\\.\\.\\/\\.\\.\\/commands\\/${name}\\.md`));
   }
+
+  for (const name of ['doctor', 'verify']) {
+    assert.equal(fs.existsSync(path.join(repoRoot, 'skills', name, 'SKILL.md')), false);
+    assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), false);
+  }
 });
 
 test('plugin instruction files use resolvable script paths', () => {
   for (const instruction of [
     'skills/pave/SKILL.md',
     'skills/pave/references/project-init.md',
-    'commands/doctor.md',
   ]) {
     assertPluginScriptLinksResolve(instruction);
   }

@@ -24,8 +24,9 @@ next action.
 6. When `docs/07-codebase-guide.md` exists, report whether it has a committed
    revision and whether its recorded evidence paths have newer committed,
    staged, or unstaged changes. Do not inspect unrelated source.
-7. Report likely next commands, such as `/project-init`, `/plan`, `/verify`, or
-   `/sync-docs`.
+7. Report likely next commands, such as `/project-init`, `/plan`, or
+   `/sync-docs`, and recommend the default PAVE workflow when fresh
+   verification is needed.
 
 ## Output
 

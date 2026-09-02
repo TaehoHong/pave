@@ -90,13 +90,14 @@ canonical examples, and narrow verification without rereading unrelated code.
 | --- | --- | --- |
 | Default workflow | `$pave:pave` | `/pave:pave` |
 | Initialize optional project runtime | `$pave:project-init` | `/pave:project-init` |
-| Check installation and project health | `$pave:doctor` | `/pave:doctor` |
 | Show project and workflow status | `$pave:status` | `/pave:status` |
 | Create a plan without editing source | `$pave:plan` | `/pave:plan` |
-| Run verification without source edits | `$pave:verify` | `/pave:verify` |
 | Sync durable project documentation | `$pave:sync-docs` | `/pave:sync-docs` |
 | Use a one-off lower-cost workflow | `$pave:token-save` | `/pave:token-save` |
 | Show phase timing and token usage | `$pave:usage` | Not supported yet |
+
+For verification without source changes, ask the default PAVE workflow to run
+the repository's declared verification commands.
 
 ## Workflow and Execution Responsibilities
 
@@ -235,9 +236,6 @@ claude plugin list
 claude plugin uninstall pave@pave
 ```
 
-For an initialized project, run `$pave:doctor` in Codex or `/pave:doctor` in
-Claude Code before relying on the repo-local runtime.
-
 ## Manual Project Runtime Installation
 
 Node.js 18 or newer is required for passive usage hooks and the optional
@@ -253,10 +251,9 @@ cd pave
 
 # Install runtime and starter docs without overwriting existing files
 ./scripts/install.sh <repo-path>
-
-# Check the initialized project
-node ./scripts/doctor.js <repo-path>
 ```
+
+The installer validates the initialized runtime before reporting success.
 
 Use `--force` only after reviewing the target files; it overwrites matching
 runtime and documentation templates.

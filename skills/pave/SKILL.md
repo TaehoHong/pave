@@ -1,6 +1,6 @@
 ---
 name: pave
-description: Use when the agent is asked to initialize optional PAVE repo runtime files, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, check status, run doctor checks, plan without edits, continue an approved task, coordinate bounded specialist subagents, track plans in conversation or optional .codex/pave plans, run verification, or produce final and blocked development reports.
+description: Use when the agent is asked to initialize optional PAVE repo runtime files, implement a feature, fix a bug, modify functionality, analyze code, review changes, refactor, sync documentation, check status, plan without edits, continue an approved task, coordinate bounded specialist subagents, track plans in conversation or optional .codex/pave plans, run verification, or produce final and blocked development reports.
 ---
 
 # PAVE
@@ -141,8 +141,8 @@ Classify the request:
 - Obvious low-risk local edit: read `references/fast-path.md`,
   `references/testing.md`, and `references/verification.md`.
 - Project initialization or optional repo runtime setup: read `references/project-init.md`.
-- Doctor or status request: read `references/request-routing.md`, then report
-  health or state without editing files.
+- Status request: read `references/request-routing.md`, then report state
+  without editing files.
 - Plan-only request: read `references/design.md`, `references/testing.md`, and
   `references/planning.md`; stop before code or test edits.
 - Feature or behavior change: read `references/design.md`,
@@ -185,17 +185,14 @@ troubleshooting record.
 - Local source plugin install helper: `../../scripts/install_plugin.sh`
 - Optional repo runtime install: `../../scripts/install.sh <repo-path>`
 - Initialize a repo with JavaScript: `../../scripts/init_repo.js <repo-path>`
-- Check a repo: `../../scripts/doctor.js <repo-path>`
 - Re-sync templates: `../../scripts/sync_template.js <repo-path>`
 
 ## Commands
 
 - `/pave`: default workflow router.
 - `/project-init`: optional repo-local direction and runtime initialization.
-- `/doctor`: PAVE install, runtime, and docs health check.
 - `/status`: read-only project and PAVE state summary.
 - `/plan`: plan only; do not edit code or tests.
-- `/verify`: run verification only; do not modify source files.
 - `/sync-docs`: update project direction docs from evidence and user decisions.
 - `/token-save`: one-off token-conscious contract; normal use is token-save
   mode in `.codex/pave/config.md` plus `/pave`.

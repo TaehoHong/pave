@@ -69,16 +69,11 @@ Claude Code에서는 `/pave`로 요청합니다.
 - `templates/`: 계획서와 보고서 양식입니다.
 - `adapters/`: Codex, Claude Code, generic agent별 사용 안내입니다.
 
-## 설치 상태 확인
+## 저장소 상태 확인
 
-Codex에서 이렇게 요청하세요.
+읽기 전용 status 진입점을 사용합니다.
 
 ```text
-$pave:pave 이 repo의 PAVE 설치 상태 확인해줘
-```
-
-터미널 fallback은 PAVE 소스 repo에서 실행합니다.
-
-```bash
-./scripts/doctor.js <repo-path>
+$pave:status
+/pave:status
 ```

@@ -71,14 +71,9 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 
 ## Check This Repo
 
-In Codex, ask:
+Use the read-only status entrypoint:
 
 ```text
-$pave:pave check this PAVE installation
-```
-
-Terminal fallback, from the PAVE source repo:
-
-```bash
-./scripts/doctor.js <repo-path>
+$pave:status
+/pave:status
 ```

@@ -198,6 +198,12 @@ function copyTree(srcRoot, dstRoot, options) {
   return { created, skipped };
 }
 
+function findMissing(srcRoot, dstRoot) {
+  return collectFiles(srcRoot)
+    .map((src) => path.join(dstRoot, path.relative(srcRoot, src)))
+    .filter((dst) => !isFile(dst));
+}
+
 function run(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   const repo = options.repo;
@@ -240,7 +246,26 @@ function run(argv = process.argv.slice(2)) {
     console.log('link these from docs/ instead of duplicating them.');
   }
 
-  console.log(options.dryRun ? 'PAVE dry run complete.' : 'PAVE initialization complete.');
+  if (options.dryRun) {
+    console.log('PAVE dry run complete.');
+    return 0;
+  }
+
+  const missing = [
+    ...findMissing(repoTemplate, repo),
+    ...findMissing(agentsRoot, path.join(repo, '.claude', 'agents')),
+    ...(options.skipDocs ? [] : findMissing(docTemplates, path.join(repo, 'docs'))),
+  ];
+
+  if (missing.length > 0) {
+    console.error('PAVE initialization incomplete. Missing:');
+    for (const filePath of missing) {
+      console.error(`- ${path.relative(repo, filePath)}`);
+    }
+    return 1;
+  }
+
+  console.log('PAVE initialization complete and validated.');
   return 0;
 }
 

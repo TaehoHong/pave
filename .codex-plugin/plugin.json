@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "PAVE",
     "shortDescription": "Plan, approve, verify, and execute software work.",
-    "longDescription": "PAVE provides a plugin-local session workflow for feature work, bug fixes, reviews, documentation sync, doctor, status, plan, verify, sync-docs, optional project initialization, and bounded specialist subagent briefs.",
+    "longDescription": "PAVE provides a plugin-local session workflow for feature work, bug fixes, reviews, documentation sync, status, plan, optional project initialization, and bounded specialist subagent briefs.",
     "developerName": "TaehoHong",
     "category": "Developer Tools",
     "capabilities": [

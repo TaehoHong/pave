@@ -101,7 +101,7 @@ represents PAVE as a whole.
 | Cross-layer implementation | Vertical slicing and execution loop | End-to-end success, partial scaffolding, scope expansion |
 | Review and repair | Diff review and major-finding correction | Defects found, defects fixed, false-positive review findings |
 | Read-only requests | Plan, review, status, and verification routing | Analysis accuracy, unauthorized writes, unnecessary work |
-| Runtime lifecycle | Project initialization, sync, and doctor behavior | Idempotency, preservation, diagnosis accuracy, repo pollution |
+| Runtime lifecycle | Project initialization, validation, and sync behavior | Idempotency, preservation, validation accuracy, repo pollution |
 | Delegated work | Bounded specialist dispatch and integration | End-to-end success, conflicting edits, context and coordination cost |
 | Cost-saving mode | Token-save routing and bounded implementation | Quality retention, token and latency reduction, escalation accuracy |
 | Durable knowledge | Memory promotion and documentation routing | Promotion precision/recall, stale or duplicate documentation |
