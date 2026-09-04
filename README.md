@@ -9,8 +9,12 @@ installable plugin without adding files to your project. Optional project
 initialization can preserve long-lived product direction and engineering rules
 in the repository.
 
-PAVE is standalone: no companion plugin, hosted service, MCP server, or
-credentials are required.
+Users retain control of material decisions and change boundaries. Agents work
+autonomously within the approved contract. The standard lifecycle is Inspect →
+Plan → Approve → Execute → Verify → Report. The name identifies PAVE's four
+workflow commitments. The lifecycle defines their chronological order.
+
+The plugin supplies the complete workflow locally.
 
 한국어 문서: [README.kr.md](README.kr.md)
 
@@ -78,8 +82,8 @@ meaningful behavior, compares the actual diff with the approved contract, and
 requires fresh evidence for completion.
 When work touches a user-visible surface, PAVE resolves the project's design
 system from durable design policy, design token or component files, or the
-nearest canonical component, reuses its existing components and tokens instead
-of adding one-off styles, and raises every deviation as a user decision.
+nearest canonical component. It reuses existing components and tokens and
+raises every deviation as a user decision.
 When the optional runtime is initialized, PAVE reuses a freshness-checked
 `docs/07-codebase-guide.md` to find module owners, shared code, conventions,
 canonical examples, and narrow verification without rereading unrelated code.
@@ -99,17 +103,15 @@ the repository's declared verification commands.
 
 ## Workflow and Execution Responsibilities
 
-PAVE is a cooperative workflow: its skill defines investigation, an explicit
+PAVE is a cooperative workflow. Its skill defines investigation, an explicit
 Implementation Contract, user approval, scope-change reapproval, diff review,
-fresh verification, and reporting. It does not parse arbitrary commands or
-tool payloads to infer whether they are safe or mutating, and it does not claim
-that a successful approval UI call proves technical authority.
+fresh verification, and reporting. Host and repository controls determine
+technical execution authority.
 
 The host owns tool permissions, sandboxing, and file, network, or external
 system access. Repository and operational controls own CI, credentials,
-migrations, and deployment policy. If stronger enforcement is required, it
-belongs in those layers rather than in a language- or command-specific PAVE
-parser.
+migrations, and deployment policy. Stronger enforcement belongs in those
+layers.
 
 ## Durable Project Knowledge
 
@@ -143,9 +145,8 @@ On an existing repository, project initialization first inventories the
 documentation the project already has — other doc roots, `README`,
 `ARCHITECTURE`, ADRs, style guides, design tokens, and component libraries —
 and links each PAVE doc to the existing document that owns its subject through
-a `Linked Sources` table. The linked document stays the source of truth, so
-initialization narrows the interview instead of duplicating what is already
-written.
+a `Linked Sources` table. The linked document stays the source of truth.
+Initialization uses those sources to narrow the interview.
 
 The optional runtime can include:
 

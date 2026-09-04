@@ -8,8 +8,12 @@ PAVE는 코딩 에이전트가 중요한 결정을 먼저 확인하고, 승인�
 설치하면 프로젝트 파일을 만들지 않고 사용할 수 있습니다. 필요할 때만
 프로젝트 초기화를 실행해 오래 유지할 제품 방향과 개발 규칙을 저장합니다.
 
-PAVE는 독립적으로 동작하며 companion plugin, hosted service, MCP server,
-credential이 필요하지 않습니다.
+사용자는 중요한 결정과 변경 범위를 통제합니다. 에이전트는 승인된 계약
+안에서 자율적으로 작업합니다. 실제 순서는 조사 → 계획 → 승인 → 실행 → 검증 →
+보고입니다. PAVE라는 이름은 네 가지 워크플로 약속을 나타냅니다. 위 순서가
+각 단계의 시간 관계를 정의합니다.
+
+플러그인이 전체 워크플로를 로컬에서 제공합니다.
 
 English documentation: [README.md](README.md)
 
@@ -74,8 +78,8 @@ PAVE는 assistant 응답에 승인 제어용 marker를 넣지 않습니다. 버�
 계약과 비교하고 fresh evidence 없이는 완료를 주장하지 않습니다.
 사용자에게 보이는 화면을 바꾸는 작업에서는 durable 디자인 정책, design
 token·component 파일, 가장 가까운 canonical component 순서로 프로젝트
-디자인 시스템을 확정하고, 일회성 스타일을 추가하는 대신 기존 component와
-token을 재사용하며, 모든 이탈은 사용자 결정 사항으로 올립니다.
+디자인 시스템을 확정합니다. 기존 component와 token을 재사용합니다. 모든
+이탈은 사용자 결정 사항으로 올립니다.
 선택적 runtime이 초기화된 저장소에서는 신선도를 확인한
 `docs/07-codebase-guide.md`를 먼저 사용해 모듈 소유자, 공통 코드, 관례,
 canonical example, 좁은 검증 위치를 찾고 관련 없는 코드는 다시 읽지
@@ -96,15 +100,13 @@ source 변경 없는 검증은 기본 PAVE 워크플로에 저장소의 선언�
 
 ## 워크플로와 실행 권한의 책임
 
-PAVE는 협조적인 개발 워크플로입니다. skill은 조사, 명시적인 Implementation
+PAVE는 협조적인 개발 워크플로입니다. Skill은 조사, 명시적인 Implementation
 Contract, 사용자 승인, 범위 변경 재승인, diff 검토, fresh verification, 보고를
-정의합니다. 임의의 명령이나 도구 payload를 해석해 안전성과 변경 여부를 추론하지
-않으며, 승인 UI 호출 성공을 기술적 실행 권한의 증거라고 주장하지 않습니다.
+정의합니다. 기술적 실행 권한은 호스트와 저장소의 통제를 따릅니다.
 
 도구 권한, sandbox, 파일·네트워크·외부 시스템 접근은 호스트가 담당합니다. CI,
-credential, migration, deployment 정책은 저장소와 운영 환경이 담당합니다. 더
-강한 기술적 강제가 필요하면 특정 언어나 명령어를 추론하는 PAVE parser가 아니라
-해당 계층에 구현해야 합니다.
+credential, migration, deployment 정책은 저장소와 운영 환경이 담당합니다.
+강한 기술적 강제도 해당 계층에서 구현합니다.
 
 ## 장기 프로젝트 지식
 
@@ -136,8 +138,8 @@ Git은 상세 변경 이력을 담당하고, PAVE 문서는 앞으로 알아야 
 이미 진행 중인 저장소에서는 초기화가 먼저 기존 문서를 조사합니다. 다른 문서
 루트, `README`, `ARCHITECTURE`, ADR, 스타일 가이드, design token, 컴포넌트
 라이브러리를 찾아 각 주제를 소유한 기존 문서를 PAVE 문서의 `Linked Sources`
-표에 연결합니다. 연결된 문서가 계속 source of truth이므로, 이미 적혀 있는
-내용을 다시 만들지 않고 인터뷰 범위만 좁힙니다.
+표에 연결합니다. 연결된 문서가 계속 source of truth입니다. 초기화 과정은
+이 문서를 활용해 인터뷰 범위를 좁힙니다.
 
 선택적 runtime은 다음 파일을 만들 수 있습니다.
 
