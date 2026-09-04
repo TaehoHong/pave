@@ -55,8 +55,9 @@ function assertTreeInstalled(srcRoot, dstRoot) {
   }
 }
 
-test('init installs and validates the complete runtime', () => {
+test('init installs and validates the complete runtime', (t) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-init-test-'));
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
   const init = run([node, 'scripts/init_repo.js', tmp]);
 
   assert.equal(init.status, 0, init.stderr || init.stdout);
@@ -83,6 +84,26 @@ test('init installs and validates the complete runtime', () => {
   assertTreeInstalled(path.join(repoRoot, 'skills/pave/assets/repo-template'), tmp);
   assertTreeInstalled(path.join(repoRoot, 'agents'), path.join(tmp, '.claude', 'agents'));
   assertTreeInstalled(path.join(repoRoot, 'skills/pave/assets/docs-templates'), path.join(tmp, 'docs'));
+
+  const rerun = run([node, 'scripts/init_repo.js', tmp]);
+  assert.equal(rerun.status, 0, rerun.stderr || rerun.stdout);
+  assert.match(rerun.stdout, /PAVE initialization complete and validated/);
+});
+
+test('init does not validate an unrelated existing agent contract', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-existing-contract-test-'));
+  const agentsPath = path.join(tmp, 'AGENTS.md');
+  const existingContent = '# Existing repository instructions\n';
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+  fs.writeFileSync(agentsPath, existingContent);
+
+  const init = run([node, 'scripts/init_repo.js', tmp, '--skip-docs']);
+
+  assert.equal(init.status, 2, init.stderr || init.stdout);
+  assert.match(init.stdout, /skipped existing: .*AGENTS\.md/);
+  assert.doesNotMatch(init.stdout, /initialization complete and validated/);
+  assert.match(init.stderr, /Manual merge required:\s+- AGENTS\.md/);
+  assert.equal(fs.readFileSync(agentsPath, 'utf8'), existingContent);
 });
 
 test('marketplace manifests expose one synchronized plugin', () => {
@@ -238,6 +259,15 @@ test('command aliases remain discoverable and purpose-scoped', () => {
   for (const name of ['doctor', 'verify']) {
     assert.equal(fs.existsSync(path.join(repoRoot, 'skills', name, 'SKILL.md')), false);
     assert.equal(fs.existsSync(path.join(repoRoot, 'commands', `${name}.md`)), false);
+  }
+});
+
+test('plugin role briefs stay synchronized across host surfaces', () => {
+  for (const role of roles) {
+    const agent = read(`agents/${role}.md`).replace(/^---\n[\s\S]*?\n---\n+/, '');
+    const reference = read(`skills/pave/references/subagents/${role}.md`);
+
+    assert.equal(reference, agent, role);
   }
 });
 
@@ -550,7 +580,7 @@ test('PAVE separates workflow evidence from host execution enforcement', () => {
   assert.match(verification, /fresh evidence for every acceptance\s+criterion/);
 });
 
-test('project-init links existing documentation instead of duplicating it', () => {
+test('project-init links existing documentation instead of duplicating it', (t) => {
   const reference = read('skills/pave/references/project-init.md');
   const command = read('commands/project-init.md');
   const skill = read('skills/project-init/SKILL.md');
@@ -571,7 +601,9 @@ test('project-init links existing documentation instead of duplicating it', () =
   }
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-existing-docs-test-'));
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
   fs.mkdirSync(path.join(tmp, 'documentation'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'docs'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'apps', 'web', 'design'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'postmortems'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'node_modules', 'pkg', 'doc'), { recursive: true });
@@ -582,11 +614,17 @@ test('project-init links existing documentation instead of duplicating it', () =
 
   assert.equal(init.status, 0, init.stderr || init.stdout);
   assert.match(init.stdout, /existing documentation detected: documentation$/m);
+  assert.match(init.stdout, /existing PAVE documentation target detected: docs$/m);
+  assert.doesNotMatch(init.stdout, /existing documentation detected: docs$/m);
   assert.match(init.stdout, /existing documentation detected: README\.md$/m);
   assert.match(init.stdout, /existing documentation detected: apps\/web\/design$/m);
   assert.match(init.stdout, /existing documentation detected: postmortems$/m);
   assert.doesNotMatch(init.stdout, /node_modules/);
   assert.match(init.stdout, /link these from docs\/ instead of duplicating them\./);
+
+  const skipDocs = run([node, 'scripts/init_repo.js', tmp, '--dry-run', '--skip-docs']);
+  assert.equal(skipDocs.status, 0, skipDocs.stderr || skipDocs.stdout);
+  assert.doesNotMatch(skipDocs.stdout, /existing PAVE documentation target detected/);
 });
 
 test('user-visible work follows the resolved design system', () => {
@@ -654,6 +692,13 @@ test('the core plugin installs no token-save workflow', () => {
   }
 });
 
+test('the repo runtime does not advertise unsupported execution modes', () => {
+  const config = read('skills/pave/assets/repo-template/.codex/pave/config.md');
+
+  assert.doesNotMatch(config, /## Execution Modes|`go`|`batch`/);
+  assert.doesNotMatch(config, /run low-risk items automatically/);
+});
+
 test('the core plugin installs no passive usage telemetry', () => {
   for (const removedPath of [
     'hooks/hooks.json',
@@ -678,8 +723,9 @@ test('the core plugin installs no passive usage telemetry', () => {
   }
 });
 
-test('install dry-run never installs the plugin', () => {
+test('install dry-run never installs the plugin', (t) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-dry-run-test-'));
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
   const bin = path.join(tmp, 'bin');
   const log = path.join(tmp, 'codex.log');
   fs.mkdirSync(bin);

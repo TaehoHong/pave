@@ -59,6 +59,12 @@ const skippedScanDirs = new Set([
 ]);
 
 const maxScanDepth = 3;
+const requiredContractMarkers = new Map([
+  ['AGENTS.md', 'PAVE: Plan, Approve, Verify, Execute'],
+  ['CLAUDE.md', '# PAVE Agent Contract for Claude Code'],
+  ['.claude/commands/pave.md', 'PAVE: Plan, Approve, Verify, Execute'],
+  ['.codex/pave/config.md', '# PAVE Config'],
+]);
 
 function usage() {
   console.log(`Usage: init_repo.js <repo-path> [--force] [--dry-run] [--skip-docs]
@@ -204,6 +210,16 @@ function findMissing(srcRoot, dstRoot) {
     .filter((dst) => !isFile(dst));
 }
 
+function findUnverifiedContracts(repo, skipped) {
+  const skippedFiles = new Set(skipped);
+  return [...requiredContractMarkers]
+    .filter(([rel, marker]) => {
+      const filePath = path.join(repo, rel);
+      return skippedFiles.has(filePath) && !fs.readFileSync(filePath, 'utf8').includes(marker);
+    })
+    .map(([rel]) => rel);
+}
+
 function run(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   const repo = options.repo;
@@ -221,6 +237,11 @@ function run(argv = process.argv.slice(2)) {
   if (fs.existsSync(legacy) && !fs.existsSync(current)) {
     console.log('legacy harness detected: .codex/ai-dev-harness');
     console.log('PAVE will install .codex/pave without deleting legacy files.');
+  }
+
+  const docsTargetExists = !options.skipDocs && fs.existsSync(path.join(repo, 'docs'));
+  if (docsTargetExists) {
+    console.log('existing PAVE documentation target detected: docs');
   }
 
   const existingDocs = findExistingDocs(repo);
@@ -244,6 +265,13 @@ function run(argv = process.argv.slice(2)) {
 
   if (existingDocs.length > 0) {
     console.log('link these from docs/ instead of duplicating them.');
+  }
+
+  const unverifiedContracts = findUnverifiedContracts(repo, runtime.skipped);
+  if (unverifiedContracts.length > 0) {
+    console.error('PAVE initialization incomplete. Manual merge required:');
+    for (const rel of unverifiedContracts) console.error(`- ${rel}`);
+    return 2;
   }
 
   if (options.dryRun) {

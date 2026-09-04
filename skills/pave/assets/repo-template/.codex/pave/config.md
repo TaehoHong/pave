@@ -52,13 +52,6 @@
 - Docs sync: update docs only from verified repo evidence.
 - Continuation: resume from the newest relevant plan in `plans/`.
 
-## Execution Modes
-
-- `go`: run the next unchecked checklist item.
-- `batch`: run an approved phase or tier.
-- `fast`: run low-risk items automatically when verification is cheap.
-- `status`: summarize progress, blockers, and verification state.
-
 ## Subagents
 
 Allowed specialist briefs: product manager, planner, UI/UX designer,

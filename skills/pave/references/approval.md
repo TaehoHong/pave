@@ -21,7 +21,7 @@ Present one current contract containing:
   security boundaries, or user-visible changes;
 - fresh verification commands or checks and their expected results;
 - the remaining material blocking-decision count; and
-- the approval method and the contract the user approved.
+- the contract the user is being asked to approve.
 
 Before requesting approval, confirm that the surfaced boundary is complete and
 no material in-scope decision remains unknown or `recommended-unconfirmed`.
@@ -40,6 +40,10 @@ Ask once for consolidated approval immediately before implementation:
 - Claude Code: when already in plan mode, use `ExitPlanMode` for ordinary plan
   approval. Otherwise use `AskUserQuestion` with the `PAVE approve` header and
   `Implement` / `Revise plan` choices.
+
+Keep routine workflow mechanics internal. Do not narrate route selection,
+ineligible alternatives, unavailable workflow tooling, or fallback approval
+mechanisms unless they change the user's required action or explain a blocker.
 
 Do not require another PAVE command or place machine-readable approval markers
 in assistant text. Host UI state, plan telemetry, assistant text, and reference
