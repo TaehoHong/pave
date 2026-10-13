@@ -56,6 +56,13 @@ credentials, migrations, and deployment.
 Writing, modifying, or executing DDL or a database schema migration always
 requires distinct approval. Surface the exact target files, statements or
 migration operations, data and compatibility effects, and rollback approach.
+Show the complete proposed DDL in a `sql` code block, in the syntax of the
+target database, so the user can review the actual statements before approval.
+A prose summary or migration API description does not replace the DDL.
+Alongside it, explain every added or changed column: why it is needed and which
+feature, query, or processing flow uses it. For removed columns, explain their
+current use and why removal is safe. Keep these explanations tied to the
+table and column names in the DDL.
 Use Codex question ID `pave_ddl_approval`, or Claude Code header `PAVE DDL`,
 with `Implement with DDL` and `Revise plan` choices (`Implement with DDL
 (Recommended)` on Codex).

@@ -74,7 +74,10 @@ After the complete Implementation Contract is ready, PAVE uses the host's
 normal plan or choice UI when available; otherwise a direct reply that clearly
 authorizes that contract is enough. No second PAVE command is required. DDL
 uses a distinct choice only after PAVE has surfaced the exact DDL scope, impact,
-and rollback. Material changes to files, operations, risk, verification, or
+and rollback. Show the complete proposed DDL in a `sql` code block and explain
+why each added or changed column is needed and where it is used. For removed
+columns, explain their current use and why removal is safe.
+Material changes to files, operations, risk, verification, or
 observable behavior require renewed approval. PAVE never embeds
 approval-control markers in assistant text.
 PAVE also investigates root causes for bugs, adds tests only when they protect
