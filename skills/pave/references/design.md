@@ -4,6 +4,7 @@
 
 - [Purpose](#purpose)
 - [Steps](#steps)
+- [UML Design Views](#uml-design-views)
 - [Decision Triage](#decision-triage)
 - [Evidence Gate](#evidence-gate)
 - [Extensibility Gate](#extensibility-gate)
@@ -35,6 +36,8 @@ test edits.
    existing shared owner of each rule, files and symbols, data or control flow,
    error location, and verification strategy. Keep this proportional; a
    mechanical local change does not need a program-design ceremony.
+   Apply the UML Design Views guidance to make architecture and process flows
+   visible during logic design whenever it helps the user review them.
 7. For a user-visible surface, resolve the project's design system from durable
    design policy, repo design artifacts, or the nearest canonical component.
    Name that source and design against its existing components, tokens,
@@ -42,6 +45,28 @@ test edits.
 8. Remove speculative features and unrelated refactors.
 9. Get approval for the behavior and implementation boundary before code or
    test edits. A short design is enough for a small change.
+
+## UML Design Views
+
+Proactively use UML during logic design whenever a visual view helps explain
+architecture or a process; do not wait for the user to request a diagram.
+Show the relevant views alongside the design before implementation approval.
+
+| What the user needs to review | UML view |
+| --- | --- |
+| Module responsibilities, dependencies, and system boundaries | Component |
+| Calls, participants, ordering, and data exchanges | Sequence |
+| Processing steps, branches, parallel work, and failure paths | Activity |
+| Lifecycle states and allowed transitions | State |
+| Domain structures and relationships | Class |
+
+Choose the views needed to clarify the current logic and use concrete names
+from the design or repo. Include relevant failure paths and label proposed
+changes so they are distinguishable from existing behavior. Render diagrams
+with Mermaid where supported, or the repo's established UML tooling, and
+briefly explain the key relationships or decisions. Keep diagrams consistent
+with the current design when it changes. A diagram supplements the written
+contract and acceptance criteria; DDL review still requires the actual SQL.
 
 ## Decision Triage
 

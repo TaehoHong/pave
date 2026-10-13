@@ -83,6 +83,9 @@ approval-control markers in assistant text.
 PAVE also investigates root causes for bugs, adds tests only when they protect
 meaningful behavior, compares the actual diff with the approved contract, and
 requires fresh evidence for completion.
+During logic design, PAVE proactively uses UML when it helps explain the
+architecture or process: component, sequence, activity, state, or class views
+as appropriate. It shows these diagrams alongside the design before approval.
 When work touches a user-visible surface, PAVE resolves the project's design
 system from durable design policy, design token or component files, or the
 nearest canonical component. It reuses existing components and tokens and
