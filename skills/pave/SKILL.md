@@ -66,6 +66,15 @@ session harness for software development work.
     Promote only durable, evidence-backed project knowledge; never turn raw
     task history, unproven hypotheses, or reversible agent assumptions into
     canonical documentation.
+15. Temporary task documents may be created during work. Before completion,
+    delete temporary documents and intermediate artifacts created by the task
+    once no longer needed, and verify they are absent from Git changes and
+    the staging area before staging, committing, or reporting completion.
+    Preserve requested deliverables, durable knowledge, and pre-existing files.
+16. When drawing screens or doing design work, avoid unnecessary auxiliary
+    labels and explanatory copy. Make purpose and relationships apparent from
+    layout, grouping, and visual hierarchy; retain necessary control labels,
+    accessibility names, and decision-critical guidance.
 ## Dependency Policy
 
 - PAVE is standalone and does not invoke an external workflow plugin.

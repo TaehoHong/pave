@@ -30,6 +30,16 @@ Execute approved plan items in small verified increments.
 10. Mark the item complete in the plan only after fresh evidence.
 11. Summarize changed files, commands, result, and next item.
 
+## Task Completion Cleanup
+
+Before staging, committing, or reporting completion, remove task-created
+temporary plans, review notes, scripts, and intermediate verification artifacts
+that are no longer needed. Check both `git status --short` and
+`git diff --cached --name-only` so they do not enter a commit. Ignoring an
+artifact is not a substitute for removing it after use. Preserve requested
+deliverables, durable project knowledge, pre-existing files, and evidence still
+needed for unfinished work; do not delete a directory solely by its name.
+
 ## Blocked Conditions
 
 - No test or proportionate verification can prove the intended behavior.

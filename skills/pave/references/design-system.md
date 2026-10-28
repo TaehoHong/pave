@@ -42,6 +42,11 @@ system is a material user-owned decision.
 
 ## Compliance Rules
 
+- Avoid unnecessary auxiliary labels and explanatory copy in screen sketches,
+  mockups, and implemented UI. Convey purpose and relationships through layout,
+  grouping, alignment, spacing, and visual hierarchy before adding explanation.
+  Keep necessary control labels, accessible names, and guidance needed to make
+  a decision or recover from an error.
 - Reuse an existing component before creating a new one. Extend it at its
   shared owner instead of forking a near-duplicate.
 - Use existing tokens for color, spacing, typography, radius, border, shadow,
@@ -82,6 +87,8 @@ Confirm each item before claiming a user-visible change is complete:
 - no new hardcoded value duplicates an existing token;
 - required states and the accessibility baseline are covered;
 - responsive behavior uses the system's breakpoints;
+- layout and visual hierarchy communicate purpose and relationships without
+  redundant auxiliary labels or explanatory copy;
 - every deviation is recorded and user-confirmed;
 - visual verification evidence exists, or its absence is reported as residual
   risk.
