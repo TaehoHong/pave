@@ -152,7 +152,6 @@ Git은 상세 변경 이력을 담당하고, PAVE 문서는 앞으로 알아야 
 ```text
 repo/
 ├── AGENTS.md
-├── CLAUDE.md
 ├── .claude/
 ├── .codex/pave/
 │   ├── adapters/
@@ -170,6 +169,11 @@ repo/
     ├── 07-codebase-guide.md
     └── troubleshooting/       # 가치 있는 장애가 생길 때 지연 생성
 ```
+프로젝트 지시문은 Codex와 Claude Code 모두 `AGENTS.md`를 사용합니다.
+Claude Code는 AGENTS.md를 직접 읽는 버전(v2.1.277 이상)이 필요합니다.
+설치기는 `--force`에서도 기존 `CLAUDE.md`를 보존합니다. 고유 지침을
+`AGENTS.md`에 합친 뒤 기존 파일을 제거합니다.
+
 
 Codex와 Claude Code는 PAVE 공통 계약을 공유하지만 별도 runtime adapter를
 사용합니다. 모델 선택, reasoning effort, 권한, agent discovery는 각

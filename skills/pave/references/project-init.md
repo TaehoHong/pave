@@ -33,8 +33,13 @@ workflows.
 
 ## Steps
 
-1. Read the applicable root and nested `AGENTS.md` files, `CLAUDE.md` on
-   Claude Code, and `.codex/pave/config.md` when present, then inspect the
+Use `AGENTS.md` as the shared Codex and Claude Code project entrypoint.
+Do not generate a project `CLAUDE.md`. Read any existing legacy `CLAUDE.md`
+and preserve its unique instructions before an approved consolidation;
+the installer deliberately leaves existing legacy files untouched.
+
+1. Read the applicable root and nested `AGENTS.md` files and
+   `.codex/pave/config.md` when present, then inspect the
    project tree. If `.codex/pave/` is absent but
    `.codex/ai-dev-harness/` exists, treat the repo as legacy-compatible and
    offer migration before changing harness files.
@@ -42,7 +47,7 @@ workflows.
    deployment shape, existing docs, module boundaries, shared capabilities,
    canonical examples, and generated or excluded paths.
 3. Split the work into two phases:
-   - Runtime init: install or sync `AGENTS.md`, `CLAUDE.md`,
+   - Runtime init: install or sync `AGENTS.md`,
      `.codex/pave/`, `.claude/`, and adapter files from repo
      facts only.
    - Direction init: collect project-wide product direction, policy,
@@ -103,7 +108,7 @@ workflows.
 14. Present the interview summary, decision coverage, linked existing
    documentation, setup gaps, and exact previewed write set.
    Next, require approval before editing product docs, `AGENTS.md`,
-   `CLAUDE.md`, or PAVE runtime policy files.
+   or PAVE runtime policy files.
 15. After approval, apply the previewed runtime with
    `../../../scripts/install.sh <repo>`, or use the equivalent direct
    JavaScript helper. Include `--skip-docs` when direction docs were not
@@ -261,7 +266,7 @@ all future feature decisions in advance.
 
 ## Outputs
 
-- Root `AGENTS.md` and `CLAUDE.md`.
+- Root `AGENTS.md` shared by Codex and Claude Code.
 - Repo runtime under `.codex/pave/`.
 - Claude Code command and role agents under `.claude/`.
 - Initial project docs under `docs/`, including overview, roadmap,

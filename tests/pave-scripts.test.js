@@ -65,6 +65,7 @@ test('init installs and validates the complete runtime', (t) => {
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '06-architecture.md')), true);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', '07-codebase-guide.md')), true);
   assert.equal(fs.existsSync(path.join(tmp, 'docs', 'troubleshooting')), false);
+  assert.equal(fs.existsSync(path.join(tmp, 'CLAUDE.md')), false);
 
   for (const role of roles) {
     assert.equal(
@@ -88,6 +89,20 @@ test('init installs and validates the complete runtime', (t) => {
   const rerun = run([node, 'scripts/init_repo.js', tmp]);
   assert.equal(rerun.status, 0, rerun.stderr || rerun.stdout);
   assert.match(rerun.stdout, /PAVE initialization complete and validated/);
+});
+
+test('init preserves existing CLAUDE instructions even with force', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pave-legacy-claude-test-'));
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+  const legacy = path.join(tmp, 'CLAUDE.md');
+  const instructions = '# Existing instructions\nDo not discard the custom release approval rule.\n';
+  fs.writeFileSync(legacy, instructions);
+
+  const init = run([node, 'scripts/init_repo.js', tmp, '--force', '--skip-docs']);
+
+  assert.equal(init.status, 0, init.stderr || init.stdout);
+  assert.equal(fs.readFileSync(legacy, 'utf8'), instructions);
+  assert.equal(fs.existsSync(path.join(tmp, 'AGENTS.md')), true);
 });
 
 test('init does not validate an unrelated existing agent contract', (t) => {

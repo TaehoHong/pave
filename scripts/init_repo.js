@@ -61,7 +61,6 @@ const skippedScanDirs = new Set([
 const maxScanDepth = 3;
 const requiredContractMarkers = new Map([
   ['AGENTS.md', 'PAVE: Plan, Approve, Verify, Execute'],
-  ['CLAUDE.md', '# PAVE Agent Contract for Claude Code'],
   ['.claude/commands/pave.md', 'PAVE: Plan, Approve, Verify, Execute'],
   ['.codex/pave/config.md', '# PAVE Config'],
 ]);

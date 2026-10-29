@@ -7,7 +7,8 @@ Prevent success claims without fresh evidence.
 ## Steps
 
 1. Read declared commands from repo instructions when present, including
-   `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md`.
+   `AGENTS.md` and `.codex/pave/config.md`. For a legacy project, also read
+   existing `CLAUDE.md` instructions until their unique guidance is consolidated.
 2. Run the narrowest relevant command during item work.
 3. Run full declared verification before final success claims.
 4. If no repo instruction declares verification commands, infer the narrowest

@@ -7,7 +7,8 @@ is the Claude Code adapter surface for specialist discovery.
 
 ## Command Behavior
 
-1. Read `CLAUDE.md`, `AGENTS.md`, and `.codex/pave/config.md`.
+1. Read `AGENTS.md`, `.codex/pave/config.md`, and
+   `.codex/pave/adapters/claude-code.md`.
 2. Classify the request as project initialization, feature, bug, change,
    analysis, review, refactor, docs sync, continuation, or status.
 3. Scan the repo before asking questions or editing.

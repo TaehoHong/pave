@@ -2,8 +2,11 @@
 
 This repository uses PAVE: Plan, Approve, Verify, Execute.
 
-Use `$pave:pave` when available. The repo-local runtime lives under
-`.codex/pave/`.
+Use `$pave:pave` in Codex or `/pave` in Claude Code when available.
+The Claude Code command lives at `.claude/commands/pave.md`.
+The shared PAVE source of truth stays in `.codex/pave/`.
+In Claude Code, use `.claude/agents/` as the adapter copy for bounded PM,
+planning, UI/UX, fullstack, and QA subagent discovery.
 
 ## Orchestrator Contract
 
@@ -12,6 +15,7 @@ analysis, reviews, refactors, docs sync, and continuation:
 
 1. Read this file and `.codex/pave/config.md`.
    When running in Codex, also read `.codex/pave/adapters/codex.md`.
+   When running in Claude Code, also read `.codex/pave/adapters/claude-code.md`.
 2. For code work, read `docs/07-codebase-guide.md` before source discovery and
    apply the plugin's context retrieval protocol. Check only relevant guide
    entries for newer committed, staged, or unstaged evidence-path changes.

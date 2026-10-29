@@ -30,7 +30,8 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 
 ## Workflow
 
-1. The agent reads `AGENTS.md`, `CLAUDE.md`, and `.codex/pave/config.md`.
+1. Both agents read `AGENTS.md` and `.codex/pave/config.md`, then their matching
+   runtime adapter.
 2. The agent reads `docs/07-codebase-guide.md`, checks request-relevant
    evidence paths for staleness, and scans only the target code, direct
    dependencies, relevant tests, and canonical examples before expanding.
@@ -55,7 +56,7 @@ Plans and reports stay in `.codex/pave/` for both Codex and Claude Code.
 | Topic | Codex | Claude Code |
 | --- | --- | --- |
 | Command | `$pave:pave ...` | `/pave ...` |
-| First file | `AGENTS.md` | `CLAUDE.md`, then `AGENTS.md` |
+| First file | `AGENTS.md` | `AGENTS.md` |
 | Runtime path | `.codex/pave/` | `.codex/pave/` |
 | Role agents | PAVE skill references | `.claude/agents/` |
 

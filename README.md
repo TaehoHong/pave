@@ -159,7 +159,6 @@ The optional runtime can include:
 ```text
 repo/
 ├── AGENTS.md
-├── CLAUDE.md
 ├── .claude/
 ├── .codex/pave/
 │   ├── adapters/
@@ -178,8 +177,11 @@ repo/
     └── troubleshooting/       # created lazily after a qualifying incident
 ```
 
-Codex and Claude Code share the PAVE contract but use separate runtime
-adapters. Model choice, reasoning effort, permissions, and agent discovery
+Codex and Claude Code share `AGENTS.md` as their project instruction entrypoint
+but use separate runtime adapters. Claude Code must support native `AGENTS.md`
+loading (v2.1.277 or later). The installer leaves existing legacy `CLAUDE.md`
+files untouched, even with `--force`; preserve their unique guidance in
+`AGENTS.md` before removing them. Model choice, reasoning effort, permissions, and agent discovery
 remain native to each host.
 
 ## Update

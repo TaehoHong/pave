@@ -19,8 +19,10 @@ session harness for software development work.
    Never derive a `Skill` call such as `pave:execution-loop` or retry the
    already-loaded entrypoint as `pave`.
 2. Read repo instructions when present: root `AGENTS.md`, nested `AGENTS.md`
-   files that apply to touched paths, `CLAUDE.md` for Claude Code, then
-   `.codex/pave/config.md` when present.
+   files that apply to touched paths, then `.codex/pave/config.md` when present.
+   New project runtimes use `AGENTS.md` for both Codex and Claude Code.
+   If a legacy `CLAUDE.md` exists, read it and preserve its unique guidance
+   before consolidating it into `AGENTS.md`; never discard it automatically.
    For code work, read `docs/07-codebase-guide.md` when present and follow
    `references/context-retrieval.md` before source discovery.
 3. If `.codex/pave/` is missing, continue in plugin-only mode. Do not create repo-local runtime files unless the user runs `/project-init` or explicitly asks for durable repo-local PAVE files.

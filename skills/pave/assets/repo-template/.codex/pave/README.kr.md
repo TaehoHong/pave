@@ -30,7 +30,7 @@ Claude Code에서는 `/pave`로 요청합니다.
 
 ## 작업 흐름
 
-1. AI가 `AGENTS.md`, `CLAUDE.md`, `.codex/pave/config.md`를 읽습니다.
+1. 두 AI 모두 `AGENTS.md`와 `.codex/pave/config.md`를 읽고 각자의 runtime adapter를 읽습니다.
 2. `docs/07-codebase-guide.md`를 먼저 읽고 요청 관련 evidence path의
    신선도를 확인한 뒤, 대상 코드·직접 의존 코드·관련 테스트·canonical
    example만 조사합니다. 소유권이 없거나 오래됐거나 충돌할 때만 범위를
@@ -55,7 +55,7 @@ Claude Code에서는 `/pave`로 요청합니다.
 | 항목 | Codex | Claude Code |
 | --- | --- | --- |
 | 호출 | `$pave:pave ...` | `/pave ...` |
-| 먼저 보는 파일 | `AGENTS.md` | `CLAUDE.md`, 그 다음 `AGENTS.md` |
+| 먼저 보는 파일 | `AGENTS.md` | `AGENTS.md` |
 | runtime 위치 | `.codex/pave/` | `.codex/pave/` |
 | 역할별 보조 에이전트 | PAVE skill references | `.claude/agents/` |
 
